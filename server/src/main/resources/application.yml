@@ -1,7 +1,27 @@
 spring:
-  application:
-    name: youtube-agent
+    application:
+        name: youtube-agent
+    config:
+        import: optional:file:.env/.env-${spring.profiles.active:local}[.properties]
+
+ai:
+    fallback-order: groq, gemini, huggingface, ollama
 
 ollama:
-  base-url: http://localhost:11434
-  model: qwen3:4b
+    base-url: http://localhost:11434
+    model: qwen3:4b
+
+groq:
+    api-key:  ${GROQ_API_KEY:}
+    base-url: https://api.groq.com/openai/v1
+    model: llama-3.3-70b-versatile
+
+gemini:
+    api-key:  ${GEMINI_API_KEY:}
+    base-url: https://generativelanguage.googleapis.com
+    model: gemini-flash-latest
+
+huggingface:
+    api-key: ${HUGGINGFACE_API_KEY:}
+    base-url: https://api-inference.huggingface.co
+    model: mistralai/Mistral-7B-Instruct-v0.1 

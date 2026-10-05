@@ -8,5 +8,60 @@
     "name": "ollama.model",
     "type": "java.lang.String",
     "description": "A description for 'ollama.model'"
+  },
+  {
+    "name": "ai.provider",
+    "type": "java.lang.String",
+    "description": "A description for 'ai.provider'"
+  },
+  {
+    "name": "groq.api-key",
+    "type": "java.lang.String",
+    "description": "A description for 'groq.api-key'"
+  },
+  {
+    "name": "gemini.api-key",
+    "type": "java.lang.String",
+    "description": "A description for 'gemini.api-key'"
+  },
+  {
+    "name": "groq.model",
+    "type": "java.lang.String",
+    "description": "A description for 'groq.model'"
+  },
+  {
+    "name": "groq.base-url",
+    "type": "java.lang.String",
+    "description": "A description for 'groq.base-url'"
+  },
+  {
+    "name": "gemini.base-url",
+    "type": "java.lang.String",
+    "description": "A description for 'gemini.base-url'"
+  },
+  {
+    "name": "gemini.model",
+    "type": "java.lang.String",
+    "description": "A description for 'gemini.model'"
+  },
+  {
+    "name": "ai.fallback-order",
+    "type": "java.lang.String",
+    "description": "A description for 'ai.fallback-order'"
+  },
+  {
+    "name": "huggingface.api-key",
+    "type": "java.lang.String",
+    "description": "A description for 'huggingface.api-key'"
+  },
+  {
+    "name": "huggingface.model",
+    "type": "java.lang.String",
+    "description": "A description for 'huggingface.model'"
+  },
+  {
+    "name": "huggingface.base-url",
+    "type": "java.lang.String",
+    "description": "A description for 'huggingface.base-url'"
   }
 ]}

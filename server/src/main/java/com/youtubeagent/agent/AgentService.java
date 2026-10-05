@@ -65,6 +65,10 @@ public class AgentService {
             response = executeToolAndContinue(message, prompt, response);
         }
 
+        if ("final_answer".equals(response.type())) {
+            return response;
+        }
+
         throw new IllegalStateException("Agent exceeded maximum iterations: " + MAX_ITERATIONS);
     }
 
@@ -72,10 +76,14 @@ public class AgentService {
         try {
             return objectMapper.readValue(response, AgentResponse.class);
         } catch (JacksonException e) {
-            throw new IllegalStateException(
-                    "LLM returned invalid agent JSON: " + response,
-                    e);
+            throw new IllegalStateException("LLM returned invalid agent JSON: " + response, e);
         }
+    }
+
+    private String extractJson(String raw) {
+        int start = raw.indexOf('{');
+        int end = raw.lastIndexOf('}');
+        return (start >= 0 && end > start) ? raw.substring(start, end + 1) : raw;
     }
 
     private String describeTools() {
@@ -91,8 +99,7 @@ public class AgentService {
                 .stream()
                 .filter(t -> t.getName().equals(toolCall.tool()))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "Unknown tool: " + toolCall.tool()));
+                .orElseThrow(() -> new IllegalArgumentException("Unknown tool: " + toolCall.tool()));
 
         Map<String, Object> arguments = toolCall.arguments() != null ? toolCall.arguments() : Map.of();
         Object result = tool.execute(arguments);
