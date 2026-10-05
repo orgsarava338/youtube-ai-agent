@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: youtube-agent
+
+ollama:
+  base-url: http://localhost:11434
+  model: qwen3:4b
