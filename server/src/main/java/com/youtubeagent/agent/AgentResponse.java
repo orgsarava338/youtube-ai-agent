@@ -6,6 +6,5 @@ public record AgentResponse(
         String type,
         String tool,
         Map<String, Object> arguments,
-        String content
-) {
+        String content) {
 }

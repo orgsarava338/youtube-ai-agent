@@ -24,8 +24,7 @@ public class OllamaClient implements LLMClient {
         OllamaGenerateRequest request = new OllamaGenerateRequest(
                 properties.model(),
                 prompt,
-                false
-        );
+                false);
 
         OllamaGenerateResponse response = restClient.post()
                 .uri("/api/generate")
@@ -43,12 +42,10 @@ public class OllamaClient implements LLMClient {
     private record OllamaGenerateRequest(
             String model,
             String prompt,
-            boolean stream
-    ) {
+            boolean stream) {
     }
 
     private record OllamaGenerateResponse(
-            String response
-    ) {
+            String response) {
     }
 }
