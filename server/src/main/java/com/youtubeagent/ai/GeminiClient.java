@@ -5,11 +5,12 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.youtubeagent.config.GeminiProperties;
 
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
-@Service
-public class GeminiClient implements LLMClient {
+@Service("gemini")
+public class GeminiClient implements LLMProvider {
 
     private final RestClient restClient;
     private final GeminiProperties properties;
@@ -28,9 +29,10 @@ public class GeminiClient implements LLMClient {
         GeminiRequest request = new GeminiRequest(
                 List.of(new Content(List.of(new Part(prompt)))),
                 new GenerationConfig("application/json"));
-
+        
         GeminiResponse response = restClient.post()
                 .uri("/v1beta/models/{model}:generateContent", properties.model())
+                .contentType(MediaType.APPLICATION_JSON)
                 .body(request)
                 .retrieve()
                 .body(GeminiResponse.class);

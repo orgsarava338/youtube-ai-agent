@@ -1,6 +1,9 @@
 package com.youtubeagent.api;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,5 +23,16 @@ public class AgentController {
     public ChatResponse chat(@Valid @RequestBody ChatRequest request) {
         com.youtubeagent.agent.AgentResponse agentResponse = agentService.chat(request.message());
         return new ChatResponse(agentResponse.type(), agentResponse.content());
+    }
+
+    private record ChatRequest(
+        @NotBlank(message = "Message is required")
+        @Size(min = 1, max = 20000, message = "Message must be between 1 and 20000 characters")
+        String message) {
+    }
+
+    public record ChatResponse(
+        String type,
+        String content) {
     }
 }

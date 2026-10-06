@@ -1,75 +1,75 @@
 package com.youtubeagent.ai;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.youtubeagent.config.OpenRouterProperties;
+
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.youtubeagent.config.GroqProperties;
-
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
-@Service("groq")
-public class GroqClient implements LLMProvider {
+@Service("openrouter")
+public class OpenRouterClient implements LLMProvider {
 
     private final RestClient restClient;
-    private final GroqProperties properties;
+    private final OpenRouterProperties properties;
 
-    public GroqClient(GroqProperties properties) {
+    public OpenRouterClient(OpenRouterProperties properties) {
         this.properties = properties;
         this.restClient = RestClient.builder()
                 .baseUrl(properties.baseUrl())
                 .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + properties.apiKey())
+                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .build();
     }
 
     @Override
     public String generate(String prompt) {
 
-        GroqChatRequest request = new GroqChatRequest(
+        OpenRouterRequest request = new OpenRouterRequest(
                 properties.model(),
                 List.of(new Message("user", prompt)),
-                new ResponseFormat("json_object"));
+                false);
 
-        GroqChatResponse response = restClient.post()
-                .uri("/chat/completions")
+        OpenRouterResponse response = restClient.post()
+                .uri("/v1/chat/completions")
                 .body(request)
                 .retrieve()
-                .body(GroqChatResponse.class);
+                .body(OpenRouterResponse.class);
 
         if (response == null
                 || response.choices() == null
                 || response.choices().isEmpty()
                 || response.choices().get(0).message() == null
-                || response.choices().get(0).message().content() == null) {
-            throw new IllegalStateException("Groq returned an empty response");
+                || response.choices().get(0).message().content() == null
+                || response.choices().get(0).message().content().isBlank()) {
+            throw new IllegalStateException("OpenRouter returned an empty response");
         }
 
         return response.choices().get(0).message().content();
     }
 
-    private record GroqChatRequest(
+    private record OpenRouterRequest(
             String model,
             List<Message> messages,
-            @JsonProperty("response_format") ResponseFormat responseFormat) {
-    }
-
-    private record ResponseFormat(String type) {
-    }
-
-    private record Message(
-            String role,
-            String content) {
+            boolean stream) {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    private record GroqChatResponse(
+    private record OpenRouterResponse(
             List<Choice> choices) {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     private record Choice(
             Message message) {
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    private record Message(
+            String role,
+            String content) {
     }
 }

@@ -18,14 +18,7 @@ public class FallbackLLMClient implements LLMClient {
 
     private final List<NamedClient> clients = new ArrayList<>();
 
-    public FallbackLLMClient(AiProperties properties, GroqClient groq, GeminiClient gemini,
-                            HuggingFaceClient huggingface, OllamaClient ollama) {
-        Map<String, LLMClient> available = Map.of(
-                "groq", groq,
-                "gemini", gemini,
-                "huggingface", huggingface,
-                "ollama", ollama);
-
+    public FallbackLLMClient(AiProperties properties, Map<String, LLMProvider> available) {
         for (String raw : properties.fallbackOrder()) {
             String name = raw.trim().toLowerCase();
             if (name.isEmpty()) {

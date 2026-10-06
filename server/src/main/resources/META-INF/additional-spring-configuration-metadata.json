@@ -63,5 +63,35 @@
     "name": "huggingface.base-url",
     "type": "java.lang.String",
     "description": "A description for 'huggingface.base-url'"
+  },
+  {
+    "name": "openai.api-key",
+    "type": "java.lang.String",
+    "description": "A description for 'openai.api-key'"
+  },
+  {
+    "name": "openai.base-url",
+    "type": "java.lang.String",
+    "description": "A description for 'openai.base-url'"
+  },
+  {
+    "name": "openai.model",
+    "type": "java.lang.String",
+    "description": "A description for 'openai.model'"
+  },
+  {
+    "name": "openrouter.api-key",
+    "type": "java.lang.String",
+    "description": "A description for 'openrouter.api-key'"
+  },
+  {
+    "name": "openrouter.base-url",
+    "type": "java.lang.String",
+    "description": "A description for 'openrouter.base-url'"
+  },
+  {
+    "name": "openrouter.model",
+    "type": "java.lang.String",
+    "description": "A description for 'openrouter.model'"
   }
 ]}

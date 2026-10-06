@@ -3,11 +3,15 @@ package com.youtubeagent.ai;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.youtubeagent.config.HuggingFaceProperties;
 
+import java.util.List;
+
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
-@Service
-public class HuggingFaceClient implements LLMClient {
+@Service("huggingface")
+public class HuggingFaceClient implements LLMProvider {
 
     private final RestClient restClient;
     private final HuggingFaceProperties properties;
@@ -15,37 +19,57 @@ public class HuggingFaceClient implements LLMClient {
     public HuggingFaceClient(HuggingFaceProperties properties) {
         this.properties = properties;
         this.restClient = RestClient.builder()
-                .baseUrl(properties.baseUrl())
-                .defaultHeader("Authorization", "Bearer " + properties.apiKey())
+                .baseUrl(properties.baseUrl()) // https://router.huggingface.co
+                .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + properties.apiKey())
+                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .build();
     }
 
     @Override
     public String generate(String prompt) {
 
-        HuggingFaceRequest request = new HuggingFaceRequest(prompt);
+        HuggingFaceRequest request = new HuggingFaceRequest(
+                properties.model(),
+                List.of(new Message("user", prompt)),
+                false);
 
         HuggingFaceResponse response = restClient.post()
-                .uri("/models/{model}", properties.model())
+                .uri("/v1/chat/completions")
                 .body(request)
                 .retrieve()
                 .body(HuggingFaceResponse.class);
 
         if (response == null
-                || response.generatedText() == null
-                || response.generatedText().isEmpty()) {
+                || response.choices() == null
+                || response.choices().isEmpty()
+                || response.choices().get(0).message() == null
+                || response.choices().get(0).message().content() == null
+                || response.choices().get(0).message().content().isBlank()) {
             throw new IllegalStateException("HuggingFace returned an empty response");
         }
 
-        return response.generatedText();
+        return response.choices().get(0).message().content();
     }
 
     private record HuggingFaceRequest(
-            String inputs) {
+            String model,
+            List<Message> messages,
+            boolean stream) {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     private record HuggingFaceResponse(
-            String generatedText) {
+            List<Choice> choices) {
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    private record Choice(
+            Message message) {
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    private record Message(
+            String role,
+            String content) {
     }
 }

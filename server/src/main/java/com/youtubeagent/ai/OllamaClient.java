@@ -5,8 +5,8 @@ import com.youtubeagent.config.OllamaProperties;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
-@Service
-public class OllamaClient implements LLMClient {
+@Service("ollama")
+public class OllamaClient implements LLMProvider {
 
     private final RestClient restClient;
     private final OllamaProperties properties;

@@ -2,10 +2,8 @@ spring:
     application:
         name: youtube-agent
     config:
-        import: optional:file:.env/.env-${spring.profiles.active:local}[.properties]
+        import: optional:file:.env/.env.${spring.profiles.active:local}[.properties]
 
-ai:
-    fallback-order: groq, gemini, huggingface, ollama
 
 management:
     endpoints:
@@ -16,21 +14,34 @@ management:
         health:
             show-details: when-authorized
 
+ai:
+    fallback-order: openrouter # groq, gemini, huggingface, openai #, ollama
+
 ollama:
     base-url: http://localhost:11434
     model: qwen3:4b
 
 groq:
-    api-key: ${GROQ_API_KEY:}
+    api-key: ${AI_GROQ_API_KEY}
     base-url: https://api.groq.com/openai/v1
     model: llama-3.3-70b-versatile
 
 gemini:
-    api-key: ${GEMINI_API_KEY:}
+    api-key: ${AI_GEMINI_API_KEY}
     base-url: https://generativelanguage.googleapis.com
-    model: gemini-flash-latest
+    model: gemini-3.8-flash
 
 huggingface:
-    api-key: ${HUGGINGFACE_API_KEY:}
-    base-url: https://api-inference.huggingface.co
-    model: mistralai/Mistral-7B-Instruct-v0.1
+    api-key: ${AI_HUGGINGFACE_API_KEY}
+    base-url: https://router.huggingface.co
+    model: openai/gpt-oss-120b:fastest
+
+openai:
+    api-key: ${AI_OPENAI_API_KEY}
+    base-url: https://api.openai.com
+    model: gpt-4o-mini
+
+openrouter:
+    api-key: ${AI_OPENROUTER_API_KEY}
+    base-url: https://openrouter.ai/api
+    model: meta-llama/llama-3.3-70b-instruct
