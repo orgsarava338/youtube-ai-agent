@@ -1,43 +1,44 @@
 package com.youtubeagent.ai.provider;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.youtubeagent.ai.core.LLMMessage;
-import com.youtubeagent.ai.core.LLMRequest;
-import com.youtubeagent.ai.core.LLMResponse;
-import com.youtubeagent.config.OpenRouterProperties;
+import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.youtubeagent.ai.core.LLMMessage;
+import com.youtubeagent.ai.core.LLMRequest;
+import com.youtubeagent.ai.core.LLMResponse;
+import com.youtubeagent.config.BytezProperties;
 
-@Service("openrouter")
-public class OpenRouterProvider implements LLMProvider {
+@Service("bytez")
+public class BytezProvider implements LLMProvider {
 
     private final RestClient restClient;
 
-    public OpenRouterProvider(OpenRouterProperties properties) {
+    public BytezProvider(BytezProperties properties) {
         this.restClient = RestClient.builder()
                 .baseUrl(properties.baseUrl())
                 .defaultHeader("Authorization", "Bearer " + properties.apiKey())
+                .defaultHeader("provider-key", getProviderId())
                 .build();
     }
 
     @Override
     public String getProviderId() {
-        return "openrouter";
+        return "bytez";
     }
 
     @Override
     public LLMResponse generate(LLMRequest request) {
-        OpenRouterRequest requestBody = new OpenRouterRequest(request.model(), request.messages(), false);
+        BytezRequest requestBody = new BytezRequest(request.model(), request.messages(), false);
 
-        OpenRouterResponse response = restClient.post()
+        BytezResponse response = restClient.post()
                 .uri("/v1/chat/completions")
                 .header("Content-Type", "application/json")
                 .body(requestBody)
                 .retrieve()
-                .body(OpenRouterResponse.class);
+                .body(BytezResponse.class);
 
         if (response == null
                 || response.choices() == null
@@ -45,7 +46,7 @@ public class OpenRouterProvider implements LLMProvider {
                 || response.choices().get(0).message() == null
                 || response.choices().get(0).message().content() == null
                 || response.choices().get(0).message().content().isBlank()) {
-            throw new IllegalStateException("OpenRouter returned an empty response");
+            throw new IllegalStateException("Bytez returned an empty response");
         }
 
         String content = response
@@ -60,14 +61,14 @@ public class OpenRouterProvider implements LLMProvider {
                 request.model());
     }
 
-    private record OpenRouterRequest(
+    private record BytezRequest(
             String model,
             List<LLMMessage> messages,
             boolean stream) {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    private record OpenRouterResponse(
+    private record BytezResponse(
             List<Choice> choices) {
     }
 
@@ -75,4 +76,5 @@ public class OpenRouterProvider implements LLMProvider {
     private record Choice(
             LLMMessage message) {
     }
+
 }

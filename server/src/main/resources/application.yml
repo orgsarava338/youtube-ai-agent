@@ -23,27 +23,26 @@ ai:
         groq:
             api-key: ${AI_GROQ_API_KEY}
             base-url: https://api.groq.com/openai/v1
-            model: llama-3.3-70b-versatile
 
         gemini:
             api-key: ${AI_GEMINI_API_KEY}
             base-url: https://generativelanguage.googleapis.com
-            model: gemini-3.8-flash
 
         huggingface:
             api-key: ${AI_HUGGINGFACE_API_KEY}
             base-url: https://router.huggingface.co
-            model: openai/gpt-oss-120b:fastest
 
         openai:
             api-key: ${AI_OPENAI_API_KEY}
             base-url: https://api.openai.com
-            model: gpt-4o-mini
 
         openrouter:
             api-key: ${AI_OPENROUTER_API_KEY}
             base-url: https://openrouter.ai/api
-            # model: meta-llama/llama-3.3-70b-instruct
+        
+        bytez:
+            api-key: ${AI_BYTEZ_API_KEY}
+            base-url: https://api.bytez.com
 
     models:
 
