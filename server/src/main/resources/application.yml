@@ -15,8 +15,6 @@ management:
             show-details: when-authorized
 
 ai:
-    fallback-order: openrouter
-
     providers:
         ollama:
             base-url: http://localhost:11434

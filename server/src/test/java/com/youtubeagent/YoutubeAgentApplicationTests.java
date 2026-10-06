@@ -1,4 +1,4 @@
-package com.youtubeagent.youtube_agent;
+package com.youtubeagent;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
