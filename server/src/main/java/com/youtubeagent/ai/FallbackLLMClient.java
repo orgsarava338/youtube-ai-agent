@@ -39,7 +39,7 @@ public class FallbackLLMClient implements LLMClient {
             throw new IllegalStateException("ai.fallback-order must contain at least one provider");
         }
 
-        log.info("LLM fallback order: {}", clients.stream().map(NamedClient::name).toList());
+        log.info("LLM fallback order: {}", clients.stream().map(client -> client.name()).toList());
     }
 
     @Override
