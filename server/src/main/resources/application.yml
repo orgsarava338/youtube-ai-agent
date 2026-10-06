@@ -43,6 +43,10 @@ ai:
         bytez:
             api-key: ${AI_BYTEZ_API_KEY}
             base-url: https://api.bytez.com
+        
+        nvidia:
+            api-key: ${AI_NVIDIA_API_KEY}
+            base-url: https://integrate.api.nvidia.com
 
     models:
 
@@ -50,25 +54,25 @@ ai:
         - id: meta-llama/llama-3.3-70b-instruct
           provider: openrouter
           free: true
-          priority: 10
+          priority: 1
           capabilities:
               - CHAT
               - JSON
               - TOOL_CALLING
 
-        - id: meta-llama/llama-3.3-70b-instruct:free
+        - id: google/gemma-3-27b-it
           provider: openrouter
           free: true
-          priority: 10
+          priority: 2
           capabilities:
               - CHAT
               - JSON
-              - TOOL_CALLING
 
-        - id: google/gemma-3-27b-it:free
-          provider: openrouter
+        - id: deepseek-ai/deepseek-v4.1-flash
+          provider: nvidia
           free: true
-          priority: 20
+          priority: 3
           capabilities:
-              - CHAT
-              - JSON
+          - CHAT
+          - JSON
+          - TOOL_CALLING
