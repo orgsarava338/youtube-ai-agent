@@ -3,10 +3,8 @@ package com.youtubeagent.agent;
 import com.youtubeagent.ai.core.LLMMessage;
 import com.youtubeagent.ai.core.LLMRequest;
 import com.youtubeagent.ai.core.LLMResponse;
-import com.youtubeagent.ai.model.ModelDefinition;
 import com.youtubeagent.ai.model.ModelRequirements;
-import com.youtubeagent.ai.provider.LLMProvider;
-import com.youtubeagent.ai.routing.ModelSelector;
+import com.youtubeagent.ai.routing.LLMRouter;
 import lombok.extern.slf4j.Slf4j;
 import tools.jackson.databind.ObjectMapper;
 
@@ -23,15 +21,12 @@ public class AgentService {
 
     private static final int MAX_ITERATIONS = 5;
 
-    private final ModelSelector modelSelector;
-    private final List<LLMProvider> providers;
+    private final LLMRouter llmRouter;
     private final ToolRegistry toolRegistry;
     private final ObjectMapper objectMapper;
 
-    public AgentService(ModelSelector modelSelector, List<LLMProvider> providers, ToolRegistry toolRegistry,
-            ObjectMapper objectMapper) {
-        this.modelSelector = modelSelector;
-        this.providers = providers;
+    public AgentService(LLMRouter llmRouter, ToolRegistry toolRegistry, ObjectMapper objectMapper) {
+        this.llmRouter = llmRouter;
         this.toolRegistry = toolRegistry;
         this.objectMapper = objectMapper;
     }
@@ -43,31 +38,12 @@ public class AgentService {
         messages.add(new LLMMessage("system", buildSystemPrompt()));
         messages.add(new LLMMessage("user", userMessage));
 
-        ModelRequirements requirements = new ModelRequirements(true, Set.of());
-        List<ModelDefinition> models = modelSelector.select(requirements);
-
-        if (models.isEmpty()) {
-            throw new IllegalStateException("No suitable AI models available");
-        }
-
-        ModelDefinition selectedModel = models.getFirst();
-
-        LLMProvider provider = providers.stream()
-                .filter(p -> p.getProviderId()
-                        .equalsIgnoreCase(
-                                selectedModel.provider()))
-                .findFirst()
-                .orElseThrow(() -> new IllegalStateException("No provider found for: " + selectedModel.provider()));
-
         for (int iteration = 0; iteration < MAX_ITERATIONS; iteration++) {
+            log.info("Agent iteration: {}", iteration + 1);
 
-            log.info("Agent iteration {} using provider={} model={}",
-                    iteration + 1,
-                    provider.getProviderId(),
-                    selectedModel.id());
-
-            LLMRequest request = new LLMRequest(selectedModel.id(), List.copyOf(messages));
-            LLMResponse response = provider.generate(request);
+            ModelRequirements requirements = new ModelRequirements(true, Set.of());
+            LLMRequest request = new LLMRequest(null, List.copyOf(messages));
+            LLMResponse response = llmRouter.generate(request, requirements);
 
             messages.add(new LLMMessage("assistant", response.content()));
 
@@ -80,7 +56,7 @@ public class AgentService {
             if ("tool_calls".equals(agentResponse.type())) {
                 for (AgentResponse.ToolCall call : agentResponse.calls()) {
                     String toolResult = executeTool(call);
-                    messages.add(new LLMMessage("user", buildTooResultMessage(call.tool(), toolResult)));
+                    messages.add(new LLMMessage("user", buildToolResultMessage(call.tool(), toolResult)));
                 }
                 continue;
             }
@@ -129,7 +105,7 @@ public class AgentService {
                 toolRegistry.getToolDescriptions());
     }
 
-    private String buildTooResultMessage(String tool, String toolResult) {
+    private String buildToolResultMessage(String tool, String toolResult) {
         try {
             return objectMapper.writeValueAsString(
                     Map.of(
