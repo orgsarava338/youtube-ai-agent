@@ -5,12 +5,16 @@ import com.youtubeagent.ai.core.LLMResponse;
 import com.youtubeagent.ai.model.ModelDefinition;
 import com.youtubeagent.ai.model.ModelRequirements;
 import com.youtubeagent.ai.provider.LLMProvider;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class DefaultLLMRouter implements LLMRouter {
 
@@ -40,6 +44,7 @@ public class DefaultLLMRouter implements LLMRouter {
 
             try {
                 LLMRequest modelRequest = new LLMRequest(model.id(), request.messages());
+                log.info("Calling AI model: {} and provider: {}", model.id(), model.provider());
                 return provider.generate(modelRequest);
             } catch (Exception exception) {
                 lastException = exception;
