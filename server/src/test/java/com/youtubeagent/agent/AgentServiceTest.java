@@ -1,13 +1,10 @@
 package com.youtubeagent.agent;
 
-import com.youtubeagent.ai.core.LLMMessage;
-import com.youtubeagent.ai.core.LLMRequest;
 import com.youtubeagent.ai.core.LLMResponse;
 import com.youtubeagent.ai.routing.LLMRouter;
 import tools.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
