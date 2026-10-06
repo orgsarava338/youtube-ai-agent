@@ -1,6 +1,9 @@
-package com.youtubeagent.ai;
+package com.youtubeagent.ai.provider;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.youtubeagent.ai.core.LLMMessage;
+import com.youtubeagent.ai.core.LLMRequest;
+import com.youtubeagent.ai.core.LLMResponse;
 import com.youtubeagent.config.OpenAiProperties;
 
 import java.util.List;
@@ -10,13 +13,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
 @Service("openai")
-public class OpenAiClient implements LLMProvider {
+public class OpenAiProvider implements LLMProvider {
 
     private final RestClient restClient;
-    private final OpenAiProperties properties;
 
-    public OpenAiClient(OpenAiProperties properties) {
-        this.properties = properties;
+    public OpenAiProvider(OpenAiProperties properties) {
         this.restClient = RestClient.builder()
                 .baseUrl(properties.baseUrl())
                 .defaultHeader("Authorization", "Bearer " + properties.apiKey())
@@ -24,29 +25,46 @@ public class OpenAiClient implements LLMProvider {
     }
 
     @Override
-    public String generate(String prompt) {
+    public String getProviderId() {
+        return "openai";
+    }
 
-        OpenAiRequest request = new OpenAiRequest(
-                properties.model(),
-                List.of(new Message("user", prompt)));
+    @Override
+    public LLMResponse generate(LLMRequest request) {
+
+        OpenAiRequest requestBody = new OpenAiRequest(request.model(), request.messages());
 
         OpenAiResponse response = restClient.post()
                 .uri("/v1/chat/completions")
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(request)
+                .body(requestBody)
                 .retrieve()
                 .body(OpenAiResponse.class);
 
-        if (response == null || response.choices() == null || response.choices().isEmpty()) {
+        if (response == null
+                || response.choices() == null
+                || response.choices().isEmpty()
+                || response.choices().getFirst().message() == null
+                || response.choices().getFirst().message().content() == null
+                || response.choices().getFirst().message().content().isBlank()) {
             throw new IllegalStateException("OpenAI returned an empty response");
         }
 
-        return response.choices().get(0).message().content();
+        String content = response
+                .choices()
+                .getFirst()
+                .message()
+                .content();
+
+        return new LLMResponse(
+                content,
+                getProviderId(),
+                request.model());
     }
 
     private record OpenAiRequest(
             String model,
-            List<Message> messages) {
+            List<LLMMessage> messages) {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
@@ -63,4 +81,5 @@ public class OpenAiClient implements LLMProvider {
             String role,
             String content) {
     }
+
 }

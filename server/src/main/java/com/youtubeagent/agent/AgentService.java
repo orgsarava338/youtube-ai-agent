@@ -1,161 +1,161 @@
 package com.youtubeagent.agent;
 
-import com.youtubeagent.ai.LLMClient;
+import com.youtubeagent.ai.core.LLMMessage;
+import com.youtubeagent.ai.core.LLMRequest;
+import com.youtubeagent.ai.core.LLMResponse;
+import com.youtubeagent.ai.model.ModelDefinition;
+import com.youtubeagent.ai.model.ModelRequirements;
+import com.youtubeagent.ai.provider.LLMProvider;
+import com.youtubeagent.ai.routing.ModelSelector;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
+
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
-@Service
 @Slf4j
+@Service
 public class AgentService {
 
     private static final int MAX_ITERATIONS = 5;
 
-    private final LLMClient llmClient;
+    private final ModelSelector modelSelector;
+    private final List<LLMProvider> providers;
     private final ToolRegistry toolRegistry;
     private final ObjectMapper objectMapper;
 
-    public AgentService(LLMClient llmClient, ToolRegistry toolRegistry, ObjectMapper objectMapper) {
-
-        this.llmClient = llmClient;
+    public AgentService(ModelSelector modelSelector, List<LLMProvider> providers, ToolRegistry toolRegistry,
+            ObjectMapper objectMapper) {
+        this.modelSelector = modelSelector;
+        this.providers = providers;
         this.toolRegistry = toolRegistry;
         this.objectMapper = objectMapper;
     }
 
-    public AgentResponse chat(String message) {
+    public AgentResponse chat(String userMessage) {
 
-        List<String> history = new ArrayList<>();
+        List<LLMMessage> messages = new ArrayList<>();
 
-        // Initial user request
-        history.add("""
-                User:
-                %s
-                """.formatted(message));
+        messages.add(new LLMMessage("system", buildSystemPrompt()));
+        messages.add(new LLMMessage("user", userMessage));
+
+        ModelRequirements requirements = new ModelRequirements(true, Set.of());
+        List<ModelDefinition> models = modelSelector.select(requirements);
+
+        if (models.isEmpty()) {
+            throw new IllegalStateException("No suitable AI models available");
+        }
+
+        ModelDefinition selectedModel = models.getFirst();
+
+        LLMProvider provider = providers.stream()
+                .filter(p -> p.getProviderId()
+                        .equalsIgnoreCase(
+                                selectedModel.provider()))
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("No provider found for: " + selectedModel.provider()));
 
         for (int iteration = 0; iteration < MAX_ITERATIONS; iteration++) {
 
-            String prompt = buildPrompt(history);
+            log.info("Agent iteration {} using provider={} model={}",
+                    iteration + 1,
+                    provider.getProviderId(),
+                    selectedModel.id());
 
-            log.debug("Agent iteration {} prompt:\n{}", iteration + 1, prompt);
+            LLMRequest request = new LLMRequest(selectedModel.id(), List.copyOf(messages));
+            LLMResponse response = provider.generate(request);
 
-            String llmResponse = llmClient.generate(prompt);
+            messages.add(new LLMMessage("assistant", response.content()));
 
-            AgentResponse response = parseResponse(llmResponse);
+            AgentResponse agentResponse = parseResponse(response.content());
 
-            if ("final_answer".equals(response.type())) {
-                return response;
+            if ("final_answer".equals(agentResponse.type())) {
+                return agentResponse;
             }
 
-            if (!"tool_call".equals(response.type())) {
-                throw new IllegalStateException(
-                        "Unexpected agent response type: " + response.type());
+            if ("tool_calls".equals(agentResponse.type())) {
+                for (AgentResponse.ToolCall call : agentResponse.calls()) {
+                    String toolResult = executeTool(call);
+                    messages.add(new LLMMessage("user", buildTooResultMessage(call.tool(), toolResult)));
+                }
+                continue;
             }
 
-            // Preserve the LLM's tool request
-            history.add("""
-                    Assistant:
-                    %s
-                    """.formatted(llmResponse));
-
-            AgentTool tool = findTool(response.tool());
-
-            Map<String, Object> arguments = response.arguments() != null
-                    ? response.arguments()
-                    : Map.of();
-
-            Object result = tool.execute(arguments);
-
-            // Preserve the tool result
-            history.add("""
-                    Tool (%s):
-                    %s
-                    """.formatted(tool.getName(), result));
+            throw new IllegalStateException("Unknown agent response type: " + agentResponse.type());
         }
 
-        throw new IllegalStateException(
-                "Agent exceeded maximum iterations: " + MAX_ITERATIONS);
+        throw new IllegalStateException("Agent exceeded maximum iterations");
     }
 
-    private String buildPrompt(List<String> history) {
-
+    private String buildSystemPrompt() {
         return """
-                You are an AI agent.
+                You are an AI agent that can use tools.
 
-                You have access to the following tools:
+                You must respond using valid JSON.
 
-                %s
+                IMPORTANT:
+                - Return exactly ONE JSON object.
+                - Never return multiple JSON objects.
+                - Do not add markdown or explanations outside the JSON object.
 
-                You MUST respond using ONLY valid JSON.
+                When one or more tools are required, use:
 
-                If you need to use a tool, respond with:
                 {
-                    "type": "tool_call",
-                    "tool": "tool_name",
-                    "arguments": {}
+                  "type": "tool_calls",
+                  "calls": [
+                    {
+                      "tool": "tool_name",
+                      "arguments": {}
+                    }
+                  ]
                 }
 
-                If you can answer the user, respond with:
+                You may include multiple tool calls in the same response.
+
+                When you have the final answer, use:
+
                 {
-                    "type": "final_answer",
-                    "content": "your answer"
+                  "type": "final_answer",
+                  "content": "your answer"
                 }
 
-                Do not use markdown.
-                Do not add explanations outside the JSON.
-
-                Conversation history:
+                Available tools:
                 %s
-
-                Based on the conversation history, decide what to do next.
                 """.formatted(
-                describeTools(),
-                String.join("\n\n", history));
+                toolRegistry.getToolDescriptions());
     }
 
-    private AgentResponse parseResponse(String response) {
-
-        String json = extractJson(response);
-
+    private String buildTooResultMessage(String tool, String toolResult) {
         try {
-            return objectMapper.readValue(json, AgentResponse.class);
-        } catch (JacksonException e) {
-            throw new IllegalStateException("LLM returned invalid agent JSON: " + response, e);
+            return objectMapper.writeValueAsString(
+                    Map.of(
+                            "type", "tool_result",
+                            "tool", tool,
+                            "result", toolResult));
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to build tool result message", e);
         }
     }
 
-    private String extractJson(String raw) {
-
-        int start = raw.indexOf('{');
-        int end = raw.lastIndexOf('}');
-
-        return (start >= 0 && end > start)
-                ? raw.substring(start, end + 1)
-                : raw;
+    private AgentResponse parseResponse(String content) {
+        try {
+            return objectMapper.readValue(content, AgentResponse.class);
+        } catch (Exception e) {
+            log.error("Failed to parse LLM response: {}", content, e);
+            throw new IllegalStateException("Invalid LLM response", e);
+        }
     }
 
-    private String describeTools() {
-
-        return toolRegistry.getTools()
-                .stream()
-                .map(tool -> "- %s: %s"
-                        .formatted(
-                                tool.getName(),
-                                tool.getDescription()))
-                .reduce("", (a, b) -> a + b + "\n");
-    }
-
-    private AgentTool findTool(String toolName) {
-
-        return toolRegistry.getTools()
-                .stream()
-                .filter(tool -> tool.getName().equals(toolName))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "Unknown tool: " + toolName));
+    private String executeTool(AgentResponse.ToolCall call) {
+        try {
+            return toolRegistry.execute(call.tool(), call.arguments());
+        } catch (Exception e) {
+            log.error("Tool execution failed: {}", call.tool(), e);
+            return "Tool execution failed: " + e.getMessage();
+        }
     }
 }

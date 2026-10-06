@@ -3,6 +3,7 @@ package com.youtubeagent.agent;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Map;
 
 @Component
 public class ToolRegistry {
@@ -15,5 +16,39 @@ public class ToolRegistry {
 
     public List<AgentTool> getTools() {
         return tools;
+    }
+
+    public String getToolDescriptions() {
+        if (tools == null || tools.isEmpty()) {
+            return "No tools available.";
+        }
+
+        StringBuilder description = new StringBuilder();
+        description.append("Tool Name | Description\n");
+        description.append("--- | ---\n");
+
+        for (AgentTool tool : tools) {
+            description.append(tool.getName())
+                    .append(" | ")
+                    .append(tool.getDescription())
+                    .append(System.lineSeparator());
+        }
+
+        return description.toString();
+    }
+
+    public String execute(String toolName, Map<String, Object> arguments) {
+        if (toolName == null || toolName.isBlank()) {
+            throw new IllegalArgumentException("Tool name is required.");
+        }
+
+        AgentTool tool = tools.stream()
+                .filter(candidate -> candidate.getName().equals(toolName))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Unknown tool: " + toolName));
+
+        Object result = tool.execute(arguments == null ? Map.of() : arguments);
+
+        return result == null ? "" : result.toString();
     }
 }

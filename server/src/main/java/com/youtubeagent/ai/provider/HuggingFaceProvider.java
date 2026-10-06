@@ -1,7 +1,10 @@
-package com.youtubeagent.ai;
+package com.youtubeagent.ai.provider;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.youtubeagent.config.OpenRouterProperties;
+import com.youtubeagent.ai.core.LLMMessage;
+import com.youtubeagent.ai.core.LLMRequest;
+import com.youtubeagent.ai.core.LLMResponse;
+import com.youtubeagent.config.HuggingFaceProperties;
 
 import java.util.List;
 
@@ -10,14 +13,12 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
-@Service("openrouter")
-public class OpenRouterClient implements LLMProvider {
+@Service("huggingface")
+public class HuggingFaceProvider implements LLMProvider {
 
     private final RestClient restClient;
-    private final OpenRouterProperties properties;
 
-    public OpenRouterClient(OpenRouterProperties properties) {
-        this.properties = properties;
+    public HuggingFaceProvider(HuggingFaceProperties properties) {
         this.restClient = RestClient.builder()
                 .baseUrl(properties.baseUrl())
                 .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + properties.apiKey())
@@ -26,18 +27,20 @@ public class OpenRouterClient implements LLMProvider {
     }
 
     @Override
-    public String generate(String prompt) {
+    public String getProviderId() {
+        return "huggingface";
+    }
 
-        OpenRouterRequest request = new OpenRouterRequest(
-                properties.model(),
-                List.of(new Message("user", prompt)),
-                false);
+    @Override
+    public LLMResponse generate(LLMRequest request) {
 
-        OpenRouterResponse response = restClient.post()
+        HuggingFaceRequest requestBody = new HuggingFaceRequest(request.model(), request.messages(), false);
+
+        HuggingFaceResponse response = restClient.post()
                 .uri("/v1/chat/completions")
-                .body(request)
+                .body(requestBody)
                 .retrieve()
-                .body(OpenRouterResponse.class);
+                .body(HuggingFaceResponse.class);
 
         if (response == null
                 || response.choices() == null
@@ -45,31 +48,26 @@ public class OpenRouterClient implements LLMProvider {
                 || response.choices().get(0).message() == null
                 || response.choices().get(0).message().content() == null
                 || response.choices().get(0).message().content().isBlank()) {
-            throw new IllegalStateException("OpenRouter returned an empty response");
+            throw new IllegalStateException("HuggingFace returned an empty response");
         }
 
-        return response.choices().get(0).message().content();
+        String content = response.choices().get(0).message().content();
+        return new LLMResponse(content, getProviderId(), request.model());
     }
 
-    private record OpenRouterRequest(
+    private record HuggingFaceRequest(
             String model,
-            List<Message> messages,
+            List<LLMMessage> messages,
             boolean stream) {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    private record OpenRouterResponse(
+    private record HuggingFaceResponse(
             List<Choice> choices) {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     private record Choice(
-            Message message) {
-    }
-
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    private record Message(
-            String role,
-            String content) {
+            LLMMessage message) {
     }
 }

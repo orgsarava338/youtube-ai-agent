@@ -1,34 +1,39 @@
-package com.youtubeagent.ai;
+package com.youtubeagent.ai.provider;
 
+import com.youtubeagent.ai.core.LLMMessage;
+import com.youtubeagent.ai.core.LLMRequest;
+import com.youtubeagent.ai.core.LLMResponse;
 import com.youtubeagent.config.OllamaProperties;
+
+import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
 @Service("ollama")
-public class OllamaClient implements LLMProvider {
+public class OllamaProvider implements LLMProvider {
 
     private final RestClient restClient;
-    private final OllamaProperties properties;
 
-    public OllamaClient(OllamaProperties properties) {
-        this.properties = properties;
+    public OllamaProvider(OllamaProperties properties) {
         this.restClient = RestClient.builder()
                 .baseUrl(properties.baseUrl())
                 .build();
     }
 
     @Override
-    public String generate(String prompt) {
+    public String getProviderId() {
+        return "ollama";
+    }
 
-        OllamaGenerateRequest request = new OllamaGenerateRequest(
-                properties.model(),
-                prompt,
-                false);
+    @Override
+    public LLMResponse generate(LLMRequest request) {
+
+        OllamaGenerateRequest requestBody = new OllamaGenerateRequest(request.model(), request.messages(), false);
 
         OllamaGenerateResponse response = restClient.post()
                 .uri("/api/generate")
-                .body(request)
+                .body(requestBody)
                 .retrieve()
                 .body(OllamaGenerateResponse.class);
 
@@ -36,12 +41,12 @@ public class OllamaClient implements LLMProvider {
             throw new IllegalStateException("Ollama returned an empty response");
         }
 
-        return response.response();
+        return new LLMResponse(response.response(), getProviderId(), request.model());
     }
 
     private record OllamaGenerateRequest(
             String model,
-            String prompt,
+            List<LLMMessage> messages,
             boolean stream) {
     }
 
