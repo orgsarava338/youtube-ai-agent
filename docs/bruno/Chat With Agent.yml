@@ -1,0 +1,22 @@
+info:
+  name: Chat With Agent
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{api.url}}/v1/agent/chat"
+  body:
+    type: json
+    data: |-
+      {
+        "message": "Summarize my last video."
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: true
