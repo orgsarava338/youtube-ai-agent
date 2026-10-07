@@ -90,8 +90,8 @@ public class YouTubeCommentService {
                 extractAuthorChannelId(commentSnippet),
                 YouTubeJsonUtils.textValue(commentSnippet, "authorProfileImageUrl"),
                 YouTubeJsonUtils.textValue(commentSnippet, "textDisplay"),
-                YouTubeJsonUtils.parseInstant(YouTubeJsonUtils.textValue(commentSnippet, "publishedAt")),
-                YouTubeJsonUtils.parseInstant(YouTubeJsonUtils.textValue(commentSnippet, "updatedAt")),
+                YouTubeJsonUtils.instantValue(commentSnippet, "publishedAt"),
+                        YouTubeJsonUtils.instantValue(commentSnippet, "updatedAt"),
                 YouTubeJsonUtils.longValue(commentSnippet, "likeCount"),
                 YouTubeJsonUtils.longValue(snippet, "totalReplyCount"),
                 YouTubeJsonUtils.booleanValue(snippet, "isPublic"));

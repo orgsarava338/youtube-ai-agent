@@ -64,19 +64,16 @@ class YouTubeJsonUtilsTest {
     }
 
     @Test
-    void shouldParseInstant() {
-        Instant result = YouTubeJsonUtils.parseInstant(
-                "2023-08-22T09:12:38Z");
+    void shouldReadInstantValue() throws Exception {
+        JsonNode node = objectMapper.readTree("""
+                {
+                  "publishedAt": "2023-08-22T09:12:38Z"
+                }
+                """);
 
         assertEquals(
                 Instant.parse("2023-08-22T09:12:38Z"),
-                result);
-    }
-
-    @Test
-    void shouldReturnNullForNullInstant() {
-        assertNull(
-                YouTubeJsonUtils.parseInstant(null));
+                YouTubeJsonUtils.instantValue(node, "publishedAt"));
     }
 
     @Test

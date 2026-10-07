@@ -33,12 +33,12 @@ public final class YouTubeJsonUtils {
         return node.get(field).asBoolean();
     }
 
-    public static Instant parseInstant(String value) {
-        if (value == null) {
+    public static Instant instantValue(JsonNode node, String field) {
+        if (node == null || node.get(field) == null) {
             return null;
         }
 
-        return Instant.parse(value);
+        return Instant.parse(textValue(node, field));
     }
 
     public static String thumbnailUrl(JsonNode snippet) {
