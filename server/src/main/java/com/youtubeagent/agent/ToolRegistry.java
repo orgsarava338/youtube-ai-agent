@@ -2,9 +2,12 @@ package com.youtubeagent.agent;
 
 import org.springframework.stereotype.Component;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Component
 public class ToolRegistry {
 
@@ -46,6 +49,8 @@ public class ToolRegistry {
                 .filter(candidate -> candidate.getName().equals(toolName))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Unknown tool: " + toolName));
+
+        log.info("Model called the tool: {}", toolName);
 
         Object result = tool.execute(arguments == null ? Map.of() : arguments);
 

@@ -1,0 +1,64 @@
+package com.youtubeagent.youtube;
+
+import tools.jackson.databind.JsonNode;
+
+import java.time.Instant;
+
+public final class YouTubeJsonUtils {
+
+    private YouTubeJsonUtils() {
+    }
+
+    public static String textValue(JsonNode node, String field) {
+        if (node == null || node.get(field) == null) {
+            return null;
+        }
+
+        return node.get(field).stringValue();
+    }
+
+    public static long longValue(JsonNode node, String field) {
+        if (node == null || node.get(field) == null) {
+            return 0;
+        }
+
+        return node.get(field).asLong();
+    }
+
+    public static Instant parseInstant(String value) {
+        if (value == null) {
+            return null;
+        }
+
+        return Instant.parse(value);
+    }
+
+    public static String thumbnailUrl(JsonNode snippet) {
+        if (snippet == null) {
+            return null;
+        }
+
+        JsonNode thumbnails = snippet.get("thumbnails");
+
+        if (thumbnails == null) {
+            return null;
+        }
+
+        JsonNode high = thumbnails.get("high");
+        if (high != null && high.get("url") != null) {
+            return textValue(high, "url");
+        }
+
+        JsonNode medium = thumbnails.get("medium");
+        if (medium != null && medium.get("url") != null) {
+            return textValue(medium, "url");
+        }
+
+        JsonNode defaultThumbnail = thumbnails.get("default");
+        if (defaultThumbnail != null && defaultThumbnail.get("url") != null) {
+            return textValue(defaultThumbnail, "url");
+        }
+
+        return null;
+    }
+}

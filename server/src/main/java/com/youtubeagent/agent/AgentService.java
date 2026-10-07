@@ -78,6 +78,21 @@ public class AgentService {
                 - Never return multiple JSON objects.
                 - Do not add markdown or explanations outside the JSON object.
 
+                JSON FORMATTING RULES:
+                - The response must always be valid JSON.
+                - Never put literal newlines inside a JSON string.
+                - If a string needs a line break, use the escaped sequence \\n.
+                - Escape double quotes inside string values as \\".
+                - Do not use trailing commas.
+
+                TOOL EXECUTION RULES:
+                - After a tool returns a result, treat that result as authoritative.
+                - Do not repeat a tool call unless the previous tool call failed
+                  or the returned data is insufficient to answer the user.
+                - If get_video successfully returns the requested video's details,
+                  use that result to answer the user directly.
+                - Do not call list_videos again after get_video succeeds.
+
                 When one or more tools are required, use:
 
                 {
@@ -101,8 +116,7 @@ public class AgentService {
 
                 Available tools:
                 %s
-                """.formatted(
-                toolRegistry.getToolDescriptions());
+                """.formatted(toolRegistry.getToolDescriptions());
     }
 
     private String buildToolResultMessage(String tool, String toolResult) {

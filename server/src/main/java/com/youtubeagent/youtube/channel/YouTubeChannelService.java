@@ -1,5 +1,6 @@
 package com.youtubeagent.youtube.channel;
 
+import com.youtubeagent.youtube.YouTubeJsonUtils;
 import com.youtubeagent.youtube.oauth.YouTubeOAuthService;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
@@ -55,67 +56,23 @@ public class YouTubeChannelService {
 
             JsonNode channel = items.get(0);
 
-            String id = textValue(channel, "id");
+            String id = YouTubeJsonUtils.textValue(channel, "id");
             JsonNode snippet = channel.get("snippet");
             JsonNode statistics = channel.get("statistics");
 
             return new YouTubeChannel(
                     id,
-                    textValue(snippet, "title"),
-                    textValue(snippet, "description"),
-                    textValue(snippet, "customUrl"),
-                    thumbnailUrl(snippet),
-                    longValue(statistics, "subscriberCount"),
-                    longValue(statistics, "videoCount"),
-                    longValue(statistics, "viewCount"));
+                    YouTubeJsonUtils.textValue(snippet, "title"),
+                    YouTubeJsonUtils.textValue(snippet, "description"),
+                    YouTubeJsonUtils.textValue(snippet, "customUrl"),
+                    YouTubeJsonUtils.thumbnailUrl(snippet),
+                    YouTubeJsonUtils.longValue(statistics, "subscriberCount"),
+                    YouTubeJsonUtils.longValue(statistics, "videoCount"),
+                    YouTubeJsonUtils.longValue(statistics, "viewCount"));
         } catch (IllegalStateException exception) {
             throw exception;
         } catch (Exception exception) {
             throw new IllegalStateException("Failed to parse YouTube channel response", exception);
         }
-    }
-
-    private String thumbnailUrl(JsonNode snippet) {
-        if (snippet == null) {
-            return null;
-        }
-
-        JsonNode thumbnails = snippet.get("thumbnails");
-        if (thumbnails == null) {
-            return null;
-        }
-
-        JsonNode high = thumbnails.get("high");
-        if (high != null && high.get("url") != null) {
-            return textValue(high, "url");
-        }
-
-        JsonNode medium = thumbnails.get("medium");
-        if (medium != null && medium.get("url") != null) {
-            return textValue(medium, "url");
-        }
-
-        JsonNode defaultThumbnail = thumbnails.get("default");
-        if (defaultThumbnail != null && defaultThumbnail.get("url") != null) {
-            return textValue(defaultThumbnail, "url");
-        }
-
-        return null;
-    }
-
-    private String textValue(JsonNode node, String field) {
-        if (node == null || node.get(field) == null) {
-            return null;
-        }
-
-        return node.get(field).stringValue();
-    }
-
-    private long longValue(JsonNode node, String field) {
-        if (node == null || node.get(field) == null) {
-            return 0;
-        }
-
-        return node.get(field).asLong();
     }
 }
