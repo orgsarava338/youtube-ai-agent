@@ -1,8 +1,9 @@
 package com.youtubeagent.agent.tools;
 
 import com.youtubeagent.agent.AgentTool;
-import com.youtubeagent.youtube.video.YouTubeVideo;
 import com.youtubeagent.youtube.video.YouTubeVideoService;
+import com.youtubeagent.youtube.video.YouTubeVideoSummary;
+
 import tools.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Component;
 
@@ -80,7 +81,7 @@ public class SearchVideosTool implements AgentTool {
             }
         }
 
-        List<YouTubeVideo> videos = videoService.searchVideos(query, maxResults);
+        List<YouTubeVideoSummary> videos = videoService.searchVideos(query, maxResults);
 
         try {
             return objectMapper.writeValueAsString(videos);

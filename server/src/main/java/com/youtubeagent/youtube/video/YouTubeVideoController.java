@@ -18,8 +18,15 @@ public class YouTubeVideoController {
     }
 
     @GetMapping("/videos")
-    public List<YouTubeVideo> getVideos(@RequestParam(defaultValue = "10") int maxResults) {
+    public List<YouTubeVideoSummary> getVideos(@RequestParam(defaultValue = "10") int maxResults) {
         return videoService.getMyVideos(maxResults);
+    }
+
+    @GetMapping("/search")
+    public List<YouTubeVideoSummary> searchVideos(
+            @RequestParam String query,
+            @RequestParam(defaultValue = "10") int maxResults) {
+        return videoService.searchVideos(query, maxResults);
     }
 
     @GetMapping("/video")

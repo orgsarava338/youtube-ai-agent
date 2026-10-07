@@ -27,7 +27,7 @@ public class YouTubeVideoService {
         this.restClient = RestClient.builder().baseUrl(YOUTUBE_API_BASE_URL).build();
     }
 
-    public List<YouTubeVideo> getMyVideos(int maxResults) {
+    public List<YouTubeVideoSummary> getMyVideos(int maxResults) {
 
         if (maxResults < 1 || maxResults > 50) {
             throw new IllegalArgumentException("maxResults must be between 1 and 50");
@@ -74,7 +74,7 @@ public class YouTubeVideoService {
         return parseVideo(response, videoId);
     }
 
-    public List<YouTubeVideo> searchVideos(String query, int maxResults) {
+    public List<YouTubeVideoSummary> searchVideos(String query, int maxResults) {
 
         if (query == null || query.isBlank()) {
             throw new IllegalArgumentException("query is required");
@@ -102,11 +102,11 @@ public class YouTubeVideoService {
         return parseSearchVideoList(response);
     }
 
-    private List<YouTubeVideo> parseSearchVideoList(String response) {
+    private List<YouTubeVideoSummary> parseSearchVideoList(String response) {
         try {
             JsonNode root = objectMapper.readTree(response);
             JsonNode items = root.get("items");
-            List<YouTubeVideo> videos = new ArrayList<>();
+            List<YouTubeVideoSummary> videos = new ArrayList<>();
 
             if (items == null || !items.isArray()) {
                 return videos;
@@ -161,23 +161,18 @@ public class YouTubeVideoService {
                 YouTubeJsonUtils.longValue(statistics, "commentCount"));
     }
 
-    private YouTubeVideo parseSearchVideoItem(JsonNode item) {
+    private YouTubeVideoSummary parseSearchVideoItem(JsonNode item) {
 
         JsonNode id = item.get("id");
         JsonNode snippet = item.get("snippet");
 
-        return new YouTubeVideo(
+        return new YouTubeVideoSummary(
                 YouTubeJsonUtils.textValue(id, "videoId"),
                 YouTubeJsonUtils.textValue(snippet, "title"),
                 YouTubeJsonUtils.textValue(snippet, "description"),
                 YouTubeJsonUtils.instantValue(snippet, "publishedAt"),
                 YouTubeJsonUtils.thumbnailUrl(snippet),
                 YouTubeJsonUtils.textValue(snippet, "channelId"),
-                YouTubeJsonUtils.textValue(snippet, "channelTitle"),
-                null, // duration
-                0, // viewCount
-                0, // likeCount
-                0 // commentCount
-        );
+                YouTubeJsonUtils.textValue(snippet, "channelTitle"));
     }
 }
