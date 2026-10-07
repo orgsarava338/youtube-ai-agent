@@ -10,7 +10,7 @@ http:
     type: json
     data: |-
       {
-        "message": "Summarize my last video."
+        "message": "give me my playlist yogan"
       }
   auth: inherit
 

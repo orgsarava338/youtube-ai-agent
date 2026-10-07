@@ -1,0 +1,20 @@
+info:
+  name: List My Playlists
+  type: http
+  seq: 1
+
+http:
+  method: GET
+  url: "{{api.url}}/v1/youtube/playlists?maxResults=10"
+  params:
+    - name: maxResults
+      value: "10"
+      type: query
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: true
