@@ -15,7 +15,7 @@ public class YouTubeOAuthService {
 
     private static final String GOOGLE_AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth";
     private static final String GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token";
-    private static final String YOUTUBE_READONLY_SCOPE = "https://www.googleapis.com/auth/youtube.readonly";
+    private static final String YOUTUBE_FORCE_SCOPE = "https://www.googleapis.com/auth/youtube.force-ssl";
 
     private final YouTubeProperties properties;
     private final EncryptedYouTubeTokenStore tokenStore;
@@ -37,7 +37,7 @@ public class YouTubeOAuthService {
                 .queryParam("client_id", properties.googleOAuth().clientId())
                 .queryParam("redirect_uri", properties.googleOAuth().redirectUri())
                 .queryParam("response_type", "code")
-                .queryParam("scope", YOUTUBE_READONLY_SCOPE)
+                .queryParam("scope", YOUTUBE_FORCE_SCOPE)
                 .queryParam("access_type", "offline")
                 .queryParam("prompt", "consent")
                 .queryParam("state", state)
@@ -73,6 +73,13 @@ public class YouTubeOAuthService {
     public YouTubeToken getValidToken() {
         YouTubeToken token = tokenStore.load()
                 .orElseThrow(() -> new IllegalStateException("YouTube account is not connected"));
+
+        if (!hasRequiredScope(token)) {
+            throw new IllegalStateException(
+                    "YouTube OAuth token does not have the required scope: "
+                            + YOUTUBE_FORCE_SCOPE
+                            + ". Please reconnect the YouTube account.");
+        }
 
         if (!token.isExpired()) {
             return token;
@@ -130,5 +137,19 @@ public class YouTubeOAuthService {
                 response.tokenType());
 
         tokenStore.save(token);
+    }
+
+    private boolean hasRequiredScope(YouTubeToken token) {
+        if (token.scope() == null || token.scope().isBlank()) {
+            return false;
+        }
+
+        return java.util.Arrays.stream(
+                token.scope().split("\\s+"))
+                .anyMatch(YOUTUBE_FORCE_SCOPE::equals);
+    }
+
+    public YouTubeToken getStoredToken() {
+        return tokenStore.load().get();
     }
 }

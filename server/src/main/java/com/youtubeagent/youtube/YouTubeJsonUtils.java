@@ -25,6 +25,14 @@ public final class YouTubeJsonUtils {
         return node.get(field).asLong();
     }
 
+    public static boolean booleanValue(JsonNode node, String field) {
+        if (node == null || node.get(field) == null) {
+            return false;
+        }
+
+        return node.get(field).asBoolean();
+    }
+
     public static Instant parseInstant(String value) {
         if (value == null) {
             return null;
@@ -61,4 +69,5 @@ public final class YouTubeJsonUtils {
 
         return null;
     }
+
 }
