@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import java.time.Instant;
@@ -36,6 +37,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiError> handleIllegalState(IllegalStateException exception) {
         log.error("Agent state error", exception);
         return buildResponse(HttpStatus.SERVICE_UNAVAILABLE, "agent_error", exception.getMessage());
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ApiError> handleResourceNotFound(NoResourceFoundException exception) {
+        log.error("Resource not found", exception);
+        return buildResponse(HttpStatus.NOT_FOUND, "resource_not_found", "Resource not found");
     }
 
     @ExceptionHandler(Exception.class)

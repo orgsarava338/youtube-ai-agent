@@ -1,6 +1,8 @@
 package com.youtubeagent.youtube.oauth;
 
 import com.youtubeagent.youtube.YouTubeProperties;
+
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.client.RestClient;
@@ -16,10 +18,12 @@ public class YouTubeOAuthService {
     private static final String YOUTUBE_READONLY_SCOPE = "https://www.googleapis.com/auth/youtube.readonly";
 
     private final YouTubeProperties properties;
+    private final EncryptedYouTubeTokenStore tokenStore;
     private final RestClient restClient;
 
-    public YouTubeOAuthService(YouTubeProperties properties) {
+    public YouTubeOAuthService(YouTubeProperties properties, EncryptedYouTubeTokenStore tokenStore) {
         this.properties = properties;
+        this.tokenStore = tokenStore;
         this.restClient = RestClient.builder().build();
     }
 
@@ -64,5 +68,67 @@ public class YouTubeOAuthService {
         }
 
         return response;
+    }
+
+    public YouTubeToken getValidToken() {
+        YouTubeToken token = tokenStore.load()
+                .orElseThrow(() -> new IllegalStateException("YouTube account is not connected"));
+
+        if (!token.isExpired()) {
+            return token;
+        }
+
+        return refreshToken(token);
+    }
+
+    private YouTubeToken refreshToken(YouTubeToken currentToken) {
+        if (currentToken.refreshToken() == null) {
+            throw new IllegalStateException("YouTube access token expired and no refresh token is available");
+        }
+
+        var formData = new LinkedMultiValueMap<String, String>();
+
+        formData.add("client_id", properties.googleOAuth().clientId());
+        formData.add("client_secret", properties.googleOAuth().clientSecret());
+        formData.add("refresh_token", currentToken.refreshToken());
+        formData.add("grant_type", "refresh_token");
+
+        GoogleTokenResponse response = restClient
+                .post()
+                .uri(GOOGLE_TOKEN_URL)
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .body(formData)
+                .retrieve()
+                .body(GoogleTokenResponse.class);
+
+        if (response == null || response.accessToken() == null) {
+            throw new IllegalStateException("Google token refresh returned no access token");
+        }
+
+        long expiresAt = (System.currentTimeMillis() / 1000) + response.expiresIn();
+
+        YouTubeToken refreshedToken = new YouTubeToken(
+                response.accessToken(),
+                currentToken.refreshToken(),
+                expiresAt,
+                response.scope() != null ? response.scope() : currentToken.scope(),
+                response.tokenType() != null ? response.tokenType() : currentToken.tokenType());
+
+        tokenStore.save(refreshedToken);
+        return refreshedToken;
+    }
+
+    public void saveToken(GoogleTokenResponse response) {
+
+        long expiresAt = (System.currentTimeMillis() / 1000) + response.expiresIn();
+
+        YouTubeToken token = new YouTubeToken(
+                response.accessToken(),
+                response.refreshToken(),
+                expiresAt,
+                response.scope(),
+                response.tokenType());
+
+        tokenStore.save(token);
     }
 }

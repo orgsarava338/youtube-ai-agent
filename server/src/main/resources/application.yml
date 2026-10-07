@@ -19,6 +19,10 @@ youtube:
         client-id: ${YOUTUBE_GOOGLE_CLIENT_ID}
         client-secret: ${YOUTUBE_GOOGLE_CLIENT_SECRET}
         redirect-uri: ${YOUTUBE_GOOGLE_REDIRECT_URI}
+    
+    token-storage:
+        file-path: .data/youtube-token.enc
+        encryption-key: ${YOUTUBE_TOKEN_ENCRYPTION_KEY}
 
 ai:
     providers:

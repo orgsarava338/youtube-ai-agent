@@ -46,18 +46,7 @@ public class YouTubeOAuthController {
         session.removeAttribute(OAUTH_STATE_SESSION_KEY);
 
         GoogleTokenResponse tokenResponse = oauthService.exchangeCode(code);
-
-        /*
-         * Temporary for M2.2.
-         *
-         * M2.3 will replace this with proper
-         * persistent token storage.
-         */
-        session.setAttribute("youtube_access_token", tokenResponse.accessToken());
-
-        if (tokenResponse.refreshToken() != null) {
-            session.setAttribute("youtube_refresh_token", tokenResponse.refreshToken());
-        }
+        oauthService.saveToken(tokenResponse);
 
         return ResponseEntity.ok("YouTube account connected successfully.");
     }

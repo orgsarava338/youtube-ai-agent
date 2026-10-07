@@ -2,3 +2,5 @@ target/
 cp.txt
 
 .env/
+
+.data/
