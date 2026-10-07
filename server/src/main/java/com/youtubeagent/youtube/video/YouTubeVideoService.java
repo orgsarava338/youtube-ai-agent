@@ -49,7 +49,7 @@ public class YouTubeVideoService {
                 .retrieve()
                 .body(String.class);
 
-        return parseVideoList(response);
+        return parseSearchVideoList(response);
     }
 
     public YouTubeVideo getVideo(String videoId) {
@@ -74,7 +74,35 @@ public class YouTubeVideoService {
         return parseVideo(response, videoId);
     }
 
-    private List<YouTubeVideo> parseVideoList(String response) {
+    public List<YouTubeVideo> searchVideos(String query, int maxResults) {
+
+        if (query == null || query.isBlank()) {
+            throw new IllegalArgumentException("query is required");
+        }
+
+        if (maxResults < 1 || maxResults > 50) {
+            throw new IllegalArgumentException("maxResults must be between 1 and 50");
+        }
+
+        var token = oauthService.getValidToken();
+
+        String response = restClient
+                .get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/youtube/v3/search")
+                        .queryParam("part", "snippet")
+                        .queryParam("q", query)
+                        .queryParam("type", "video")
+                        .queryParam("maxResults", maxResults)
+                        .build())
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token.accessToken())
+                .retrieve()
+                .body(String.class);
+
+        return parseSearchVideoList(response);
+    }
+
+    private List<YouTubeVideo> parseSearchVideoList(String response) {
         try {
             JsonNode root = objectMapper.readTree(response);
             JsonNode items = root.get("items");
