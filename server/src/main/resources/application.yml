@@ -14,6 +14,12 @@ management:
         health:
             show-details: when-authorized
 
+youtube:
+    google-oauth:
+        client-id: ${YOUTUBE_GOOGLE_CLIENT_ID}
+        client-secret: ${YOUTUBE_GOOGLE_CLIENT_SECRET}
+        redirect-uri: ${YOUTUBE_GOOGLE_REDIRECT_URI}
+
 ai:
     providers:
         ollama:
