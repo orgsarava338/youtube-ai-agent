@@ -1,7 +1,7 @@
 info:
   name: Get My Channel
   type: http
-  seq: 6
+  seq: 2
 
 http:
   method: GET
