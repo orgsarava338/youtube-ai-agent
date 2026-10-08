@@ -45,11 +45,12 @@ public class AgentService {
             if (decision.type() == AgentDecision.Type.FINAL_RESPONSE) {
                 return new AgentResponse("final_answer", List.of(), decision.content());
             }
-            
+
             if (decision.type() == AgentDecision.Type.TOOL_CALLS) {
                 context = context.addMessage(buildAssistantToolCallMessage(decision));
                 
                 for (ToolCall toolCall : decision.toolCalls()) {
+                    log.info("Model called the tool: {}{}", toolCall.tool(), toolCall.arguments());
                     ToolExecutionResult toolResult = executeTool(toolCall);
                     context = context.addMessage(LLMMessage.toolResult(toolCall.id(), buildToolResultMessage(toolResult)));
                 }

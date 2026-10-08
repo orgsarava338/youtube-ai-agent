@@ -4,6 +4,9 @@ spring:
     config:
         import: optional:file:.env/.env.${spring.profiles.active:local}[.properties]
 
+logging:
+    pattern:
+        console: "%d{yyyy-MM-dd HH:mm.SSS} %-5level %logger{0} [%X{requestId:-}] - %msg%n"
 
 management:
     endpoints:

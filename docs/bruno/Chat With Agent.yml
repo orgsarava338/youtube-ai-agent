@@ -10,7 +10,7 @@ http:
     type: json
     data: |-
       {
-        "message": "what time is it"
+        "message": "List my playlists, find the videos in my playlists, and give me the titles of the videos."
       }
   auth: inherit
 

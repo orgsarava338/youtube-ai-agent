@@ -45,7 +45,7 @@ public class DefaultLLMRouter implements LLMRouter {
 
             try {
                 LLMRequest modelRequest = new LLMRequest(model.id(), request.messages(), request.tools());
-                log.info("Calling AI model: {} and provider: {}", model.id(), model.provider());
+                log.info("LLM call started role={} model={} provider={}", role, model.id(), model.provider());
                 return provider.generate(modelRequest);
             } catch (Exception exception) {
                 lastException = exception;

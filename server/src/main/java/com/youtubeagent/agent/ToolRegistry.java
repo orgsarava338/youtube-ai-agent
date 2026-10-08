@@ -68,8 +68,6 @@ public class ToolRegistry {
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Unknown tool: " + toolName));
 
-        log.info("Model called the tool: {}", toolName);
-
         Object result = tool.execute(arguments == null ? Map.of() : arguments);
 
         return result == null ? "" : result.toString();
