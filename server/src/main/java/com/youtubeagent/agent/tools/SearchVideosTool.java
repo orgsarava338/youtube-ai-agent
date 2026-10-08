@@ -31,28 +31,22 @@ public class SearchVideosTool implements AgentTool {
         return """
                 Searches YouTube for videos matching a search query.
 
-                Required argument:
-                - query: the text to search for.
+                Required arguments:
+                - query: search terms
 
-                Optional argument:
-                - maxResults: number of results to return, from 1 to 50.
-                  Default is 10.
-
-                Each returned video includes:
-                - videoId: the actual YouTube video ID
-                - title: video title
-                - description: video description
-                - publishedAt: publication timestamp
-                - thumbnailUrl: video thumbnail URL
-                - channelId: channel ID
-                - channelTitle: channel name
+                Optional arguments:
+                - maxResults: maximum number of results, 1-50,
+                  default 10
 
                 Important:
-                - This searches YouTube, not only the connected channel.
-                - Results contain real YouTube video IDs.
-                - Never invent or guess a video ID.
+                - This performs a general YouTube search.
+                - Results are not limited to the connected user's channel.
                 - Use this tool when the user wants to search YouTube
-                  for videos matching a topic, title, keyword, or phrase.
+                  generally.
+                - Do not use this tool when the user explicitly asks
+                  about their own videos. Use list_videos instead.
+                - Never invent or guess video IDs.
+                - This is a read-only operation.
                 """;
     }
 

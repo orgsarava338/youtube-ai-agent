@@ -10,7 +10,7 @@ http:
     type: json
     data: |-
       {
-        "message": "give me my channel analytics for this month"
+        "message": "Find my latest video about lifting weights and give me its title, views, likes, and the number of comments it has."
       }
   auth: inherit
 

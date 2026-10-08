@@ -29,25 +29,22 @@ public class ListVideosTool implements AgentTool {
     @Override
     public String getDescription() {
         return """
-                Lists videos from the connected YouTube channel.
+                Lists videos published on the connected YouTube channel.
 
-                Each returned video includes a videoId field containing
-                the actual YouTube video ID.
+                Optional arguments:
+                - maxResults: maximum number of videos to return, 1-50,
+                  default 10
 
-                Example result:
-                [
-                  {
-                    "videoId": "q4FcTKZVBfQ",
-                    "title": "Listen if you can"
-                  }
-                ]
-
-                Optional argument:
-                - maxResults: number of videos to return, from 1 to 50.
-                  Default is 10.
-
-                Use this tool first when the user refers to a video by title
-                but does not provide its video ID.
+                Important:
+                - This tool returns videos belonging ONLY to the connected
+                  YouTube channel.
+                - Use this tool when the user refers to "my videos",
+                  "my latest video", "my uploads", or similar phrases.
+                - Use this tool when the user wants to find or filter
+                  videos from their own channel.
+                - Do not use search_videos for requests specifically
+                  about the user's own videos.
+                - This is a read-only operation.
                 """;
     }
 
