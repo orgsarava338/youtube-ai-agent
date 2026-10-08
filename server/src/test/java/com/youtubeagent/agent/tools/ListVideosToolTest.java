@@ -1,7 +1,8 @@
 package com.youtubeagent.agent.tools;
 
-import com.youtubeagent.youtube.video.YouTubeVideo;
 import com.youtubeagent.youtube.video.YouTubeVideoService;
+import com.youtubeagent.youtube.video.YouTubeVideoSummary;
+
 import org.junit.jupiter.api.Test;
 import tools.jackson.databind.ObjectMapper;
 
@@ -64,21 +65,16 @@ class ListVideosToolTest {
 
         ObjectMapper objectMapper = new ObjectMapper();
 
-        YouTubeVideo video = new YouTubeVideo(
+        YouTubeVideoSummary video = new YouTubeVideoSummary(
                 "q4FcTKZVBfQ",
                 "Listen if you can",
                 "",
                 Instant.parse("2023-08-22T09:12:38Z"),
                 "thumbnail.jpg",
                 "UC123",
-                "Saravanan Lakshmanan",
-                null,
-                0,
-                0,
-                0);
+                "Saravanan Lakshmanan");
 
-        when(service.getMyVideos(10))
-                .thenReturn(List.of(video));
+        when(service.getMyVideos(10)).thenReturn(List.of(video));
 
         ListVideosTool tool = new ListVideosTool(
                 service,
