@@ -4,6 +4,7 @@ import com.youtubeagent.ai.catalog.ModelCatalog;
 import com.youtubeagent.ai.model.ModelCapability;
 import com.youtubeagent.ai.model.ModelDefinition;
 import com.youtubeagent.ai.model.ModelRequirements;
+import com.youtubeagent.ai.model.ModelRole;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -37,6 +38,7 @@ class DefaultModelSelectorTest {
         DefaultModelSelector selector = new DefaultModelSelector(catalog);
 
         List<ModelDefinition> result = selector.select(
+                ModelRole.RESPONSE,
                 new ModelRequirements(false, Set.of(ModelCapability.CHAT)));
 
         assertEquals(List.of(fast, slow), result);
@@ -65,6 +67,7 @@ class DefaultModelSelectorTest {
         DefaultModelSelector selector = new DefaultModelSelector(catalog);
 
         List<ModelDefinition> result = selector.select(
+                ModelRole.RESPONSE,
                 new ModelRequirements(true, Set.of(ModelCapability.CHAT)));
 
         assertEquals(List.of(free), result);
@@ -87,6 +90,7 @@ class DefaultModelSelectorTest {
                 true,
                 20,
                 ModelCapability.CHAT,
+                ModelCapability.JSON,
                 ModelCapability.TOOL_CALLING);
 
         when(catalog.getModels()).thenReturn(List.of(chatOnly, toolModel));
@@ -94,6 +98,7 @@ class DefaultModelSelectorTest {
         DefaultModelSelector selector = new DefaultModelSelector(catalog);
 
         List<ModelDefinition> result = selector.select(
+                ModelRole.DECISION,
                 new ModelRequirements(
                         true,
                         Set.of(ModelCapability.TOOL_CALLING)));
@@ -117,6 +122,7 @@ class DefaultModelSelectorTest {
         DefaultModelSelector selector = new DefaultModelSelector(catalog);
 
         List<ModelDefinition> result = selector.select(
+                ModelRole.RESPONSE,
                 new ModelRequirements(
                         true,
                         Set.of(ModelCapability.VISION)));

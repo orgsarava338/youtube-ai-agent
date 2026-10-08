@@ -4,6 +4,7 @@ import com.youtubeagent.ai.core.LLMRequest;
 import com.youtubeagent.ai.core.LLMResponse;
 import com.youtubeagent.ai.model.ModelDefinition;
 import com.youtubeagent.ai.model.ModelRequirements;
+import com.youtubeagent.ai.model.ModelRole;
 import com.youtubeagent.ai.provider.LLMProvider;
 
 import lombok.extern.slf4j.Slf4j;
@@ -29,9 +30,9 @@ public class DefaultLLMRouter implements LLMRouter {
     }
 
     @Override
-    public LLMResponse generate(LLMRequest request, ModelRequirements requirements) {
+    public LLMResponse generate(LLMRequest request, ModelRole role, ModelRequirements requirements) {
 
-        List<ModelDefinition> models = modelSelector.select(requirements);
+        List<ModelDefinition> models = modelSelector.select(role, requirements);
 
         Exception lastException = null;
 
@@ -43,7 +44,7 @@ public class DefaultLLMRouter implements LLMRouter {
             }
 
             try {
-                LLMRequest modelRequest = new LLMRequest(model.id(), request.messages());
+                LLMRequest modelRequest = new LLMRequest(model.id(), request.messages(), request.tools());
                 log.info("Calling AI model: {} and provider: {}", model.id(), model.provider());
                 return provider.generate(modelRequest);
             } catch (Exception exception) {

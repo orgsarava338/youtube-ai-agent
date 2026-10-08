@@ -61,28 +61,68 @@ ai:
     models:
 
         # OpenRouter
+        # - id: apodex/apodex-1.1-mini
+        #   provider: openrouter
+        #   free: true
+        #   priority: 1
+        #   capabilities: CHAT, JSON, TOOL_CALLING
+
         - id: meta-llama/llama-3.3-70b-instruct
           provider: openrouter
           free: true
           priority: 1
-          capabilities:
-              - CHAT
-              - JSON
-              - TOOL_CALLING
+          capabilities: CHAT, JSON, TOOL_CALLING
 
         - id: google/gemma-3-27b-it
           provider: openrouter
           free: true
           priority: 2
-          capabilities:
-              - CHAT
-              - JSON
+          capabilities: CHAT, JSON
 
-        - id: deepseek-ai/deepseek-v4.1-flash
-          provider: nvidia
+        - id: mistralai/mistral-nemo
+          provider: openrouter
           free: true
           priority: 3
-          capabilities:
-          - CHAT
-          - JSON
-          - TOOL_CALLING
+          capabilities: CHAT, JSON, TOOL_CALLING
+
+        - id: meta-llama/llama-3.1-8b-instruct
+          provider: openrouter
+          free: true
+          priority: 4
+          capabilities: CHAT, JSON, TOOL_CALLING
+
+        - id: google/gemma-2-9b-it
+          provider: openrouter
+          free: true
+          priority: 5
+          capabilities: CHAT, JSON
+
+        - id: microsoft/phi-3-medium-128k-instruct
+          provider: openrouter
+          free: true
+          priority: 6
+          capabilities: CHAT, JSON
+
+        - id: mistralai/mistral-7b-instruct
+          provider: openrouter
+          free: true
+          priority: 7
+          capabilities: CHAT, JSON, TOOL_CALLING
+
+        - id: openchat/openchat-7b
+          provider: openrouter
+          free: true
+          priority: 8
+          capabilities: CHAT
+
+        - id: meta-llama/llama-3.2-3b-instruct
+          provider: openrouter
+          free: true
+          priority: 9
+          capabilities: CHAT, JSON
+
+        - id: google/gemma-3-4b-it
+          provider: openrouter
+          free: true
+          priority: 10
+          capabilities: CHAT

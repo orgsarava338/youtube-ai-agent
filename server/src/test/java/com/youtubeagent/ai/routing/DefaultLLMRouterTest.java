@@ -6,6 +6,7 @@ import com.youtubeagent.ai.core.LLMResponse;
 import com.youtubeagent.ai.model.ModelCapability;
 import com.youtubeagent.ai.model.ModelDefinition;
 import com.youtubeagent.ai.model.ModelRequirements;
+import com.youtubeagent.ai.model.ModelRole;
 import com.youtubeagent.ai.provider.LLMProvider;
 import org.junit.jupiter.api.Test;
 
@@ -30,7 +31,7 @@ class DefaultLLMRouterTest {
                 "provider-a",
                 10);
 
-        when(selector.select(any()))
+        when(selector.select(any(ModelRole.class), any(ModelRequirements.class)))
                 .thenReturn(List.of(model));
 
         when(provider.getProviderId())
@@ -49,7 +50,9 @@ class DefaultLLMRouterTest {
         LLMResponse result = router.generate(
                 new LLMRequest(
                         null,
-                        List.of(new LLMMessage("user", "hello"))),
+                        List.of(new LLMMessage("user", "hello")), 
+                        List.of()),
+                ModelRole.DECISION,
                 new ModelRequirements(true, Set.of()));
 
         assertEquals("hello", result.content());
@@ -69,7 +72,7 @@ class DefaultLLMRouterTest {
 
         ModelDefinition secondModel = model("model-b", "provider-b", 20);
 
-        when(selector.select(any()))
+        when(selector.select(any(ModelRole.class), any(ModelRequirements.class)))
                 .thenReturn(List.of(firstModel, secondModel));
 
         when(firstProvider.getProviderId())
@@ -94,7 +97,9 @@ class DefaultLLMRouterTest {
         LLMResponse result = router.generate(
                 new LLMRequest(
                         null,
-                        List.of(new LLMMessage("user", "hello"))),
+                        List.of(new LLMMessage("user", "hello")),
+                        List.of()),
+                ModelRole.DECISION,
                 new ModelRequirements(true, Set.of()));
 
         assertEquals("fallback worked", result.content());
@@ -112,7 +117,7 @@ class DefaultLLMRouterTest {
 
         ModelDefinition model = model("model-a", "provider-a", 10);
 
-        when(selector.select(any()))
+        when(selector.select(any(ModelRole.class), any(ModelRequirements.class)))
                 .thenReturn(List.of(model));
 
         when(provider.getProviderId())
@@ -130,9 +135,9 @@ class DefaultLLMRouterTest {
                 () -> router.generate(
                         new LLMRequest(
                                 null,
-                                List.of(new LLMMessage(
-                                        "user",
-                                        "hello"))),
+                                List.of(new LLMMessage("user", "hello")),
+                                List.of()),
+                        ModelRole.DECISION,
                         new ModelRequirements(
                                 true,
                                 Set.of())));
@@ -149,7 +154,7 @@ class DefaultLLMRouterTest {
 
         ModelDefinition model = model("model-a", "missing-provider", 10);
 
-        when(selector.select(any()))
+        when(selector.select(any(ModelRole.class), any(ModelRequirements.class)))
                 .thenReturn(List.of(model));
 
         DefaultLLMRouter router = new DefaultLLMRouter(selector, List.of());
@@ -159,9 +164,9 @@ class DefaultLLMRouterTest {
                 () -> router.generate(
                         new LLMRequest(
                                 null,
-                                List.of(new LLMMessage(
-                                        "user",
-                                        "hello"))),
+                                List.of(new LLMMessage("user", "hello")),
+                                List.of()),
+                        ModelRole.DECISION,
                         new ModelRequirements(
                                 true,
                                 Set.of())));

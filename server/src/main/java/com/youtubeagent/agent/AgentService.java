@@ -2,18 +2,15 @@ package com.youtubeagent.agent;
 
 import com.youtubeagent.ai.core.LLMMessage;
 import com.youtubeagent.ai.core.LLMRequest;
-import com.youtubeagent.ai.core.LLMResponse;
-import com.youtubeagent.ai.model.ModelRequirements;
-import com.youtubeagent.ai.routing.LLMRouter;
+import com.youtubeagent.ai.core.LLMToolCall;
+
 import lombok.extern.slf4j.Slf4j;
 import tools.jackson.databind.ObjectMapper;
 
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 @Slf4j
 @Service
@@ -21,96 +18,103 @@ public class AgentService {
 
     private static final int MAX_ITERATIONS = 5;
 
-    private final LLMRouter llmRouter;
     private final ToolRegistry toolRegistry;
+    private final DecisionModel decisionModel;
     private final ObjectMapper objectMapper;
 
-    public AgentService(LLMRouter llmRouter, ToolRegistry toolRegistry, ObjectMapper objectMapper) {
-        this.llmRouter = llmRouter;
+    public AgentService(
+            ToolRegistry toolRegistry,
+            DecisionModel decisionModel,
+            ObjectMapper objectMapper) {
+
         this.toolRegistry = toolRegistry;
+        this.decisionModel = decisionModel;
         this.objectMapper = objectMapper;
     }
 
     public AgentResponse chat(String userMessage) {
+        AgentContext context = new AgentContext(userMessage, buildSystemPrompt());
 
-        List<LLMMessage> messages = new ArrayList<>();
+        while (context.iteration() < MAX_ITERATIONS) {
+            context = context.nextIteration();
+            log.info("Agent iteration: {}", context.iteration());
 
-        messages.add(new LLMMessage("system", buildSystemPrompt()));
-        messages.add(new LLMMessage("user", userMessage));
+            LLMRequest request = buildRequest(context);
+            AgentDecision decision = decisionModel.decide(request);
 
-        for (int iteration = 0; iteration < MAX_ITERATIONS; iteration++) {
-            log.info("Agent iteration: {}", iteration + 1);
-
-            ModelRequirements requirements = new ModelRequirements(true, Set.of());
-            LLMRequest request = new LLMRequest(null, List.copyOf(messages));
-            LLMResponse response = llmRouter.generate(request, requirements);
-
-            messages.add(new LLMMessage("assistant", response.content()));
-
-            AgentResponse agentResponse = parseResponse(response.content());
-
-            if ("final_answer".equals(agentResponse.type())) {
-                return agentResponse;
+            if (decision.type() == AgentDecision.Type.FINAL_RESPONSE) {
+                return new AgentResponse("final_answer", List.of(), decision.content());
             }
-
-            if ("tool_calls".equals(agentResponse.type())) {
-                for (AgentResponse.ToolCall call : agentResponse.calls()) {
-                    String toolResult = executeTool(call);
-                    messages.add(new LLMMessage("user", buildToolResultMessage(call.tool(), toolResult)));
+            
+            if (decision.type() == AgentDecision.Type.TOOL_CALLS) {
+                context = context.addMessage(buildAssistantToolCallMessage(decision));
+                
+                for (ToolCall toolCall : decision.toolCalls()) {
+                    ToolExecutionResult toolResult = executeTool(toolCall);
+                    context = context.addMessage(LLMMessage.toolResult(toolCall.id(), buildToolResultMessage(toolResult)));
                 }
+
                 continue;
             }
 
-            throw new IllegalStateException("Unknown agent response type: " + agentResponse.type());
+            throw new IllegalStateException("Unknown agent decision type: " + decision.type());
         }
 
         throw new IllegalStateException("Agent exceeded maximum iterations");
+    }
+
+    private LLMMessage buildAssistantToolCallMessage(AgentDecision decision) {
+        List<LLMToolCall> toolCalls = decision.toolCalls()
+            .stream()
+            .map(toolCall -> new LLMToolCall(toolCall.id(), toolCall.tool(), toolCall.arguments()))
+            .toList();
+
+        return LLMMessage.assistantToolCalls(toolCalls);
+    }
+
+    private LLMRequest buildRequest(AgentContext context) {
+        return new LLMRequest(
+                null,
+                List.copyOf(context.messages()),
+                toolRegistry.getLLMToolDefinitions());
     }
 
     private String buildSystemPrompt() {
         return """
                 You are an AI agent that can use tools.
 
-                You must respond using valid JSON.
-
                 IMPORTANT:
-                - Return exactly ONE JSON object.
-                - Never return multiple JSON objects.
-                - Do not add markdown or explanations outside the JSON object.
-
-                JSON FORMATTING RULES:
-                - The response must always be valid JSON.
-                - Never put literal newlines inside a JSON string.
-                - If a string needs a line break, use the escaped sequence \\n.
-                - Escape double quotes inside string values as \\".
-                - Do not use trailing commas.
+                - Use tools when they are required to answer the user.
+                - Tool results contain real data returned by the application.
+                - Treat tool results as authoritative.
+                - Never invent values that are available from tool results.
 
                 TOOL EXECUTION RULES:
-                - After a tool returns a result, treat that result as authoritative.
                 - Do not repeat a tool call unless the previous tool call failed
-                  or the returned data is insufficient to answer the user.
+                  or the returned data is insufficient.
                 - If get_video successfully returns the requested video's details,
-                  use that result to answer the user directly.
+                  use that result instead of calling get_video again.
                 - Do not call list_videos again after get_video succeeds.
 
                 TOOL CALL SEQUENCING:
                 - Multiple tool calls may be returned in the same response when
-                  the calls are independent of each other.
-                - If a tool call requires a value produced by another tool,
-                  do not call both tools in the same response.
-                - Call the first tool, wait for its actual result, and then call
-                  the dependent tool in a later response.
-                - Always use actual values returned by previous tool calls.
-                - Never use placeholders, symbolic references, expressions, or
-                  variable references for tool results.
-                - Never use values such as:
-                  {output_of_tool_name}
-                  {output_of_get_current_time}
-                  $tool_result
-                  output_of_tool
-                  or similar constructs.
-                - Never invent a value when the required value is available from
-                  a previous tool result.
+                  the calls are independent.
+                - If a tool requires a value produced by another tool,
+                  call the first tool alone.
+                - Wait for its actual result before making the dependent call.
+                - Always use the actual values returned by previous tools.
+                - Never use placeholders, symbolic references, expressions,
+                  or variable references for tool results.
+
+                NEVER USE:
+                {output_of_tool_name}
+                {output_of_get_current_time}
+                $tool_result
+                output_of_tool
+                or similar placeholder expressions.
+
+                Never invent a value when the required value is available
+                in a previous tool result.
 
                 MULTI-TOOL EXAMPLES:
                 - list_videos and list_playlists are independent and may be
@@ -123,68 +127,41 @@ public class AgentService {
                   first, wait for the result, then call get_channel_analytics
                   using actual calculated dates.
 
-                When one or more independent tools are required, use:
-
-                {
-                  "type": "tool_calls",
-                  "calls": [
-                    {
-                      "tool": "tool_name",
-                      "arguments": {}
-                    }
-                  ]
-                }
-
-                When you have the final answer, use:
-
-                {
-                  "type": "final_answer",
-                  "content": "your answer"
-                }
-
                 Available tools:
                 %s
-                """.formatted(toolRegistry.getToolDescriptions());
+                """.formatted(
+                toolRegistry.getToolDescriptions());
     }
 
-    private String buildToolResultMessage(String tool, String toolResult) {
+    private String buildToolResultMessage(ToolExecutionResult toolResult) {
 
         try {
             return objectMapper.writeValueAsString(
                     Map.of(
                             "type", "tool_result",
-                            "tool", tool,
-                            "result", toolResult,
+                            "callId", toolResult.callId(),
+                                    "tool", toolResult.tool(),
+                            "success", toolResult.success(),
+                            "result", toolResult.result(),
                             "instructions",
-                            "The result above is the actual output returned "
-                                    + "by the application. Use the exact values "
-                                    + "from this result when making subsequent "
-                                    + "tool calls. Never use placeholders, "
-                                    + "symbolic references, or expressions for "
-                                    + "tool results. If another tool requires "
-                                    + "a value from this result, make that tool "
-                                    + "call in a later response using the actual "
-                                    + "value."));
+                            "Treat this result as authoritative. "
+                                    + "Use its actual values for subsequent tool calls. "
+                                    + "Do not invent or guess values."));
         } catch (Exception e) {
             throw new IllegalStateException("Failed to build tool result message", e);
         }
     }
 
-    private AgentResponse parseResponse(String content) {
+    private ToolExecutionResult executeTool(ToolCall toolCall) {
         try {
-            return objectMapper.readValue(content, AgentResponse.class);
+            String result = toolRegistry.execute(toolCall.tool(), toolCall.arguments());
+            return ToolExecutionResult.success(toolCall.id(), toolCall.tool(), result);
         } catch (Exception e) {
-            log.error("Failed to parse LLM response: {}", content, e);
-            throw new IllegalStateException("Invalid LLM response", e);
-        }
-    }
-
-    private String executeTool(AgentResponse.ToolCall call) {
-        try {
-            return toolRegistry.execute(call.tool(), call.arguments());
-        } catch (Exception e) {
-            log.error("Tool execution failed: {}", call.tool(), e);
-            return "Tool execution failed: " + e.getMessage();
+            log.error("Tool execution failed: {}", toolCall.tool(), e);
+            return ToolExecutionResult.failure(
+                    toolCall.id(),
+                    toolCall.tool(),
+                    "Tool execution failed: " + e.getMessage());
         }
     }
 }

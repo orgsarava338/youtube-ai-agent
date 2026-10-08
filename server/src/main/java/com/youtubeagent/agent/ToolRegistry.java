@@ -2,6 +2,8 @@ package com.youtubeagent.agent;
 
 import org.springframework.stereotype.Component;
 
+import com.youtubeagent.ai.core.LLMToolDefinition;
+
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
@@ -19,6 +21,21 @@ public class ToolRegistry {
 
     public List<AgentTool> getTools() {
         return tools;
+    }
+
+    public List<LLMToolDefinition> getLLMToolDefinitions() {
+        if (tools == null || tools.isEmpty()) {
+            return List.of();
+        }
+
+        return tools.stream()
+                .map(tool -> new LLMToolDefinition(
+                        tool.getName(),
+                        tool.getDescription(),
+                        Map.of(
+                                "type", "object",
+                                "additionalProperties", true)))
+                .toList();
     }
 
     public String getToolDescriptions() {
@@ -39,6 +56,7 @@ public class ToolRegistry {
 
         return description.toString();
     }
+
 
     public String execute(String toolName, Map<String, Object> arguments) {
         if (toolName == null || toolName.isBlank()) {
