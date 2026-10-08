@@ -10,7 +10,7 @@ http:
     type: json
     data: |-
       {
-        "message": "give me my playlist yogan"
+        "message": "give me my channel analytics for this month"
       }
   auth: inherit
 

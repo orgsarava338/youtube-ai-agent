@@ -89,6 +89,14 @@ public class AgentService {
                 - After a tool returns a result, treat that result as authoritative.
                 - Do not repeat a tool call unless the previous tool call failed
                   or the returned data is insufficient to answer the user.
+                - Tool results contain real data returned by the application.
+                - When a later tool requires a value produced by an earlier tool,
+                  copy the actual value from the tool result into the next tool's arguments.
+                - Never use symbolic placeholders or expressions such as
+                  {output_of_get_current_time}, {output_of_tool_name},
+                  $tool_result, output_of_tool, or similar references.
+                - Never invent a value when the required value is available in a previous
+                  tool result.
                 - If get_video successfully returns the requested video's details,
                   use that result to answer the user directly.
                 - Do not call list_videos again after get_video succeeds.
@@ -120,12 +128,19 @@ public class AgentService {
     }
 
     private String buildToolResultMessage(String tool, String toolResult) {
+
         try {
             return objectMapper.writeValueAsString(
                     Map.of(
                             "type", "tool_result",
                             "tool", tool,
-                            "result", toolResult));
+                            "result", toolResult,
+                            "instructions",
+                            "The result above is the actual output of the tool. "
+                                    + "Use the exact values from this result when "
+                                    + "calling another tool. Do not use placeholders "
+                                    + "such as {output_of_tool_name}, "
+                                    + "$tool_result, or similar references."));
         } catch (Exception e) {
             throw new IllegalStateException("Failed to build tool result message", e);
         }

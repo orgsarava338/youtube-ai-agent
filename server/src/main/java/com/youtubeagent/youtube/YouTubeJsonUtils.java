@@ -25,6 +25,14 @@ public final class YouTubeJsonUtils {
         return node.get(field).asLong();
     }
 
+    public static long longValue(JsonNode row, int index) {
+        if (row == null || row.get(index) == null) {
+            return 0;
+        }
+
+        return row.get(index).asLong();
+    }
+
     public static boolean booleanValue(JsonNode node, String field) {
         if (node == null || node.get(field) == null) {
             return false;
