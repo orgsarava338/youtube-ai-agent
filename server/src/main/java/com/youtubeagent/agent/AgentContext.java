@@ -10,13 +10,8 @@ public record AgentContext(
         List<LLMMessage> messages,
         int iteration) {
 
-    public AgentContext(String userMessage, String systemPrompt) {
-        this(
-                userMessage,
-                List.of(
-                        new LLMMessage("system", systemPrompt),
-                        new LLMMessage("user", userMessage)),
-                0);
+    public AgentContext(String userMessage) {
+        this(userMessage, List.of(new LLMMessage("user", userMessage)), 0);
     }
 
     public AgentContext {

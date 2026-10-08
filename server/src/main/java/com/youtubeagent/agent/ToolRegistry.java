@@ -57,7 +57,6 @@ public class ToolRegistry {
         return description.toString();
     }
 
-
     public String execute(String toolName, Map<String, Object> arguments) {
         if (toolName == null || toolName.isBlank()) {
             throw new IllegalArgumentException("Tool name is required.");
@@ -72,4 +71,5 @@ public class ToolRegistry {
 
         return result == null ? "" : result.toString();
     }
+
 }

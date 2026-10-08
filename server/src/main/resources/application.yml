@@ -7,6 +7,10 @@ spring:
 logging:
     pattern:
         console: "%d{yyyy-MM-dd HH:mm.SSS} %-5level %logger{0} [%X{requestId:-}] - %msg%n"
+    level:
+        root: INFO
+        com:
+            youtubeagent: DEBUG
 
 management:
     endpoints:
@@ -62,13 +66,6 @@ ai:
             base-url: https://integrate.api.nvidia.com
 
     models:
-
-        # OpenRouter
-        # - id: apodex/apodex-1.1-mini
-        #   provider: openrouter
-        #   free: true
-        #   priority: 1
-        #   capabilities: CHAT, JSON, TOOL_CALLING
 
         - id: meta-llama/llama-3.3-70b-instruct
           provider: openrouter

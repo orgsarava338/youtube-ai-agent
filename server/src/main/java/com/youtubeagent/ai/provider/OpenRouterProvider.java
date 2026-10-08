@@ -49,6 +49,8 @@ public class OpenRouterProvider implements LLMProvider {
                 convertTools(request.tools()),
                 false);
 
+        logMessageContext(request.messages());
+
         OpenRouterResponse response = restClient.post()
                 .uri("/v1/chat/completions")
                 .header("Content-Type", "application/json")
@@ -73,6 +75,25 @@ public class OpenRouterProvider implements LLMProvider {
         }
 
         return new LLMResponse(content, getProviderId(), request.model(), toolCalls);
+    }
+
+    private void logMessageContext(List<LLMMessage> messages) {
+
+        log.debug("OpenRouter message context: messageCount={}", messages.size());
+
+        for (int i = 0; i < messages.size(); i++) {
+
+            LLMMessage message = messages.get(i);
+
+            log.debug(
+                    "message[{}] role={} toolCallId={} toolCalls={}",
+                    i,
+                    message.role(),
+                    message.toolCallId(),
+                    message.toolCalls().stream()
+                            .map(toolCall -> toolCall.name() + toolCall.arguments())
+                            .toList());
+        }
     }
 
     private List<LLMToolCall> parseToolCalls(List<OpenRouterToolCall> rawToolCalls) {

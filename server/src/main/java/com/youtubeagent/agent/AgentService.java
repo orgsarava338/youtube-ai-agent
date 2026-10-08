@@ -20,20 +20,23 @@ public class AgentService {
 
     private final ToolRegistry toolRegistry;
     private final DecisionModel decisionModel;
+    private final ResponseModel responseModel;
     private final ObjectMapper objectMapper;
 
     public AgentService(
             ToolRegistry toolRegistry,
             DecisionModel decisionModel,
+            ResponseModel responseModel,
             ObjectMapper objectMapper) {
 
         this.toolRegistry = toolRegistry;
         this.decisionModel = decisionModel;
+        this.responseModel = responseModel;
         this.objectMapper = objectMapper;
     }
 
     public AgentResponse chat(String userMessage) {
-        AgentContext context = new AgentContext(userMessage, buildSystemPrompt());
+        AgentContext context = new AgentContext(userMessage);
 
         while (context.iteration() < MAX_ITERATIONS) {
             context = context.nextIteration();
@@ -43,7 +46,8 @@ public class AgentService {
             AgentDecision decision = decisionModel.decide(request);
 
             if (decision.type() == AgentDecision.Type.FINAL_RESPONSE) {
-                return new AgentResponse("final_answer", List.of(), decision.content());
+                String finalResponse = responseModel.generate(buildResponseRequest(context));
+                return new AgentResponse("final_answer", List.of(), finalResponse);
             }
 
             if (decision.type() == AgentDecision.Type.TOOL_CALLS) {
@@ -80,58 +84,8 @@ public class AgentService {
                 toolRegistry.getLLMToolDefinitions());
     }
 
-    private String buildSystemPrompt() {
-        return """
-                You are an AI agent that can use tools.
-
-                IMPORTANT:
-                - Use tools when they are required to answer the user.
-                - Tool results contain real data returned by the application.
-                - Treat tool results as authoritative.
-                - Never invent values that are available from tool results.
-
-                TOOL EXECUTION RULES:
-                - Do not repeat a tool call unless the previous tool call failed
-                  or the returned data is insufficient.
-                - If get_video successfully returns the requested video's details,
-                  use that result instead of calling get_video again.
-                - Do not call list_videos again after get_video succeeds.
-
-                TOOL CALL SEQUENCING:
-                - Multiple tool calls may be returned in the same response when
-                  the calls are independent.
-                - If a tool requires a value produced by another tool,
-                  call the first tool alone.
-                - Wait for its actual result before making the dependent call.
-                - Always use the actual values returned by previous tools.
-                - Never use placeholders, symbolic references, expressions,
-                  or variable references for tool results.
-
-                NEVER USE:
-                {output_of_tool_name}
-                {output_of_get_current_time}
-                $tool_result
-                output_of_tool
-                or similar placeholder expressions.
-
-                Never invent a value when the required value is available
-                in a previous tool result.
-
-                MULTI-TOOL EXAMPLES:
-                - list_videos and list_playlists are independent and may be
-                  called together.
-                - list_playlists followed by get_playlist_videos is dependent.
-                  Call list_playlists first, wait for the result, then call
-                  get_playlist_videos using the actual playlistId.
-                - get_current_time followed by get_channel_analytics is dependent
-                  when calculating a relative date range. Call get_current_time
-                  first, wait for the result, then call get_channel_analytics
-                  using actual calculated dates.
-
-                Available tools:
-                %s
-                """.formatted(
-                toolRegistry.getToolDescriptions());
+    private LLMRequest buildResponseRequest(AgentContext context) {
+        return new LLMRequest(null, List.copyOf(context.messages()), List.of());
     }
 
     private String buildToolResultMessage(ToolExecutionResult toolResult) {

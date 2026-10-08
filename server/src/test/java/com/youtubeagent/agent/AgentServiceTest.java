@@ -16,16 +16,20 @@ class AgentServiceTest {
     @Test
     void shouldReturnFinalAnswerImmediately() {
         DecisionModel decisionModel = mock(DecisionModel.class);
+        ResponseModel responseModel = mock(ResponseModel.class);
         ToolRegistry registry = mock(ToolRegistry.class);
 
         when(registry.getToolDescriptions())
                 .thenReturn("No tools available.");
         when(decisionModel.decide(any(LLMRequest.class)))
                 .thenReturn(AgentDecision.finalResponse("Hello"));
+        when(responseModel.generate(any(LLMRequest.class)))
+                .thenReturn("Hello");
 
         AgentService service = new AgentService(
                 registry,
                 decisionModel,
+                responseModel,
                 new ObjectMapper());
 
         AgentResponse response = service.chat("Hello");
@@ -33,11 +37,13 @@ class AgentServiceTest {
         assertEquals("final_answer", response.type());
         assertEquals("Hello", response.content());
         verify(decisionModel).decide(any(LLMRequest.class));
+        verify(responseModel).generate(any(LLMRequest.class));
     }
 
     @Test
     void shouldExecuteToolAndPreserveConversationHistory() {
         DecisionModel decisionModel = mock(DecisionModel.class);
+        ResponseModel responseModel = mock(ResponseModel.class);
         ToolRegistry registry = mock(ToolRegistry.class);
 
         when(registry.getToolDescriptions())
@@ -54,10 +60,13 @@ class AgentServiceTest {
                                         "calculate",
                                         Map.of("expression", "5 - 2")))),
                         AgentDecision.finalResponse("The answer is 3."));
+        when(responseModel.generate(any(LLMRequest.class)))
+                .thenReturn("The answer is 3.");
 
         AgentService service = new AgentService(
                 registry,
                 decisionModel,
+                responseModel,
                 new ObjectMapper());
 
         AgentResponse response = service.chat("What is 5 - 2?");
@@ -68,7 +77,10 @@ class AgentServiceTest {
         var requests = org.mockito.ArgumentCaptor.forClass(LLMRequest.class);
         verify(decisionModel, times(2)).decide(requests.capture());
         assertTrue(requests.getAllValues().get(1).messages().stream()
-                .anyMatch(message -> message.content().contains("\"result\":\"3.0\"")));
+                .anyMatch(message -> "tool".equals(message.role())
+                        && "call-1".equals(message.toolCallId())
+                        && message.content() != null
+                        && message.content().contains("\"result\":\"3.0\"")));
         verify(registry).execute(
                 "calculate",
                 Map.of("expression", "5 - 2"));
@@ -77,6 +89,7 @@ class AgentServiceTest {
     @Test
     void shouldIncludeToolExecutionFailureInConversation() {
         DecisionModel decisionModel = mock(DecisionModel.class);
+        ResponseModel responseModel = mock(ResponseModel.class);
         ToolRegistry registry = mock(ToolRegistry.class);
 
         when(registry.getToolDescriptions())
@@ -88,10 +101,13 @@ class AgentServiceTest {
                         AgentDecision.toolCalls(List.of(
                                 new ToolCall("call-1", "calculate", Map.of()))),
                         AgentDecision.finalResponse("The tool failed."));
+        when(responseModel.generate(any(LLMRequest.class)))
+                .thenReturn("The tool failed.");
 
         AgentService service = new AgentService(
                 registry,
                 decisionModel,
+                responseModel,
                 new ObjectMapper());
 
         AgentResponse response = service.chat("Calculate something.");
@@ -100,12 +116,16 @@ class AgentServiceTest {
         var requests = org.mockito.ArgumentCaptor.forClass(LLMRequest.class);
         verify(decisionModel, times(2)).decide(requests.capture());
         assertTrue(requests.getAllValues().get(1).messages().stream()
-                .anyMatch(message -> message.content().contains("Tool execution failed: calculation failed")));
+                .anyMatch(message -> "tool".equals(message.role())
+                        && "call-1".equals(message.toolCallId())
+                        && message.content() != null
+                        && message.content().contains("Tool execution failed: calculation failed")));
     }
 
     @Test
     void shouldFailAfterMaximumDecisionIterations() {
         DecisionModel decisionModel = mock(DecisionModel.class);
+        ResponseModel responseModel = mock(ResponseModel.class);
         ToolRegistry registry = mock(ToolRegistry.class);
 
         when(registry.getToolDescriptions())
@@ -116,6 +136,7 @@ class AgentServiceTest {
         AgentService service = new AgentService(
                 registry,
                 decisionModel,
+                responseModel,
                 new ObjectMapper());
 
         IllegalStateException exception = assertThrows(
