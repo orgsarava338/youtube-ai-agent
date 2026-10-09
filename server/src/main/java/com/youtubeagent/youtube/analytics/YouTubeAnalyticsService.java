@@ -26,7 +26,7 @@ public class YouTubeAnalyticsService {
         this.restClient = RestClient.builder().baseUrl(YOUTUBE_ANALYTICS_API_BASE_URL).build();
     }
 
-    public YouTubeAnalytics getChannelAnalytics(LocalDate startDate, LocalDate endDate) {
+    public YouTubeAnalytics getMyChannelAnalytics(LocalDate startDate, LocalDate endDate) {
 
         validateDateRange(startDate, endDate);
 

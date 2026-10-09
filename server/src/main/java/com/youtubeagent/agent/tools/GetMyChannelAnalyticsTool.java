@@ -89,7 +89,11 @@ public class GetMyChannelAnalyticsTool implements AgentTool {
         LocalDate startDate = parseDate(startDateValue, "startDate");
         LocalDate endDate = parseDate(endDateValue, "endDate");
 
-        YouTubeAnalytics analytics = analyticsService.getChannelAnalytics(startDate, endDate);
+        if (endDate.isBefore(startDate)) {
+            throw new IllegalArgumentException("endDate must not be before startDate");
+        }
+
+        YouTubeAnalytics analytics = analyticsService.getMyChannelAnalytics(startDate, endDate);
 
         try {
             return objectMapper.writeValueAsString(analytics);

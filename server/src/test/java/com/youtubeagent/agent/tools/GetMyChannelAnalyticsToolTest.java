@@ -22,14 +22,14 @@ class GetMyChannelAnalyticsToolTest {
         YouTubeAnalyticsService service = mock(YouTubeAnalyticsService.class);
         LocalDate start = LocalDate.parse("2024-01-01");
         LocalDate end = LocalDate.parse("2024-01-31");
-        when(service.getChannelAnalytics(start, end)).thenReturn(new YouTubeAnalytics(start, end, 25, 60, 40, 4, 2, 1, 0));
+        when(service.getMyChannelAnalytics(start, end)).thenReturn(new YouTubeAnalytics(start, end, 25, 60, 40, 4, 2, 1, 0));
         GetMyChannelAnalyticsTool tool = new GetMyChannelAnalyticsTool(service, new ObjectMapper());
 
         String result = tool.execute(Map.of("startDate", start.toString(), "endDate", end.toString())).toString();
 
         assertTrue(result.contains("\"views\":25"));
         assertTrue(result.contains("\"subscribersGained\":1"));
-        verify(service).getChannelAnalytics(start, end);
+        verify(service).getMyChannelAnalytics(start, end);
     }
 
     @Test
@@ -43,4 +43,19 @@ class GetMyChannelAnalyticsToolTest {
                 () -> tool.execute(Map.of("startDate", "not-a-date", "endDate", "2024-01-31")));
         verifyNoInteractions(service);
     }
+
+    @Test
+    void rejectsStartDateAfterEndDateWithoutCallingService() {
+        YouTubeAnalyticsService service = mock(YouTubeAnalyticsService.class);
+        GetMyChannelAnalyticsTool tool = new GetMyChannelAnalyticsTool(service, new ObjectMapper());
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> tool.execute(Map.of(
+                        "startDate", "2024-02-01",
+                        "endDate", "2024-01-31")));
+
+        verifyNoInteractions(service);
+    }
+
 }

@@ -36,7 +36,7 @@ class YouTubeAnalyticsServiceTest {
                          "rows":[[100,250,30,8,3,2,1]]}
                         """, MediaType.APPLICATION_JSON));
 
-        YouTubeAnalytics result = service.getChannelAnalytics(
+        YouTubeAnalytics result = service.getMyChannelAnalytics(
                 LocalDate.parse("2024-01-01"), LocalDate.parse("2024-01-31"));
 
         assertEquals(100, result.views());
@@ -55,11 +55,11 @@ class YouTubeAnalyticsServiceTest {
         YouTubeAnalyticsService service = new YouTubeAnalyticsService(oauth, new ObjectMapper());
 
         assertThrows(IllegalArgumentException.class,
-                () -> service.getChannelAnalytics(null, LocalDate.now()));
+                () -> service.getMyChannelAnalytics(null, LocalDate.now()));
         assertThrows(IllegalArgumentException.class,
-                () -> service.getChannelAnalytics(LocalDate.now(), null));
+                () -> service.getMyChannelAnalytics(LocalDate.now(), null));
         assertThrows(IllegalArgumentException.class,
-                () -> service.getChannelAnalytics(LocalDate.parse("2024-02-01"), LocalDate.parse("2024-01-01")));
+                () -> service.getMyChannelAnalytics(LocalDate.parse("2024-02-01"), LocalDate.parse("2024-01-01")));
         verifyNoInteractions(oauth);
     }
 }
