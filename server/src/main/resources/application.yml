@@ -67,7 +67,7 @@ ai:
 
     models:
 
-        - id: apodex/apodex-1.1-mini:free
+        - id: nvidia/nemotron-3-ultra-550b-a55b:free
           provider: openrouter
           priority: 1
           free: true
@@ -76,9 +76,18 @@ ai:
           - JSON
           - CHAT
 
-        - id: nvidia/nemotron-3.5-lightning:free
+        - id: apodex/apodex-1.1-mini:free
           provider: openrouter
           priority: 2
+          free: true
+          capabilities:
+          - TOOL_CALLING
+          - JSON
+          - CHAT
+
+        - id: nvidia/nemotron-3.5-lightning:free
+          provider: openrouter
+          priority: 3
           free: true
           capabilities:
             - TOOL_CALLING
