@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: assistube-postgres
+    environment:
+      POSTGRES_DB: assistube
+      POSTGRES_USER: assistube
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in your environment}
+    ports:
+      - "5432:5432"
+    volumes:
+      - assistube-postgres-data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  assistube-postgres-data:
