@@ -10,7 +10,7 @@ http:
     type: json
     data: |-
       {
-        "message": "get my last video full analytics"
+        "message": "can you check my latest video's performance compared to the previous one?"
       }
   auth: inherit
 
