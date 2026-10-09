@@ -16,6 +16,8 @@ public class YouTubeAnalyticsService {
 
     private static final String YOUTUBE_ANALYTICS_API_BASE_URL = "https://youtubeanalytics.googleapis.com";
 
+    private static final String ANALYTICS_METRICS = "views,estimatedMinutesWatched,averageViewDuration,likes,comments,subscribersGained,subscribersLost";
+
     private final YouTubeOAuthService oauthService;
     private final ObjectMapper objectMapper;
     private final RestClient restClient;
@@ -39,12 +41,34 @@ public class YouTubeAnalyticsService {
                         .queryParam("ids", "channel==MINE")
                         .queryParam("startDate", startDate)
                         .queryParam("endDate", endDate)
-                        .queryParam(
-                                "metrics",
-                                "views,estimatedMinutesWatched,"
-                                        + "averageViewDuration,likes,"
-                                        + "comments,subscribersGained,"
-                                        + "subscribersLost")
+                        .queryParam("metrics", ANALYTICS_METRICS)
+                        .build())
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token.accessToken())
+                .retrieve()
+                .body(String.class);
+
+        return parseAnalytics(response, startDate, endDate);
+    }
+
+    public YouTubeAnalytics getMyVideoAnalytics(String videoId, LocalDate startDate, LocalDate endDate) {
+
+        if (videoId == null || videoId.isBlank()) {
+            throw new IllegalArgumentException("videoId is required");
+        }
+
+        validateDateRange(startDate, endDate);
+
+        var token = oauthService.getValidAnalyticsToken();
+
+        String response = restClient
+                .get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/v2/reports")
+                        .queryParam("ids", "channel==MINE")
+                        .queryParam("startDate", startDate)
+                        .queryParam("endDate", endDate)
+                        .queryParam("metrics", ANALYTICS_METRICS)
+                        .queryParam("filters", "video==" + videoId.trim())
                         .build())
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + token.accessToken())
                 .retrieve()

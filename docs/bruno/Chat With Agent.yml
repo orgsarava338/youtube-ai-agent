@@ -10,7 +10,7 @@ http:
     type: json
     data: |-
       {
-        "message": "what is my yotube channel and how many videos I have"
+        "message": "get my last video full analytics"
       }
   auth: inherit
 

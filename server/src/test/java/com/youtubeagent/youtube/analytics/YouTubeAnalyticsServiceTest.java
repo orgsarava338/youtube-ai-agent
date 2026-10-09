@@ -62,4 +62,59 @@ class YouTubeAnalyticsServiceTest {
                 () -> service.getMyChannelAnalytics(LocalDate.parse("2024-02-01"), LocalDate.parse("2024-01-01")));
         verifyNoInteractions(oauth);
     }
+
+    @Test
+    void requestsAnalyticsForSpecificVideo() {
+        YouTubeOAuthService oauth = mock(YouTubeOAuthService.class);
+        when(oauth.getValidAnalyticsToken()).thenReturn(
+                new YouTubeToken(
+                        "analytics-token",
+                        "refresh-token",
+                        Long.MAX_VALUE,
+                        "scope",
+                        "Bearer"));
+
+        YouTubeAnalyticsService service = new YouTubeAnalyticsService(oauth, new ObjectMapper());
+
+        MockRestServiceServer server = RestClientTestSupport.install(service);
+
+        server.expect(requestTo(containsString("/v2/reports")))
+                .andExpect(requestTo(containsString("ids=channel%3D%3DMINE")))
+                .andExpect(requestTo(containsString("filters=video%3D%3Dabc123XYZ89")))
+                .andExpect(header("Authorization", "Bearer analytics-token"))
+                .andRespond(withSuccess("""
+                        {"rows":[[100,250,30,8,3,2,1]]}
+                        """, MediaType.APPLICATION_JSON));
+
+        YouTubeAnalytics result = service.getMyVideoAnalytics(
+                "abc123XYZ89",
+                LocalDate.parse("2024-01-01"),
+                LocalDate.parse("2024-01-31"));
+
+        assertEquals(100, result.views());
+        assertEquals(250, result.estimatedMinutesWatched());
+        assertEquals(30, result.averageViewDurationSeconds());
+
+        server.verify();
+    }
+
+    @Test
+    void rejectsMissingVideoIdBeforeFetchingToken() {
+        YouTubeOAuthService oauth = mock(YouTubeOAuthService.class);
+
+        YouTubeAnalyticsService service = new YouTubeAnalyticsService(oauth, new ObjectMapper());
+
+        LocalDate startDate = LocalDate.parse("2024-01-01");
+        LocalDate endDate = LocalDate.parse("2024-01-31");
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> service.getMyVideoAnalytics(null, startDate, endDate));
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> service.getMyVideoAnalytics("  ", startDate, endDate));
+
+        verifyNoInteractions(oauth);
+    }
 }
