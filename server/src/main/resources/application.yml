@@ -3,6 +3,20 @@ spring:
         name: youtube-agent
     config:
         import: optional:file:.env/.env.${spring.profiles.active:local}[.properties]
+    security:
+        oauth2:
+            client:
+                registration:
+                  google:
+                    client-id: ${GOOGLE_CLIENT_ID}
+                    client-secret: ${GOOGLE_CLIENT_SECRET}
+                    scope:
+                      - openid
+                      - profile
+                      - email
+
+app:
+    frontend-url: ${APP_FRONTEND_URL:http://localhost:5173}
 
 logging:
     pattern:
@@ -23,9 +37,9 @@ management:
 
 youtube:
     google-o-auth:
-        client-id: ${YOUTUBE_GOOGLE_CLIENT_ID}
-        client-secret: ${YOUTUBE_GOOGLE_CLIENT_SECRET}
-        redirect-uri: ${YOUTUBE_GOOGLE_REDIRECT_URI}
+        client-id: ${GOOGLE_CLIENT_ID}
+        client-secret: ${GOOGLE_CLIENT_SECRET}
+        redirect-uri: ${GOOGLE_REDIRECT_URI}
     
     token-storage:
         file-path: .data/youtube-token.enc
