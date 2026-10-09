@@ -6,5 +6,6 @@ public enum ModelCapability {
     JSON,
     TOOL_CALLING,
     VISION,
-    STREAMING
+    STREAMING,
+    DECISION
 }

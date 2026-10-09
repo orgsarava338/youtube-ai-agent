@@ -10,7 +10,7 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-class GetChannelInfoToolTest {
+class GetMyChannelToolTest {
 
     @Test
     void shouldReturnChannelInformation() {
@@ -32,7 +32,7 @@ class GetChannelInfoToolTest {
         when(service.getMyChannel())
                 .thenReturn(channel);
 
-        GetChannelInfoTool tool = new GetChannelInfoTool(
+        GetMyChannelTool tool = new GetMyChannelTool(
                 service,
                 objectMapper);
 

@@ -11,19 +11,19 @@ import java.util.List;
 import java.util.Map;
 
 @Component
-public class ListPlaylistsTool implements AgentTool {
+public class GetMyPlaylistsTool implements AgentTool {
 
     private final YouTubePlaylistService playlistService;
     private final ObjectMapper objectMapper;
 
-    public ListPlaylistsTool(YouTubePlaylistService playlistService, ObjectMapper objectMapper) {
+    public GetMyPlaylistsTool(YouTubePlaylistService playlistService, ObjectMapper objectMapper) {
         this.playlistService = playlistService;
         this.objectMapper = objectMapper;
     }
 
     @Override
     public String getName() {
-        return "list_playlists";
+        return "get_my_playlists";
     }
 
     @Override

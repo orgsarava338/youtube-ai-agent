@@ -11,22 +11,19 @@ import java.time.LocalDate;
 import java.util.Map;
 
 @Component
-public class GetChannelAnalyticsTool implements AgentTool {
+public class GetMyChannelAnalyticsTool implements AgentTool {
 
     private final YouTubeAnalyticsService analyticsService;
     private final ObjectMapper objectMapper;
 
-    public GetChannelAnalyticsTool(
-            YouTubeAnalyticsService analyticsService,
-            ObjectMapper objectMapper) {
-
+    public GetMyChannelAnalyticsTool(YouTubeAnalyticsService analyticsService, ObjectMapper objectMapper) {
         this.analyticsService = analyticsService;
         this.objectMapper = objectMapper;
     }
 
     @Override
     public String getName() {
-        return "get_channel_analytics";
+        return "get_my_channel_analytics";
     }
 
     @Override

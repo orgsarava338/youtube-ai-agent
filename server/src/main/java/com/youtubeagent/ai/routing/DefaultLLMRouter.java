@@ -49,6 +49,12 @@ public class DefaultLLMRouter implements LLMRouter {
                 return provider.generate(modelRequest);
             } catch (Exception exception) {
                 lastException = exception;
+                log.warn(
+                        "LLM call failed role={} model={} provider={} error={}",
+                        role,
+                        model.id(),
+                        model.provider(),
+                        exception.getMessage());
             }
         }
 

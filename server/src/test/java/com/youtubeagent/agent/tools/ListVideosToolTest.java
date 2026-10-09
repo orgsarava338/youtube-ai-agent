@@ -25,7 +25,7 @@ class ListVideosToolTest {
         when(service.getMyVideos(10))
                 .thenReturn(List.of());
 
-        ListVideosTool tool = new ListVideosTool(
+        GetMyVideosTool tool = new GetMyVideosTool(
                 service,
                 objectMapper);
 
@@ -46,7 +46,7 @@ class ListVideosToolTest {
         when(service.getMyVideos(5))
                 .thenReturn(List.of());
 
-        ListVideosTool tool = new ListVideosTool(
+        GetMyVideosTool tool = new GetMyVideosTool(
                 service,
                 objectMapper);
 
@@ -76,7 +76,7 @@ class ListVideosToolTest {
 
         when(service.getMyVideos(10)).thenReturn(List.of(video));
 
-        ListVideosTool tool = new ListVideosTool(
+        GetMyVideosTool tool = new GetMyVideosTool(
                 service,
                 objectMapper);
 

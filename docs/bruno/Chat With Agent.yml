@@ -10,7 +10,7 @@ http:
     type: json
     data: |-
       {
-        "message": "Show me my playlists and then get the videos from the playlist 'YOGAN SERIES'. Give me the video titles."
+        "message": "what is my yotube channel and how many videos I have"
       }
   auth: inherit
 
