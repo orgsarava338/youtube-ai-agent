@@ -29,43 +29,44 @@ public class GetPlaylistVideosTool implements AgentTool {
     @Override
     public String getDescription() {
         return """
-                Returns videos contained in a YouTube playlist.
+            Returns videos contained in a YouTube playlist.
 
-                Required argument:
-                - playlistId: the actual YouTube playlist ID.
+            Required argument:
+            - playlistId: the exact YouTube playlist ID returned by
+              get_my_playlists.
 
-                Optional argument:
-                - maxResults: number of videos to return,
-                  from 1 to 50. Default is 10.
+            Optional argument:
+            - maxResults: number of videos to return, from 1 to 50.
+              Default is 10.
 
-                Each returned item includes:
-                - video: video summary containing:
-                  - videoId: the actual YouTube video ID
-                  - title: video title
-                  - description: video description
-                  - publishedAt: publication timestamp
-                  - thumbnailUrl: thumbnail URL
-                  - channelId: video channel ID
-                  - channelTitle: video channel name
-                - position: video's position in the playlist.
+            CRITICAL PLAYLIST ID RULES:
+            - ALWAYS obtain the playlistId from the actual output of
+              get_my_playlists when selecting a user's playlist.
+            - Copy the playlistId character for character from that output.
+            - Preserve every letter, digit, uppercase character, lowercase
+              character, underscore, and hyphen exactly as provided.
+            - Do not retype, reconstruct, shorten, normalize, modify,
+              or guess any part of the playlistId.
+            - Do not substitute a playlist title, channel ID, or video ID.
+            - Before calling this tool, verify that the playlistId exactly
+              matches the ID returned by get_my_playlists.
+            - If the playlist ID is unavailable in the conversation or
+              tool output, call get_my_playlists again instead of guessing.
+            - Never reuse a playlist ID from memory or a previous request
+              when the current request requires a different playlist.
 
-                Important:
-                - playlistId must be a real YouTube playlist ID.
-                - Never invent, guess, or use placeholder playlist IDs.
-                - If the user provides a playlist title instead of an ID,
-                  first use list_playlists to find the actual playlistId.
-                - The returned position represents the video's order
-                  within the playlist.
-                - This tool returns playlist video metadata only.
-                - Detailed video statistics such as views, likes,
-                  comments, and duration are not included here.
-                - If detailed information about a video is needed,
-                  use get_video with the returned videoId.
+            Each returned item includes:
+            - video: video summary containing videoId, title, description,
+              publishedAt, thumbnailUrl, channelId, and channelTitle.
+            - position: video's position within the playlist.
 
-                Use this tool when the user asks for videos contained
-                in a specific playlist or wants to analyze the contents
-                of a playlist.
-                """;
+            This tool returns playlist video metadata only.
+            For detailed video statistics such as views, likes, comments,
+            and duration, use get_video with the returned videoId.
+
+            Use this tool when the user asks for videos contained in
+            a specific YouTube playlist.
+            """;
     }
 
     @Override

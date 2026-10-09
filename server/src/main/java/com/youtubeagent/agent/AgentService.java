@@ -33,10 +33,13 @@ public class AgentService {
         this.decisionModel = decisionModel;
         this.responseModel = responseModel;
         this.objectMapper = objectMapper;
+
+        log.info("Available Tools: {}", toolRegistry.getToolNames());
     }
 
     public AgentResponse chat(String userMessage) {
         AgentContext context = new AgentContext(userMessage);
+
 
         while (context.iteration() < MAX_ITERATIONS) {
             context = context.nextIteration();

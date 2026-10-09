@@ -38,6 +38,10 @@ public class ToolRegistry {
                 .toList();
     }
 
+    public List<String> getToolNames() {
+        return tools.stream().map(tool -> tool.getName()).toList();
+    }
+
     public String getToolDescriptions() {
         if (tools == null || tools.isEmpty()) {
             return "No tools available.";

@@ -9,8 +9,8 @@ logging:
         console: "%d{yyyy-MM-dd HH:mm.SSS} %-5level %logger{0} [%X{requestId:-}] - %msg%n"
     level:
         root: INFO
-        com:
-            youtubeagent: DEBUG
+        # com:
+            # youtubeagent: DEBUG
 
 management:
     endpoints:
