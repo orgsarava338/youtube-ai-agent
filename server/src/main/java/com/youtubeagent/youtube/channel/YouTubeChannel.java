@@ -8,5 +8,6 @@ public record YouTubeChannel(
         String thumbnailUrl,
         long subscriberCount,
         long videoCount,
-        long viewCount) {
+        long viewCount,
+        String uploadsPlaylistId) {
 }

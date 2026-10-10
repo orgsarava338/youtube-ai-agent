@@ -1,8 +1,10 @@
 package com.youtubeagent.youtube.oauth;
 
 import com.youtubeagent.youtube.YouTubeProperties;
+import com.youtubeagent.youtube.token.YouTubeTokenPersistenceService;
 
 import org.springframework.http.MediaType;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.client.RestClient;
@@ -22,11 +24,13 @@ public class YouTubeOAuthService {
 
     private final YouTubeProperties properties;
     private final EncryptedYouTubeTokenStore tokenStore;
+    private final YouTubeTokenPersistenceService tokenPersistenceService;
     private final RestClient restClient;
 
-    public YouTubeOAuthService(YouTubeProperties properties, EncryptedYouTubeTokenStore tokenStore) {
+    public YouTubeOAuthService(YouTubeProperties properties, EncryptedYouTubeTokenStore tokenStore, YouTubeTokenPersistenceService tokenPersistenceService) {
         this.properties = properties;
         this.tokenStore = tokenStore;
+        this.tokenPersistenceService = tokenPersistenceService;
         this.restClient = RestClient.builder().build();
     }
 
@@ -73,41 +77,6 @@ public class YouTubeOAuthService {
         return response;
     }
 
-    public YouTubeToken getValidToken() {
-        return getValidToken(YOUTUBE_FORCE_SCOPE);
-    }
-
-    public YouTubeToken getValidAnalyticsToken() {
-        return getValidToken(YOUTUBE_ANALYTICS_SCOPE);
-    }
-
-    private YouTubeToken getValidToken(String requiredScope) {
-        YouTubeToken token = tokenStore.load()
-                .orElseThrow(() -> new IllegalStateException("YouTube account is not connected"));
-
-        if (!hasRequiredScope(token, requiredScope)) {
-            throw new IllegalStateException(
-                    "YouTube OAuth token does not have the required scope: "
-                            + requiredScope
-                            + ". Please reconnect the YouTube account.");
-        }
-
-        if (!token.isExpired()) {
-            return token;
-        }
-
-        YouTubeToken refreshedToken = refreshToken(token);
-
-        if (!hasRequiredScope(refreshedToken, requiredScope)) {
-            throw new IllegalStateException(
-                    "YouTube OAuth token does not have the required scope: "
-                            + requiredScope
-                            + "Please reconnect the YouTube account.");
-        }
-
-        return refreshedToken;
-    }
-
     private YouTubeToken refreshToken(YouTubeToken currentToken) {
         if (currentToken.refreshToken() == null) {
             throw new IllegalStateException("YouTube access token expired and no refresh token is available");
@@ -145,7 +114,111 @@ public class YouTubeOAuthService {
         return refreshedToken;
     }
 
+    public YouTubeToken getValidToken() {
+        return getValidToken(YOUTUBE_FORCE_SCOPE);
+    }
+
+    public YouTubeToken getValidAnalyticsToken() {
+        return getValidToken(YOUTUBE_ANALYTICS_SCOPE);
+    }
+
+    private YouTubeToken getValidToken(String requiredScope) {
+        YouTubeToken token = tokenStore.load()
+                .orElseThrow(() -> new IllegalStateException("YouTube account is not connected"));
+
+        if (!hasRequiredScope(token, requiredScope)) {
+            throw new IllegalStateException(
+                    "YouTube OAuth token does not have the required scope: "
+                            + requiredScope
+                            + ". Please reconnect the YouTube account.");
+        }
+
+        if (!token.isExpired()) {
+            return token;
+        }
+
+        YouTubeToken refreshedToken = refreshToken(token);
+
+        if (!hasRequiredScope(refreshedToken, requiredScope)) {
+            throw new IllegalStateException(
+                    "YouTube OAuth token does not have the required scope: "
+                            + requiredScope
+                            + "Please reconnect the YouTube account.");
+        }
+
+        return refreshedToken;
+    }
+
+    public YouTubeToken getValidTokenForUser(String userId) {
+        return getValidTokenForUser(userId, YOUTUBE_FORCE_SCOPE);
+    }
+
+    public YouTubeToken getValidAnalyticsTokenForUser(String userId) {
+        return getValidTokenForUser(userId, YOUTUBE_ANALYTICS_SCOPE);
+    }
+
+    private YouTubeToken getValidTokenForUser(String userId, String requiredScope) {
+
+        if (userId == null || userId.isBlank()) {
+            throw new IllegalArgumentException("User ID must not be blank");
+        }
+
+        YouTubeToken token = tokenPersistenceService.load(userId)
+                .orElseThrow(() -> new IllegalStateException("YouTube account is not connected for this user"));
+
+        if (!hasRequiredScope(token, requiredScope)) {
+            throw new IllegalStateException(
+                    "YouTube OAuth token does not have the required scope: "
+                            + requiredScope
+                            + ". Please reconnect the YouTube account.");
+        }
+
+        if (!token.isExpired()) {
+            return token;
+        }
+
+
+        YouTubeToken refreshedToken = refreshToken(token);
+        refreshedToken = refreshTokenForUser(userId, refreshedToken);
+
+        if (!hasRequiredScope(refreshedToken, requiredScope)) {
+            throw new IllegalStateException(
+                    "Refreshed YouTube OAuth token does not have the required "
+                            + "scope: " + requiredScope
+                            + ". Please reconnect the YouTube account.");
+        }
+
+        return refreshedToken;
+    }
+
+    private YouTubeToken refreshTokenForUser(String userId, YouTubeToken token) {
+
+        if (token.refreshToken() == null || token.refreshToken().isBlank()) {
+            throw new IllegalStateException(
+                    "YouTube access token expired and no refresh token "
+                            + "is available. Please reconnect the YouTube account.");
+        }
+
+        tokenPersistenceService.save(userId, token);
+
+        return token;
+    }
+
     public void saveToken(GoogleTokenResponse response) {
+
+        long expiresAt = (System.currentTimeMillis() / 1000) + response.expiresIn();
+
+        YouTubeToken token = new YouTubeToken(
+                response.accessToken(),
+                response.refreshToken(),
+                        expiresAt,
+                response.scope(),
+                response.tokenType());
+
+        tokenStore.save(token);
+    }
+
+    public void saveToken(String userId, GoogleTokenResponse response) {
 
         long expiresAt = (System.currentTimeMillis() / 1000) + response.expiresIn();
 
@@ -156,7 +229,21 @@ public class YouTubeOAuthService {
                 response.scope(),
                 response.tokenType());
 
+        tokenPersistenceService.save(userId, token);
         tokenStore.save(token);
+    }
+
+    public void saveToken(String userId, YouTubeToken token) {
+        
+        if (userId == null || userId.isBlank()) {
+            throw new IllegalArgumentException("User ID must not be blank");
+        }
+
+        if (token == null) {
+            throw new IllegalArgumentException("YouTube token must not be null");
+        }
+
+        tokenPersistenceService.save(userId, token);
     }
 
     private boolean hasRequiredScope(YouTubeToken token, String requiredScope) {
@@ -172,4 +259,5 @@ public class YouTubeOAuthService {
     public YouTubeToken getStoredToken() {
         return tokenStore.load().get();
     }
+
 }

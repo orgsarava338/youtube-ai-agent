@@ -15,7 +15,13 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest (AgentController.class)
+@WebMvcTest(
+        controllers = AgentController.class,
+        excludeAutoConfiguration = {
+                org.springframework.boot.security.autoconfigure.SecurityAutoConfiguration.class,
+                org.springframework.boot.security.oauth2.client.autoconfigure.OAuth2ClientAutoConfiguration.class,
+                org.springframework.boot.security.oauth2.client.autoconfigure.servlet.OAuth2ClientWebSecurityAutoConfiguration.class
+        })
 @Import(GlobalExceptionHandler.class)
 class AgentControllerTest {
 

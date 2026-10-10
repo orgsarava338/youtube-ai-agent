@@ -27,7 +27,8 @@ class GetMyChannelToolTest {
                 "thumbnail.jpg",
                 45,
                 35,
-                5520);
+                5520,
+                "hell");
 
         when(service.getMyChannel())
                 .thenReturn(channel);

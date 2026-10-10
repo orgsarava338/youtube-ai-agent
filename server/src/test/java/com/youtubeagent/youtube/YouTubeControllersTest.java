@@ -51,7 +51,7 @@ class YouTubeControllersTest {
     @Test
     void servesChannelAndPlaylistEndpoints() throws Exception {
         when(channelService.getMyChannel()).thenReturn(
-                new YouTubeChannel("channel-1", "My channel", "", "@me", null, 10, 2, 30));
+                new YouTubeChannel("channel-1", "My channel", "", "@me", null, 10, 2, 30, "hell"));
         when(playlistService.getMyPlaylists(10)).thenReturn(
                 List.of(new YouTubePlaylist("playlist-1", "Favorites", "", null, "channel-1", "My channel",
                         Instant.EPOCH, 2)));

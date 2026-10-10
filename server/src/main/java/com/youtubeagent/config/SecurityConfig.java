@@ -17,6 +17,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import com.youtubeagent.youtube.token.YouTubeOAuthSuccessHandler;
+
 import jakarta.servlet.http.HttpServletResponse;
 
 @Configuration
@@ -29,7 +31,8 @@ public class SecurityConfig {
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http,
-            OAuth2AuthorizationRequestResolver authorizationRequestResolver) throws Exception {
+            OAuth2AuthorizationRequestResolver authorizationRequestResolver,
+            YouTubeOAuthSuccessHandler youTubeOAuthSuccessHandler) throws Exception {
 
         http
                 .cors(Customizer.withDefaults())
@@ -46,7 +49,9 @@ public class SecurityConfig {
 
                 .oauth2Login(oauth -> oauth.authorizationEndpoint(endPoint -> endPoint
                         .authorizationRequestResolver(authorizationRequestResolver))
-                        .defaultSuccessUrl(appProperties.frontendUrl(), true))
+                        .successHandler(youTubeOAuthSuccessHandler)
+                // .defaultSuccessUrl(appProperties.frontendUrl(), true)
+                )
 
                 .logout(logout -> logout
                         .logoutSuccessHandler(
@@ -86,7 +91,11 @@ public class SecurityConfig {
                 "/oauth2/authorization");
 
         resolver.setAuthorizationRequestCustomizer(
-                builder -> builder.additionalParameters(parameters -> parameters.put("prompt", "select_account")));
+                builder -> builder.additionalParameters(
+                        parameters -> {
+                            parameters.put("access_type", "offline");
+                            parameters.put("prompt", "select_account");
+                        }));
 
         return resolver;
     }
