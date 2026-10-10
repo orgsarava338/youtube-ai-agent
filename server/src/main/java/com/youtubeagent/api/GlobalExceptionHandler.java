@@ -33,16 +33,16 @@ public class GlobalExceptionHandler {
         return buildResponse(HttpStatus.BAD_REQUEST, "bad_request", exception.getMessage());
     }
 
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ApiError> handleResourceNotFound(NoResourceFoundException exception) {
+        log.warn("Resource not found", exception.getMessage());
+        return buildResponse(HttpStatus.NOT_FOUND, "resource_not_found", "Resource not found");
+    }
+
     @ExceptionHandler(IllegalStateException.class)
     public ResponseEntity<ApiError> handleIllegalState(IllegalStateException exception) {
         log.error("Agent state error", exception);
         return buildResponse(HttpStatus.SERVICE_UNAVAILABLE, "agent_error", exception.getMessage());
-    }
-
-    @ExceptionHandler(NoResourceFoundException.class)
-    public ResponseEntity<ApiError> handleResourceNotFound(NoResourceFoundException exception) {
-        log.error("Resource not found", exception);
-        return buildResponse(HttpStatus.NOT_FOUND, "resource_not_found", "Resource not found");
     }
 
     @ExceptionHandler(Exception.class)

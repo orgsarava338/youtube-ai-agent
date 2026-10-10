@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-YoutubeAgentApplication<youtube-agent>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.youtubeagent.YoutubeAgentApplication",
+            "projectName": "youtube-agent",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}

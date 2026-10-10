@@ -5,8 +5,6 @@ import java.util.List;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
@@ -91,11 +89,10 @@ public class SecurityConfig {
                 "/oauth2/authorization");
 
         resolver.setAuthorizationRequestCustomizer(
-                builder -> builder.additionalParameters(
-                        parameters -> {
-                            parameters.put("access_type", "offline");
-                            parameters.put("prompt", "select_account");
-                        }));
+                builder -> builder.additionalParameters(parameters -> {
+                    parameters.put("access_type", "offline");
+                    parameters.put("prompt", "consent select_account");
+                }));
 
         return resolver;
     }

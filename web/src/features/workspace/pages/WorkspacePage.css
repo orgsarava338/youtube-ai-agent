@@ -1,0 +1,482 @@
+.workspace-page {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    min-height: 100dvh;
+    background: #f8fafc;
+    color: #0f172a;
+}
+
+.workspace-page--status {
+    align-items: center;
+    justify-content: center;
+    padding: 32px;
+    text-align: center;
+}
+
+.workspace-page--status h1 {
+    margin: 0 0 12px;
+    font-size: 24px;
+}
+
+.workspace-page--status p {
+    max-width: 480px;
+    color: #64748b;
+    line-height: 1.6;
+}
+
+.workspace-page--status button {
+    margin-top: 12px;
+    padding: 10px 16px;
+    border: 0;
+    border-radius: 8px;
+    background: #4f46e5;
+    color: #ffffff;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.workspace-page__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 26px 36px;
+    border-bottom: 1px solid #e2e8f0;
+    background: rgb(255 255 255 / 80%);
+}
+
+.workspace-page__eyebrow {
+    display: block;
+    margin: 0 0 8px;
+    color: #64748b;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.4px;
+}
+
+.workspace-page__header h1 {
+    margin: 0;
+    font-size: 23px;
+    font-weight: 700;
+    letter-spacing: -0.7px;
+}
+
+.workspace-page__channel-button {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    max-width: 260px;
+    padding: 10px 12px;
+    overflow: hidden;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    background: #ffffff;
+    color: #334155;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.workspace-page__channel-button:hover {
+    border-color: #c7d2fe;
+    background: #f8faff;
+}
+
+.workspace-page__status-dot {
+    flex-shrink: 0;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #10b981;
+}
+
+.workspace-page__content {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    width: 100%;
+    max-width: 1000px;
+    box-sizing: border-box;
+    align-self: center;
+    padding: 64px 32px 28px;
+}
+
+.workspace-page__welcome {
+    max-width: 650px;
+    align-self: center;
+    margin: 0 auto 46px;
+    text-align: center;
+}
+
+.workspace-page__welcome-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 54px;
+    height: 54px;
+    margin: 0 auto 24px;
+    border: 1px solid #e0e7ff;
+    border-radius: 18px;
+    background: linear-gradient(145deg, #eef2ff, #f5f3ff);
+    color: #6366f1;
+    font-size: 28px;
+    box-shadow: 0 5px 18px rgb(99 102 241 / 8%);
+}
+
+.workspace-page__welcome > .workspace-page__eyebrow {
+    margin-bottom: 14px;
+    color: #6366f1;
+}
+
+.workspace-page__welcome h2 {
+    margin: 0;
+    font-size: clamp(32px, 4vw, 46px);
+    font-weight: 750;
+    letter-spacing: -2px;
+    line-height: 1.14;
+}
+
+.workspace-page__welcome h2 span {
+    color: #6366f1;
+}
+
+.workspace-page__description {
+    max-width: 500px;
+    margin: 18px auto 0;
+    color: #64748b;
+    font-size: 14px;
+    line-height: 1.8;
+}
+
+.workspace-page__suggestions {
+    width: 100%;
+}
+
+.workspace-page__suggestions-label {
+    margin: 0 0 14px;
+    color: #64748b;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+}
+
+.workspace-page__suggestion-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.workspace-page__suggestion-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    min-height: 178px;
+    padding: 20px;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    background: #ffffff;
+    text-align: left;
+    transition:
+        border-color 160ms ease,
+        box-shadow 160ms ease,
+        transform 160ms ease;
+}
+
+.workspace-page__suggestion-card:disabled {
+    opacity: 1;
+    cursor: default;
+}
+
+.workspace-page__suggestion-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    margin-bottom: 18px;
+    border-radius: 10px;
+    font-size: 18px;
+}
+
+.workspace-page__suggestion-icon--purple {
+    background: #f0edff;
+    color: #7c3aed;
+}
+
+.workspace-page__suggestion-icon--orange {
+    background: #fff1e8;
+    color: #ea580c;
+}
+
+.workspace-page__suggestion-icon--blue {
+    background: #eaf3ff;
+    color: #2563eb;
+}
+
+.workspace-page__suggestion-title {
+    margin-bottom: 8px;
+    color: #1e293b;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.workspace-page__suggestion-description {
+    max-width: 230px;
+    color: #64748b;
+    font-size: 11px;
+    line-height: 1.7;
+}
+
+.workspace-page__suggestion-arrow {
+    position: absolute;
+    top: 20px;
+    right: 18px;
+    color: #94a3b8;
+    font-size: 15px;
+}
+
+.workspace-page__composer {
+    margin-top: 34px;
+    padding: 16px 18px 12px;
+    border: 1px solid #dbe2ea;
+    border-radius: 15px;
+    background: #ffffff;
+    box-shadow: 0 5px 20px rgb(15 23 42 / 3%);
+}
+
+.workspace-page__composer textarea {
+    display: block;
+    width: 100%;
+    min-height: 48px;
+    resize: vertical;
+    box-sizing: border-box;
+    border: 0;
+    outline: none;
+    background: transparent;
+    color: #334155;
+    font: inherit;
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+.workspace-page__composer textarea::placeholder {
+    color: #94a3b8;
+}
+
+.workspace-page__composer textarea:disabled {
+    opacity: 1;
+    cursor: not-allowed;
+}
+
+.workspace-page__composer-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding-top: 10px;
+    border-top: 1px solid #f1f5f9;
+}
+
+.workspace-page__composer-footer > span {
+    color: #94a3b8;
+    font-size: 10px;
+    line-height: 1.5;
+}
+
+.workspace-page__composer-footer button {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: 0;
+    border-radius: 9px;
+    background: #6366f1;
+    color: #ffffff;
+    font-size: 20px;
+}
+
+.workspace-page__composer-footer button:disabled {
+    background: #c7d2fe;
+    cursor: not-allowed;
+}
+
+.workspace-page__disclaimer {
+    margin: 16px 0 0;
+    color: #94a3b8;
+    font-size: 10px;
+    line-height: 1.6;
+    text-align: center;
+}
+
+@media (max-width: 1000px) {
+    .workspace-page__content {
+        padding: 48px 24px 24px;
+    }
+
+    .workspace-page__suggestion-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .workspace-page__suggestion-card:last-child {
+        grid-column: 1 / -1;
+        min-height: 150px;
+    }
+}
+
+@media (max-width: 600px) {
+    .workspace-page__header {
+        align-items: flex-start;
+        padding: 20px 18px;
+    }
+
+    .workspace-page__header h1 {
+        font-size: 20px;
+    }
+
+    .workspace-page__channel-button {
+        max-width: 48%;
+        padding: 9px;
+        font-size: 10px;
+    }
+
+    .workspace-page__content {
+        padding: 38px 18px 24px;
+    }
+
+    .workspace-page__welcome {
+        margin-bottom: 36px;
+    }
+
+    .workspace-page__welcome-icon {
+        width: 46px;
+        height: 46px;
+        margin-bottom: 20px;
+        border-radius: 15px;
+    }
+
+    .workspace-page__welcome h2 {
+        font-size: 34px;
+        letter-spacing: -1.5px;
+    }
+
+    .workspace-page__description {
+        font-size: 13px;
+    }
+
+    .workspace-page__suggestion-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .workspace-page__suggestion-card,
+    .workspace-page__suggestion-card:last-child {
+        grid-column: auto;
+        min-height: 150px;
+    }
+
+    .workspace-page__composer {
+        margin-top: 26px;
+        padding: 14px;
+    }
+}
+
+/* Conversation layout */
+.workspace-page__conversation {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 20px;
+}
+
+/* Each message occupies the full row */
+.workspace-page__message {
+    display: flex;
+    flex-direction: column;
+    width: fit-content;
+    max-width: 80%;
+    min-width: 0;
+}
+
+/* User messages on the right */
+.workspace-page__message--user {
+    align-self: flex-end;
+    align-items: flex-end;
+}
+
+/* Assistant messages on the left */
+.workspace-page__message--assistant {
+    align-self: flex-start;
+    align-items: flex-start;
+}
+
+/* Message labels */
+.workspace-page__message-label {
+    margin-bottom: 6px;
+    padding: 0 4px;
+    color: #64748b;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+/* Message bubbles */
+.workspace-page__message-bubble {
+    box-sizing: border-box;
+    max-width: 100%;
+    min-width: 0;
+    padding: 12px 16px;
+    border-radius: 16px;
+    font-size: 13px;
+    line-height: 1.7;
+    overflow-wrap: anywhere;
+}
+
+/* User bubble */
+.workspace-page__message--user .workspace-page__message-bubble {
+    border-bottom-right-radius: 4px;
+    background: #eef2ff;
+    color: #1e293b;
+    white-space: pre-wrap;
+}
+
+/* Assistant bubble */
+.workspace-page__message--assistant .workspace-page__message-bubble {
+    border: 1px solid #e2e8f0;
+    border-bottom-left-radius: 4px;
+    background: #ffffff;
+    color: #1e293b;
+}
+
+/* Prevent long code and tables from overflowing */
+.workspace-page__message-bubble pre,
+.workspace-page__message-bubble table {
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+.workspace-page__message-bubble pre {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+/* Typing indicator stays on the left */
+.workspace-page__typing {
+    align-self: flex-start;
+}
+
+/* Responsive layout */
+@media (max-width: 600px) {
+    .workspace-page__message {
+        max-width: 92%;
+    }
+
+    .workspace-page__message-bubble {
+        padding: 10px 13px;
+    }
+}

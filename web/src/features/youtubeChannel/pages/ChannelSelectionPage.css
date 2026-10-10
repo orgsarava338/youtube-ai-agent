@@ -1,0 +1,115 @@
+
+.channel-selection {
+  width: 100%;
+  min-height: 100vh;
+  padding: 48px 32px;
+  background: #f9fafb;
+  color: #111827;
+  box-sizing: border-box;
+}
+
+.channel-selection__header {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto 36px;
+}
+
+.channel-selection__eyebrow {
+  margin: 0 0 12px;
+  color: #dc2626;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
+.channel-selection__header h1 {
+  margin: 0;
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
+  line-height: 1.2;
+  letter-spacing: -0.035em;
+}
+
+.channel-selection__header > p:not(.channel-selection__eyebrow):not(.channel-selection__count) {
+  max-width: 640px;
+  margin: 14px 0 0;
+  color: #6b7280;
+  line-height: 1.7;
+}
+
+.channel-selection__count {
+  margin: 20px 0 0;
+  color: #374151;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.channel-selection__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 340px));
+  gap: 24px;
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  align-items: stretch;
+}
+
+.channel-selection__empty {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 40px 24px;
+  border: 1px dashed #d1d5db;
+  border-radius: 16px;
+  background: #ffffff;
+  text-align: center;
+}
+
+.channel-selection__empty h2 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.channel-selection__empty p {
+  margin: 12px 0 24px;
+  color: #6b7280;
+  line-height: 1.6;
+}
+
+.channel-selection__empty button,
+.channel-selection > button {
+  padding: 11px 18px;
+  border: 0;
+  border-radius: 9px;
+  background: #dc2626;
+  color: #ffffff;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+}
+
+.channel-selection__empty button:hover,
+.channel-selection > button:hover {
+  background: #b91c1c;
+}
+
+.channel-selection__selected {
+  max-width: 1100px;
+  margin: 24px auto 0;
+  color: #166534;
+  font-weight: 600;
+}
+
+.channel-selection button:focus-visible {
+  outline: 3px solid #fca5a5;
+  outline-offset: 3px;
+}
+
+@media (max-width: 640px) {
+  .channel-selection {
+    padding: 32px 16px;
+  }
+
+  .channel-selection__grid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+}

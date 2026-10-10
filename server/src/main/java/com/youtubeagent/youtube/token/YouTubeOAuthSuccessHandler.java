@@ -80,6 +80,17 @@ public class YouTubeOAuthSuccessHandler
 
             OAuth2RefreshToken refreshToken = client.getRefreshToken();
 
+            if (refreshToken == null) {
+                log.error(
+                        "Google did not provide a refresh token for user {}. "
+                                + "The YouTube account must be reconnected.",
+                        userId);
+
+                throw new IllegalStateException(
+                        "Google did not provide a refresh token. "
+                                + "Please reconnect the YouTube account.");
+            }
+
             YouTubeToken token = new YouTubeToken(
                     accessToken.getTokenValue(),
                     refreshToken == null ? null : refreshToken.getTokenValue(),

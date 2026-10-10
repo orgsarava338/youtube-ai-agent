@@ -1,0 +1,29 @@
+.smart-response-markdown,
+.smart-response-text {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  line-height: 1.7;
+}
+
+.smart-response-markdown > :first-child {
+  margin-top: 0;
+}
+
+.smart-response-markdown > :last-child {
+  margin-bottom: 0;
+}
+
+.smart-response-json,
+.smart-response-html {
+  overflow-x: auto;
+  padding: 1rem;
+  border-radius: 0.6rem;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.smart-response-json code,
+.smart-response-html code {
+  font-family: "SFMono-Regular", Consolas, monospace;
+  font-size: 0.875rem;
+}
