@@ -9,12 +9,14 @@ import tools.jackson.databind.ObjectMapper;
 
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 @Slf4j
 @Service
 public class AgentService {
+
 
     private static final int MAX_ITERATIONS = 5;
 
@@ -35,9 +37,12 @@ public class AgentService {
         this.objectMapper = objectMapper;
     }
 
-    public AgentResponse chat(String userId, String userMessage) {
+    public AgentTurnResult runTurn(String userId, String userMessage, List<LLMMessage> history) {
+
         ToolExecutionContext executionContext = new ToolExecutionContext(userId);
-        AgentContext context = new AgentContext(userMessage);
+        int initialMessageCount = history.size();
+
+        AgentContext context = new AgentContext(userMessage, history, 0);
 
 
         while (context.iteration() < MAX_ITERATIONS) {
@@ -49,7 +54,12 @@ public class AgentService {
 
             if (decision.type() == AgentDecision.Type.FINAL_RESPONSE) {
                 String finalResponse = responseModel.generate(buildResponseRequest(context));
-                return new AgentResponse("final_answer", List.of(), finalResponse);
+                context = context.addMessage(new LLMMessage("assistant", finalResponse));
+                List<LLMMessage> generatedMessages = new ArrayList<>(
+                        context.messages().subList(initialMessageCount, context.messages().size()));
+
+                AgentResponse response = new AgentResponse("final_answer", List.of(), finalResponse);
+                return new AgentTurnResult(response, generatedMessages);
             }
 
             if (decision.type() == AgentDecision.Type.TOOL_CALLS) {

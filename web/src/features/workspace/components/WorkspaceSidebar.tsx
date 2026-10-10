@@ -4,11 +4,21 @@ import "./WorkspaceSidebar.css";
 interface WorkspaceSidebarProps {
     channel: WorkspaceChannel;
     onSignOut?: () => void;
+    conversations: ConversationSummary[];
+    activeConversationId: string | null;
+    loadingConversations: boolean;
+    onNewChat: () => void;
+    onSelectConversation: (id: string) => void;
 }
 
 export default function WorkspaceSidebar({
     channel,
     onSignOut,
+    conversations,
+    activeConversationId,
+    loadingConversations,
+    onNewChat,
+    onSelectConversation,
 }: WorkspaceSidebarProps) {
     const navigate = useNavigate();
 
@@ -22,13 +32,16 @@ export default function WorkspaceSidebar({
             <button
                 type="button"
                 className="workspace-sidebar__new-chat"
-                onClick={() => navigate(`/workspace/${channel.customUrl || channel.id}`)}
+                onClick={onNewChat}
             >
                 <span aria-hidden="true">+</span>
                 <span>New chat</span>
             </button>
 
-            <nav className="workspace-sidebar__navigation" aria-label="Workspace navigation">
+            <nav
+                className="workspace-sidebar__navigation"
+                aria-label="Workspace navigation"
+            >
                 <p className="workspace-sidebar__section-label">WORKSPACE</p>
 
                 <button
@@ -62,9 +75,63 @@ export default function WorkspaceSidebar({
                 </button>
             </nav>
 
+            <section
+                className="workspace-sidebar__history"
+                aria-label="Chat history"
+            >
+                <p className="workspace-sidebar__section-label">RECENT CHATS</p>
+
+                {loadingConversations ? (
+                    <p className="workspace-sidebar__history-status">
+                        Loading conversations...
+                    </p>
+                ) : conversations.length === 0 ? (
+                    <p className="workspace-sidebar__history-status">
+                        Your conversations will appear here.
+                    </p>
+                ) : (
+                    <div className="workspace-sidebar__history-list">
+                        {conversations.map((conversation) => (
+                            <button
+                                key={conversation.conversationId}
+                                type="button"
+                                className={[
+                                    "workspace-sidebar__history-item",
+                                    activeConversationId ===
+                                    conversation.conversationId
+                                        ? "workspace-sidebar__history-item--active"
+                                        : "",
+                                ]
+                                    .filter(Boolean)
+                                    .join(" ")}
+                                onClick={() =>
+                                    onSelectConversation(
+                                        conversation.conversationId,
+                                    )
+                                }
+                                title={conversation.title}
+                                aria-current={
+                                    activeConversationId ===
+                                    conversation.conversationId
+                                        ? "page"
+                                        : undefined
+                                }
+                            >
+                                <span aria-hidden="true">◷</span>
+                                <span className="workspace-sidebar__history-title">
+                                    {conversation.title || "New conversation"}
+                                </span>
+                            </button>
+                        ))}
+                    </div>
+                )}
+            </section>
+
             <div className="workspace-sidebar__bottom">
                 <div className="workspace-sidebar__channel">
-                    <p className="workspace-sidebar__section-label">CONNECTED CHANNEL</p>
+                    <p className="workspace-sidebar__section-label">
+                        CONNECTED CHANNEL
+                    </p>
 
                     <div className="workspace-sidebar__channel-info">
                         {channel.thumbnailUrl ? (

@@ -256,6 +256,69 @@
     color: #ffffff;
 }
 
+.workspace-sidebar__history {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-height: 0;
+    margin-top: 28px;
+}
+
+.workspace-sidebar__history > .workspace-sidebar__section-label {
+    padding: 0 10px;
+}
+
+.workspace-sidebar__history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.workspace-sidebar__history-status {
+    padding: 0 10px;
+    color: #9ca3af;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.workspace-sidebar__history-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    min-width: 0;
+    padding: 10px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    background: transparent;
+    color: #d1d5db;
+    text-align: left;
+    font: inherit;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.workspace-sidebar__history-item:hover {
+    background: #1f2937;
+    color: #ffffff;
+}
+
+.workspace-sidebar__history-item--active {
+    border-color: #374151;
+    background: #1f2937;
+    color: #ffffff;
+}
+
+.workspace-sidebar__history-title {
+    overflow: hidden;
+    flex: 1;
+    min-width: 0;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 @media (max-width: 768px) {
     .workspace-sidebar {
         padding: 16px;

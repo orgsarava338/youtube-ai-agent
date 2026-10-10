@@ -1,13 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 
-import { useAgentChat } from "@/features/agent/hooks/useAgentChat";
-import { useYouTubeChannels } from "@/features/youtubeChannel/hooks/useYouTubeChannels";
 import WorkspaceLayout from "@/layouts/WorkspaceLayout";
 import WorkspaceSidebar from "@/features/workspace/components/WorkspaceSidebar";
+import { useYouTubeChannels } from "@/features/youtubeChannel/hooks/useYouTubeChannels";
+import { useChat } from "@/features/chat/hooks/useChat";
+import SmartResponse from "@/features/chat/components/SmartResponse";
 
 import "./WorkspacePage.css";
-import SmartResponse from "@/features/agent/components/SmartResponse";
 
 export default function WorkspacePage() {
     const { channelId } = useParams<{ channelId: string }>();
@@ -17,11 +17,16 @@ export default function WorkspacePage() {
 
     const {
         messages,
+        conversationId,
+        conversations,
         sending,
+        loadingConversation,
         error: chatError,
         sendMessage,
+        loadConversations,
+        loadConversation,
         clearMessages,
-    } = useAgentChat();
+    } = useChat();
 
     const [input, setInput] = useState("");
     const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -30,6 +35,10 @@ export default function WorkspacePage() {
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages, sending]);
+
+    useEffect(() => {
+        void loadConversations();
+    }, [loadConversations]);
 
     if (loading) {
         return (
@@ -98,8 +107,17 @@ export default function WorkspacePage() {
         }
     }
 
+    async function handleSelectConversation(id: string) {
+        if (sending || loadingConversation) {
+            return;
+        }
+
+        setInput("");
+        await loadConversation(id);
+    }
+
     function handleNewChat() {
-        if (sending) {
+        if (sending || loadingConversation) {
             return;
         }
 
@@ -114,6 +132,13 @@ export default function WorkspacePage() {
                 <WorkspaceSidebar
                     channel={channel}
                     onSignOut={() => navigate("/", { replace: true })}
+                    conversations={conversations}
+                    activeConversationId={conversationId}
+                    loadingConversations={loadingConversation} // indicates that a conversation is being opened, not that the conversation list is loading.
+                    onNewChat={handleNewChat}
+                    onSelectConversation={(id) => {
+                        void handleSelectConversation(id);
+                    }}
                 />
             }
         >
