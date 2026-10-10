@@ -1,0 +1,79 @@
+.chat-layout {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    height: 100dvh;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.chat-layout__sidebar {
+    display: block;
+    flex: 0 0 280px;
+    width: 280px;
+    min-width: 280px;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.chat-layout__main {
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: 0;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.chat-page {
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.chat-page__conversation {
+    flex: 1 1 0;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.chat-page__composer {
+    flex-shrink: 0;
+}
+
+/* Sidebar base text */
+.chat-layout__sidebar {
+    color: #1e293b;
+}
+
+/* Conversation history text */
+.chat-layout__sidebar button,
+.chat-layout__sidebar a {
+    color: #334155;
+}
+
+/* Headings and labels */
+.chat-layout__sidebar h1,
+.chat-layout__sidebar h2,
+.chat-layout__sidebar h3,
+.chat-layout__sidebar p,
+.chat-layout__sidebar span {
+    color: inherit;
+}
+
+/* Make secondary text readable */
+.chat-layout__sidebar small {
+    color: #64748b;
+}
+
+/* Preserve visible text when hovering */
+.chat-layout__sidebar button:hover,
+.chat-layout__sidebar a:hover {
+    color: #0f172a;
+}

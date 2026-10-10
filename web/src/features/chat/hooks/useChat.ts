@@ -49,11 +49,11 @@ export function useChat() {
     const [error, setError] = useState<string | null>(null);
 
     const sendMessage = useCallback(
-        async (value: string) => {
+        async (value: string): Promise<string | null> => {
             const message = value.trim();
 
             if (!message || sending) {
-                return;
+                return null;
             }
 
             setError(null);
@@ -102,6 +102,8 @@ export function useChat() {
                 const updatedConversations = await chatApi.listConversations();
 
                 setConversations(updatedConversations);
+
+                return response.conversationId ?? conversationId;
             } catch (err: unknown) {
                 const errorMessage = getErrorMessage(err);
 
@@ -114,6 +116,7 @@ export function useChat() {
                 );
 
                 setError(errorMessage);
+                return null;
             } finally {
                 setSending(false);
             }

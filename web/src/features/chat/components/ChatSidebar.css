@@ -1,4 +1,4 @@
-.workspace-sidebar {
+.chat-sidebar {
     display: flex;
     flex: 1;
     flex-direction: column;
@@ -7,7 +7,7 @@
     box-sizing: border-box;
 }
 
-.workspace-sidebar__brand {
+.chat-sidebar__brand {
     display: flex;
     align-items: center;
     gap: 11px;
@@ -18,7 +18,7 @@
     letter-spacing: -0.6px;
 }
 
-.workspace-sidebar__brand-icon {
+.chat-sidebar__brand-icon {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -31,7 +31,7 @@
     font-weight: 800;
 }
 
-.workspace-sidebar__new-chat {
+.chat-sidebar__new-chat {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -50,24 +50,24 @@
     transition: background 160ms ease, border-color 160ms ease;
 }
 
-.workspace-sidebar__new-chat:hover {
+.chat-sidebar__new-chat:hover {
     background: #374151;
     border-color: #4b5563;
 }
 
-.workspace-sidebar__new-chat span:first-child {
+.chat-sidebar__new-chat span:first-child {
     font-size: 21px;
     line-height: 1;
 }
 
-.workspace-sidebar__navigation {
+.chat-sidebar__navigation {
     display: flex;
     flex-direction: column;
     gap: 5px;
     margin-top: 32px;
 }
 
-.workspace-sidebar__section-label {
+.chat-sidebar__section-label {
     margin: 0 0 12px;
     color: #9ca3af;
     font-size: 10px;
@@ -75,11 +75,11 @@
     letter-spacing: 1.1px;
 }
 
-.workspace-sidebar__navigation > .workspace-sidebar__section-label {
+.chat-sidebar__navigation > .chat-sidebar__section-label {
     padding: 0 10px;
 }
 
-.workspace-sidebar__nav-item {
+.chat-sidebar__nav-item {
     display: flex;
     align-items: center;
     gap: 12px;
@@ -97,7 +97,7 @@
     transition: background 160ms ease, color 160ms ease;
 }
 
-.workspace-sidebar__nav-item > span:first-child {
+.chat-sidebar__nav-item > span:first-child {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -105,24 +105,24 @@
     font-size: 16px;
 }
 
-.workspace-sidebar__nav-item:hover:not(:disabled) {
+.chat-sidebar__nav-item:hover:not(:disabled) {
     background: #1f2937;
     color: #ffffff;
 }
 
-.workspace-sidebar__nav-item--active {
+.chat-sidebar__nav-item--active {
     border-color: #374151;
     background: #1f2937;
     color: #ffffff;
     font-weight: 600;
 }
 
-.workspace-sidebar__nav-item:disabled {
+.chat-sidebar__nav-item:disabled {
     color: #6b7280;
     cursor: not-allowed;
 }
 
-.workspace-sidebar__coming-soon {
+.chat-sidebar__coming-soon {
     margin-left: auto;
     padding: 3px 6px;
     border-radius: 5px;
@@ -131,7 +131,7 @@
     font-size: 9px;
 }
 
-.workspace-sidebar__bottom {
+.chat-sidebar__bottom {
     display: flex;
     flex-direction: column;
     gap: 18px;
@@ -139,19 +139,19 @@
     padding-top: 32px;
 }
 
-.workspace-sidebar__channel {
+.chat-sidebar__channel {
     padding: 16px 10px;
     border-top: 1px solid #374151;
 }
 
-.workspace-sidebar__channel-info {
+.chat-sidebar__channel-info {
     display: flex;
     align-items: center;
     gap: 10px;
     min-width: 0;
 }
 
-.workspace-sidebar__channel-avatar {
+.chat-sidebar__channel-avatar {
     flex-shrink: 0;
     width: 36px;
     height: 36px;
@@ -160,7 +160,7 @@
     background: #374151;
 }
 
-.workspace-sidebar__channel-avatar--placeholder {
+.chat-sidebar__channel-avatar--placeholder {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -169,12 +169,12 @@
     font-weight: 700;
 }
 
-.workspace-sidebar__channel-details {
+.chat-sidebar__channel-details {
     flex: 1;
     min-width: 0;
 }
 
-.workspace-sidebar__channel-name {
+.chat-sidebar__channel-name {
     overflow: hidden;
     margin: 0 0 4px;
     color: #f9fafb;
@@ -184,12 +184,12 @@
     white-space: nowrap;
 }
 
-.workspace-sidebar__channel-details > span {
+.chat-sidebar__channel-details > span {
     color: #9ca3af;
     font-size: 11px;
 }
 
-.workspace-sidebar__connected-indicator {
+.chat-sidebar__connected-indicator {
     flex-shrink: 0;
     width: 7px;
     height: 7px;
@@ -198,7 +198,7 @@
     box-shadow: 0 0 0 3px rgb(52 211 153 / 12%);
 }
 
-.workspace-sidebar__footer {
+.chat-sidebar__footer {
     display: flex;
     align-items: center;
     gap: 10px;
@@ -206,7 +206,7 @@
     border-top: 1px solid #374151;
 }
 
-.workspace-sidebar__account-icon {
+.chat-sidebar__account-icon {
     display: flex;
     flex-shrink: 0;
     align-items: center;
@@ -220,24 +220,24 @@
     font-weight: 700;
 }
 
-.workspace-sidebar__account-details {
+.chat-sidebar__account-details {
     flex: 1;
     min-width: 0;
 }
 
-.workspace-sidebar__account-details p {
+.chat-sidebar__account-details p {
     margin: 0 0 4px;
     color: #f9fafb;
     font-size: 12px;
     font-weight: 600;
 }
 
-.workspace-sidebar__account-details span {
+.chat-sidebar__account-details span {
     color: #9ca3af;
     font-size: 10px;
 }
 
-.workspace-sidebar__sign-out {
+.chat-sidebar__sign-out {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -251,12 +251,12 @@
     cursor: pointer;
 }
 
-.workspace-sidebar__sign-out:hover {
+.chat-sidebar__sign-out:hover {
     background: #374151;
     color: #ffffff;
 }
 
-.workspace-sidebar__history {
+.chat-sidebar__history {
     display: flex;
     flex-direction: column;
     gap: 6px;
@@ -264,11 +264,11 @@
     margin-top: 28px;
 }
 
-.workspace-sidebar__history > .workspace-sidebar__section-label {
+.chat-sidebar__history > .chat-sidebar__section-label {
     padding: 0 10px;
 }
 
-.workspace-sidebar__history-list {
+.chat-sidebar__history-list {
     display: flex;
     flex-direction: column;
     gap: 3px;
@@ -276,14 +276,14 @@
     overflow-y: auto;
 }
 
-.workspace-sidebar__history-status {
+.chat-sidebar__history-status {
     padding: 0 10px;
     color: #9ca3af;
     font-size: 12px;
     line-height: 1.5;
 }
 
-.workspace-sidebar__history-item {
+.chat-sidebar__history-item {
     display: flex;
     align-items: center;
     gap: 10px;
@@ -300,18 +300,18 @@
     cursor: pointer;
 }
 
-.workspace-sidebar__history-item:hover {
+.chat-sidebar__history-item:hover {
     background: #1f2937;
     color: #ffffff;
 }
 
-.workspace-sidebar__history-item--active {
+.chat-sidebar__history-item--active {
     border-color: #374151;
     background: #1f2937;
     color: #ffffff;
 }
 
-.workspace-sidebar__history-title {
+.chat-sidebar__history-title {
     overflow: hidden;
     flex: 1;
     min-width: 0;
@@ -320,19 +320,19 @@
 }
 
 @media (max-width: 768px) {
-    .workspace-sidebar {
+    .chat-sidebar {
         padding: 16px;
     }
 
-    .workspace-sidebar__brand {
+    .chat-sidebar__brand {
         margin-bottom: 20px;
     }
 
-    .workspace-sidebar__navigation {
+    .chat-sidebar__navigation {
         margin-top: 22px;
     }
 
-    .workspace-sidebar__bottom {
+    .chat-sidebar__bottom {
         padding-top: 20px;
     }
 }
