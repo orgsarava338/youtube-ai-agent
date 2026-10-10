@@ -21,7 +21,7 @@ public class YouTubeChannelController {
 
     @GetMapping("/channel")
     public YouTubeChannel getMyChannel(@AuthenticationPrincipal OidcUser user) {
-        return channelService.getAllMyChannels(user.getSubject()).getFirst();
+        return channelService.getMyChannel(user.getSubject());
     }
 
     @GetMapping("/channels")

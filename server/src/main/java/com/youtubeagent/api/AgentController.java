@@ -4,24 +4,33 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.youtubeagent.agent.AgentResponse;
+import com.youtubeagent.agent.AgentService;
+
 @RestController
 @RequestMapping("/api/v1/agent")
 public class AgentController {
 
-    private final com.youtubeagent.agent.AgentService agentService;
+    private final AgentService agentService;
 
-    public AgentController(com.youtubeagent.agent.AgentService agentService) {
+    public AgentController(AgentService agentService) {
         this.agentService = agentService;
     }
 
     @PostMapping("/chat")
-    public ChatResponse chat(@Valid @RequestBody ChatRequest request) {
-        com.youtubeagent.agent.AgentResponse agentResponse = agentService.chat(request.message());
+    public ChatResponse chat(@Valid @RequestBody ChatRequest request,  @AuthenticationPrincipal OidcUser user) {
+        if (user == null || user.getSubject() == null || user.getSubject().isBlank()) {
+            throw new IllegalStateException("Authenticated Google user not found");
+        }
+
+        AgentResponse agentResponse = agentService.chat(user.getSubject(), request.message());
         return new ChatResponse(agentResponse.type(), agentResponse.content());
     }
 

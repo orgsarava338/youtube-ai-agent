@@ -1,6 +1,7 @@
 package com.youtubeagent.agent.tools;
 
-import com.youtubeagent.agent.AgentTool;
+import com.youtubeagent.agent.AuthenticatedAgentTool;
+import com.youtubeagent.agent.ToolExecutionContext;
 import com.youtubeagent.youtube.playlist.YouTubePlaylist;
 import com.youtubeagent.youtube.playlist.YouTubePlaylistService;
 import tools.jackson.databind.ObjectMapper;
@@ -11,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 @Component
-public class GetMyPlaylistsTool implements AgentTool {
+public class GetMyPlaylistsTool implements AuthenticatedAgentTool {
 
     private final YouTubePlaylistService playlistService;
     private final ObjectMapper objectMapper;
@@ -59,7 +60,7 @@ public class GetMyPlaylistsTool implements AgentTool {
     }
 
     @Override
-    public Object execute(Map<String, Object> arguments) {
+    public Object execute(ToolExecutionContext executionContext, Map<String, Object> arguments) {
 
         int maxResults = 10;
 
@@ -74,7 +75,7 @@ public class GetMyPlaylistsTool implements AgentTool {
             }
         }
 
-        List<YouTubePlaylist> playlists = playlistService.getMyPlaylists(maxResults);
+        List<YouTubePlaylist> playlists = playlistService.getMyPlaylists(executionContext.userId(), maxResults);
 
         try {
             return objectMapper.writeValueAsString(playlists);

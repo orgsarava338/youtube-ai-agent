@@ -1,6 +1,7 @@
 package com.youtubeagent.agent.tools;
 
-import com.youtubeagent.agent.AgentTool;
+import com.youtubeagent.agent.AuthenticatedAgentTool;
+import com.youtubeagent.agent.ToolExecutionContext;
 import com.youtubeagent.youtube.video.YouTubeVideoService;
 import com.youtubeagent.youtube.video.YouTubeVideoSummary;
 
@@ -11,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 @Component
-public class GetMyVideosTool implements AgentTool {
+public class GetMyVideosTool implements AuthenticatedAgentTool {
 
     private final YouTubeVideoService videoService;
     private final ObjectMapper objectMapper;
@@ -49,7 +50,7 @@ public class GetMyVideosTool implements AgentTool {
     }
 
     @Override
-    public Object execute(Map<String, Object> arguments) {
+    public Object execute(ToolExecutionContext executionContext, Map<String, Object> arguments) {
 
         int maxResults = 10;
 
@@ -63,7 +64,7 @@ public class GetMyVideosTool implements AgentTool {
             }
         }
 
-        List<YouTubeVideoSummary> videos = videoService.getMyVideos(maxResults);
+        List<YouTubeVideoSummary> videos = videoService.getMyVideos(executionContext.userId(), maxResults);
 
         try {
             return objectMapper.writeValueAsString(videos);

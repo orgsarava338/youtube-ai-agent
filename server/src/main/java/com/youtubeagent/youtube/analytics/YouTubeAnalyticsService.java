@@ -28,11 +28,11 @@ public class YouTubeAnalyticsService {
         this.restClient = RestClient.builder().baseUrl(YOUTUBE_ANALYTICS_API_BASE_URL).build();
     }
 
-    public YouTubeAnalytics getMyChannelAnalytics(LocalDate startDate, LocalDate endDate) {
+    public YouTubeAnalytics getMyChannelAnalytics(String userId, LocalDate startDate, LocalDate endDate) {
 
         validateDateRange(startDate, endDate);
 
-        var token = oauthService.getValidAnalyticsToken();
+        var token = oauthService.getValidAnalyticsToken(userId);
 
         String response = restClient
                 .get()
@@ -50,7 +50,7 @@ public class YouTubeAnalyticsService {
         return parseAnalytics(response, startDate, endDate);
     }
 
-    public YouTubeAnalytics getMyVideoAnalytics(String videoId, LocalDate startDate, LocalDate endDate) {
+    public YouTubeAnalytics getMyVideoAnalytics(String userId, String videoId, LocalDate startDate, LocalDate endDate) {
 
         if (videoId == null || videoId.isBlank()) {
             throw new IllegalArgumentException("videoId is required");
@@ -58,7 +58,7 @@ public class YouTubeAnalyticsService {
 
         validateDateRange(startDate, endDate);
 
-        var token = oauthService.getValidAnalyticsToken();
+        var token = oauthService.getValidAnalyticsToken(userId);
 
         String response = restClient
                 .get()

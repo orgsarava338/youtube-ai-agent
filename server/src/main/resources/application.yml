@@ -60,13 +60,13 @@ management:
             show-details: when-authorized
 
 youtube:
+    api-key: ${GOOGLE_YOUTUBE_DATA_API_KEY}
     google-o-auth:
         client-id: ${GOOGLE_CLIENT_ID}
         client-secret: ${GOOGLE_CLIENT_SECRET}
         redirect-uri: ${GOOGLE_REDIRECT_URI}
-    
-    token-storage:
-        file-path: .data/youtube-token.enc
+
+    token-encryption:
         encryption-key: ${YOUTUBE_TOKEN_ENCRYPTION_KEY}
 
 ai:

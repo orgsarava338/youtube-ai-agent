@@ -1,6 +1,7 @@
 package com.youtubeagent.youtube.video;
 
 import com.youtubeagent.youtube.YouTubeJsonUtils;
+import com.youtubeagent.youtube.YouTubeProperties;
 import com.youtubeagent.youtube.oauth.YouTubeOAuthService;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
@@ -18,22 +19,25 @@ public class YouTubeVideoService {
     private static final String YOUTUBE_API_BASE_URL = "https://www.googleapis.com";
 
     private final YouTubeOAuthService oauthService;
+    private final YouTubeProperties properties;
     private final ObjectMapper objectMapper;
     private final RestClient restClient;
 
-    public YouTubeVideoService(YouTubeOAuthService oauthService, ObjectMapper objectMapper) {
+    public YouTubeVideoService(YouTubeOAuthService oauthService, YouTubeProperties properties,
+            ObjectMapper objectMapper) {
         this.oauthService = oauthService;
+        this.properties = properties;
         this.objectMapper = objectMapper;
         this.restClient = RestClient.builder().baseUrl(YOUTUBE_API_BASE_URL).build();
     }
 
-    public List<YouTubeVideoSummary> getMyVideos(int maxResults) {
+    public List<YouTubeVideoSummary> getMyVideos(String userId, int maxResults) {
 
         if (maxResults < 1 || maxResults > 50) {
             throw new IllegalArgumentException("maxResults must be between 1 and 50");
         }
 
-        var token = oauthService.getValidToken();
+        var token = oauthService.getValidToken(userId);
 
         String response = restClient
                 .get()
@@ -58,7 +62,6 @@ public class YouTubeVideoService {
             throw new IllegalArgumentException("videoId is required");
         }
 
-        var token = oauthService.getValidToken();
 
         String response = restClient
                 .get()
@@ -66,8 +69,8 @@ public class YouTubeVideoService {
                         .path("/youtube/v3/videos")
                         .queryParam("part", "snippet,contentDetails,statistics")
                         .queryParam("id", videoId)
+                        .queryParam("key", properties.apiKey())
                         .build())
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token.accessToken())
                 .retrieve()
                 .body(String.class);
 
@@ -84,8 +87,6 @@ public class YouTubeVideoService {
             throw new IllegalArgumentException("maxResults must be between 1 and 50");
         }
 
-        var token = oauthService.getValidToken();
-
         String response = restClient
                 .get()
                 .uri(uriBuilder -> uriBuilder
@@ -94,8 +95,8 @@ public class YouTubeVideoService {
                         .queryParam("q", query)
                         .queryParam("type", "video")
                         .queryParam("maxResults", maxResults)
+                        .queryParam("key", properties.apiKey())
                         .build())
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token.accessToken())
                 .retrieve()
                 .body(String.class);
 
@@ -152,7 +153,7 @@ public class YouTubeVideoService {
                 YouTubeJsonUtils.textValue(snippet, "title"),
                 YouTubeJsonUtils.textValue(snippet, "description"),
                 YouTubeJsonUtils.instantValue(snippet, "publishedAt"),
-                        YouTubeJsonUtils.thumbnailUrl(snippet),
+                YouTubeJsonUtils.thumbnailUrl(snippet),
                 YouTubeJsonUtils.textValue(snippet, "channelId"),
                 YouTubeJsonUtils.textValue(snippet, "channelTitle"),
                 YouTubeJsonUtils.textValue(contentDetails, "duration"),

@@ -1,6 +1,7 @@
 package com.youtubeagent.agent.tools;
 
-import com.youtubeagent.agent.AgentTool;
+import com.youtubeagent.agent.AuthenticatedAgentTool;
+import com.youtubeagent.agent.ToolExecutionContext;
 import com.youtubeagent.youtube.channel.YouTubeChannel;
 import com.youtubeagent.youtube.channel.YouTubeChannelService;
 import tools.jackson.databind.ObjectMapper;
@@ -9,7 +10,7 @@ import org.springframework.stereotype.Component;
 import java.util.Map;
 
 @Component
-public class GetMyChannelTool implements AgentTool {
+public class GetMyChannelTool implements AuthenticatedAgentTool {
 
     private final YouTubeChannelService channelService;
     private final ObjectMapper objectMapper;
@@ -56,8 +57,8 @@ public class GetMyChannelTool implements AgentTool {
     }
 
     @Override
-    public Object execute(Map<String, Object> arguments) {
-        YouTubeChannel channel = channelService.getMyChannel();
+    public Object execute(ToolExecutionContext executionContext, Map<String, Object> arguments) {
+        YouTubeChannel channel = channelService.getMyChannel(executionContext.userId());
 
         try {
             return objectMapper.writeValueAsString(channel);

@@ -1,6 +1,7 @@
 package com.youtubeagent.youtube.playlist;
 
 import com.youtubeagent.youtube.YouTubeJsonUtils;
+import com.youtubeagent.youtube.YouTubeProperties;
 import com.youtubeagent.youtube.oauth.YouTubeOAuthService;
 import com.youtubeagent.youtube.video.YouTubeVideoSummary;
 
@@ -20,22 +21,25 @@ public class YouTubePlaylistService {
     private static final String YOUTUBE_API_BASE_URL = "https://www.googleapis.com";
 
     private final YouTubeOAuthService oauthService;
+    private final YouTubeProperties properties;
     private final ObjectMapper objectMapper;
     private final RestClient restClient;
 
-    public YouTubePlaylistService(YouTubeOAuthService oauthService, ObjectMapper objectMapper) {
+    public YouTubePlaylistService(YouTubeOAuthService oauthService, YouTubeProperties properties,
+            ObjectMapper objectMapper) {
         this.oauthService = oauthService;
+        this.properties = properties;
         this.objectMapper = objectMapper;
         this.restClient = RestClient.builder().baseUrl(YOUTUBE_API_BASE_URL).build();
     }
 
-    public List<YouTubePlaylist> getMyPlaylists(int maxResults) {
+    public List<YouTubePlaylist> getMyPlaylists(String userId, int maxResults) {
 
         if (maxResults < 1 || maxResults > 50) {
             throw new IllegalArgumentException("maxResults must be between 1 and 50");
         }
 
-        var token = oauthService.getValidToken();
+        var token = oauthService.getValidToken(userId);
 
         String response = restClient
                 .get()
@@ -62,8 +66,6 @@ public class YouTubePlaylistService {
             throw new IllegalArgumentException("maxResults must be between 1 and 50");
         }
 
-        var token = oauthService.getValidToken();
-
         String response = restClient
                 .get()
                 .uri(uriBuilder -> uriBuilder
@@ -71,8 +73,8 @@ public class YouTubePlaylistService {
                         .queryParam("part", "snippet,contentDetails")
                         .queryParam("playlistId", playlistId)
                         .queryParam("maxResults", maxResults)
+                        .queryParam("key", properties.apiKey())
                         .build())
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token.accessToken())
                 .retrieve()
                 .body(String.class);
 

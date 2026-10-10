@@ -4,8 +4,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties(prefix = "youtube")
 public record YouTubeProperties(
+        String apiKey,
         GoogleOAuth googleOAuth,
-        TokenStorage tokenStorage) {
+        TokenEncryption tokenEncryption) {
 
     public record GoogleOAuth(
             String clientId,
@@ -13,8 +14,7 @@ public record YouTubeProperties(
             String redirectUri) {
     }
 
-    public record TokenStorage(
-            String filePath,
+    public record TokenEncryption(
             String encryptionKey) {
     }
 }

@@ -25,8 +25,8 @@ public class YouTubeChannelService {
         this.restClient = RestClient.builder().build();
     }
 
-    public YouTubeChannel getMyChannel() {
-        var token = oauthService.getValidToken();
+    public YouTubeChannel getMyChannel(String userId) {
+        var token = oauthService.getValidToken(userId);
 
         String response = restClient
                 .get()
@@ -49,7 +49,7 @@ public class YouTubeChannelService {
     }
 
     public List<YouTubeChannel> getAllMyChannels(String userId) {
-        var token = oauthService.getValidTokenForUser(userId);
+        var token = oauthService.getValidToken(userId);
 
         String response = restClient
                 .get()

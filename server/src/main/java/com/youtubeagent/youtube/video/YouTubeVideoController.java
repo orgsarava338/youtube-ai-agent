@@ -1,5 +1,7 @@
 package com.youtubeagent.youtube.video;
 
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -18,8 +20,9 @@ public class YouTubeVideoController {
     }
 
     @GetMapping("/videos")
-    public List<YouTubeVideoSummary> getVideos(@RequestParam(defaultValue = "10") int maxResults) {
-        return videoService.getMyVideos(maxResults);
+    public List<YouTubeVideoSummary> getVideos(@RequestParam(defaultValue = "10") int maxResults,
+            @AuthenticationPrincipal OidcUser user) {
+        return videoService.getMyVideos(user.getSubject(), maxResults);
     }
 
     @GetMapping("/search")

@@ -1,11 +1,10 @@
 package com.youtubeagent.youtube.comment;
 
 import com.youtubeagent.youtube.YouTubeJsonUtils;
-import com.youtubeagent.youtube.oauth.YouTubeOAuthService;
+import com.youtubeagent.youtube.YouTubeProperties;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
-import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
@@ -17,12 +16,12 @@ public class YouTubeCommentService {
 
     private static final String YOUTUBE_API_BASE_URL = "https://www.googleapis.com";
 
-    private final YouTubeOAuthService oauthService;
+    private  final YouTubeProperties properties;
     private final ObjectMapper objectMapper;
     private final RestClient restClient;
 
-    public YouTubeCommentService(YouTubeOAuthService oauthService, ObjectMapper objectMapper) {
-        this.oauthService = oauthService;
+    public YouTubeCommentService(YouTubeProperties properties, ObjectMapper objectMapper) {
+        this.properties = properties;
         this.objectMapper = objectMapper;
         this.restClient = RestClient.builder().baseUrl(YOUTUBE_API_BASE_URL).build();
     }
@@ -37,8 +36,6 @@ public class YouTubeCommentService {
             throw new IllegalArgumentException("maxResults must be between 1 and 100");
         }
 
-        var token = oauthService.getValidToken();
-
         String response = restClient
                 .get()
                 .uri(uriBuilder -> uriBuilder
@@ -47,8 +44,8 @@ public class YouTubeCommentService {
                         .queryParam("videoId", videoId)
                         .queryParam("maxResults", maxResults)
                         .queryParam("order", "time")
+                        .queryParam("key", properties.apiKey())
                         .build())
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token.accessToken())
                 .retrieve()
                 .body(String.class);
 

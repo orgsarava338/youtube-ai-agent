@@ -1,5 +1,7 @@
 package com.youtubeagent.youtube.playlist;
 
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -18,8 +20,8 @@ public class YouTubePlaylistController {
     }
 
     @GetMapping("/playlists")
-    public List<YouTubePlaylist> getPlaylists(@RequestParam(defaultValue = "10") int maxResults) {
-        return playlistService.getMyPlaylists(maxResults);
+    public List<YouTubePlaylist> getPlaylists(@RequestParam(defaultValue = "10") int maxResults, @AuthenticationPrincipal OidcUser user) {
+        return playlistService.getMyPlaylists(user.getSubject(), maxResults);
     }
 
     

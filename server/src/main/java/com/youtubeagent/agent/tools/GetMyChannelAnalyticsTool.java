@@ -1,6 +1,7 @@
 package com.youtubeagent.agent.tools;
 
-import com.youtubeagent.agent.AgentTool;
+import com.youtubeagent.agent.AuthenticatedAgentTool;
+import com.youtubeagent.agent.ToolExecutionContext;
 import com.youtubeagent.youtube.analytics.YouTubeAnalytics;
 import com.youtubeagent.youtube.analytics.YouTubeAnalyticsService;
 import tools.jackson.databind.ObjectMapper;
@@ -11,7 +12,7 @@ import java.time.LocalDate;
 import java.util.Map;
 
 @Component
-public class GetMyChannelAnalyticsTool implements AgentTool {
+public class GetMyChannelAnalyticsTool implements AuthenticatedAgentTool {
 
     private final YouTubeAnalyticsService analyticsService;
     private final ObjectMapper objectMapper;
@@ -69,7 +70,7 @@ public class GetMyChannelAnalyticsTool implements AgentTool {
     }
 
     @Override
-    public Object execute(Map<String, Object> arguments) {
+    public Object execute(ToolExecutionContext executionContext, Map<String, Object> arguments) {
 
         if (arguments == null) {
             throw new IllegalArgumentException("startDate and endDate are required");
@@ -93,7 +94,7 @@ public class GetMyChannelAnalyticsTool implements AgentTool {
             throw new IllegalArgumentException("endDate must not be before startDate");
         }
 
-        YouTubeAnalytics analytics = analyticsService.getMyChannelAnalytics(startDate, endDate);
+        YouTubeAnalytics analytics = analyticsService.getMyChannelAnalytics(executionContext.userId(), startDate, endDate);
 
         try {
             return objectMapper.writeValueAsString(analytics);

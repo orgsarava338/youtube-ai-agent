@@ -33,11 +33,10 @@ public class AgentService {
         this.decisionModel = decisionModel;
         this.responseModel = responseModel;
         this.objectMapper = objectMapper;
-
-        log.info("Available Tools: {}", toolRegistry.getToolNames());
     }
 
-    public AgentResponse chat(String userMessage) {
+    public AgentResponse chat(String userId, String userMessage) {
+        ToolExecutionContext executionContext = new ToolExecutionContext(userId);
         AgentContext context = new AgentContext(userMessage);
 
 
@@ -58,7 +57,7 @@ public class AgentService {
                 
                 for (ToolCall toolCall : decision.toolCalls()) {
                     log.info("Model called the tool: {}{}", toolCall.tool(), toolCall.arguments());
-                    ToolExecutionResult toolResult = executeTool(toolCall);
+                    ToolExecutionResult toolResult = executeTool(executionContext, toolCall);
                     context = context.addMessage(LLMMessage.toolResult(toolCall.id(), buildToolResultMessage(toolResult)));
                 }
 
@@ -110,9 +109,9 @@ public class AgentService {
         }
     }
 
-    private ToolExecutionResult executeTool(ToolCall toolCall) {
+    private ToolExecutionResult executeTool(ToolExecutionContext executionContext, ToolCall toolCall) {
         try {
-            String result = toolRegistry.execute(toolCall.tool(), toolCall.arguments());
+            String result = toolRegistry.execute(executionContext, toolCall.tool(), toolCall.arguments());
             return ToolExecutionResult.success(toolCall.id(), toolCall.tool(), result);
         } catch (Exception e) {
             log.error("Tool execution failed: {}", toolCall.tool(), e);
