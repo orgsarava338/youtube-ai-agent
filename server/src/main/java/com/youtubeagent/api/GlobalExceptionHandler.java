@@ -6,6 +6,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
+
+import com.youtubeagent.ai.core.AiRateLimitException;
+
 import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import java.time.Instant;
@@ -37,6 +40,16 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiError> handleResourceNotFound(NoResourceFoundException exception) {
         log.warn("Resource not found", exception.getMessage());
         return buildResponse(HttpStatus.NOT_FOUND, "resource_not_found", "Resource not found");
+    }
+
+    @ExceptionHandler(AiRateLimitException.class)
+    public ResponseEntity<ApiError> handleAiRateLimit(AiRateLimitException exception) {
+        log.warn("AI model rate limit exceeded");
+
+        return buildResponse(
+                HttpStatus.TOO_MANY_REQUESTS,
+                "rate_limit_exceeded",
+                "AssisTube is temporarily unable to respond because the AI model has reached its usage limit. Please try again later.");
     }
 
     @ExceptionHandler(IllegalStateException.class)

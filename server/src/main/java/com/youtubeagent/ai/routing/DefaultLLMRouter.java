@@ -1,5 +1,6 @@
 package com.youtubeagent.ai.routing;
 
+import com.youtubeagent.ai.core.AiRateLimitException;
 import com.youtubeagent.ai.core.LLMRequest;
 import com.youtubeagent.ai.core.LLMResponse;
 import com.youtubeagent.ai.model.ModelDefinition;
@@ -47,6 +48,9 @@ public class DefaultLLMRouter implements LLMRouter {
                 LLMRequest modelRequest = new LLMRequest(model.id(), request.messages(), request.tools());
                 log.info("LLM call started role={} model={} provider={}", role, model.id(), model.provider());
                 return provider.generate(modelRequest);
+            } catch (AiRateLimitException exception) {
+                // Preserve the rate-limit exception for GlobalExceptionHandler.
+                throw exception;
             } catch (Exception exception) {
                 lastException = exception;
                 log.warn(

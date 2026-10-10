@@ -2,6 +2,7 @@ package com.youtubeagent.ai.provider;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.youtubeagent.ai.core.AiRateLimitException;
 import com.youtubeagent.ai.core.LLMMessage;
 import com.youtubeagent.ai.core.LLMRequest;
 import com.youtubeagent.ai.core.LLMResponse;
@@ -14,6 +15,7 @@ import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestClient;
 
 import java.util.ArrayList;
@@ -51,12 +53,24 @@ public class OpenRouterProvider implements LLMProvider {
 
         logMessageContext(request.messages());
 
-        OpenRouterResponse response = restClient.post()
-                .uri("/v1/chat/completions")
-                .header("Content-Type", "application/json")
-                .body(requestBody)
-                .retrieve()
-                .body(OpenRouterResponse.class);
+        OpenRouterResponse response;
+
+        try {
+            response = restClient.post()
+                    .uri("/v1/chat/completions")
+                    .header("Content-Type", "application/json")
+                    .body(requestBody)
+                    .retrieve()
+                    .body(OpenRouterResponse.class);
+
+        } catch (HttpStatusCodeException exception) {
+            if (exception.getStatusCode().value() == 429) {
+                log.warn("OpenRouter rate limit exceeded. status={}", exception.getStatusCode().value());
+                throw new AiRateLimitException(exception);
+            }
+
+            throw exception;
+        }
 
         if (response == null
                 || response.choices() == null
