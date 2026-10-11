@@ -1,5 +1,6 @@
 package com.youtubeagent.agent;
 
+import com.youtubeagent.agent.tools.RepeatedToolCallGuard;
 import com.youtubeagent.ai.core.LLMMessage;
 import com.youtubeagent.ai.core.LLMRequest;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,6 +16,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -23,13 +25,15 @@ class AgentServiceTest {
     @Mock private ToolRegistry toolRegistry;
     @Mock private DecisionModel decisionModel;
     @Mock private ResponseModel responseModel;
+    @Mock private RepeatedToolCallGuard repeatedToolCallGuard;
     @Mock private ObjectMapper objectMapper;
 
     private AgentService agentService;
 
     @BeforeEach
     void setUp() {
-        agentService = new AgentService(toolRegistry, decisionModel, responseModel, objectMapper);
+        agentService = new AgentService(toolRegistry, decisionModel, responseModel, repeatedToolCallGuard,
+                objectMapper);
         when(toolRegistry.getLLMToolDefinitions()).thenReturn(List.of());
     }
 

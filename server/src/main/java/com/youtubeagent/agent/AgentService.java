@@ -1,5 +1,7 @@
 package com.youtubeagent.agent;
 
+import com.youtubeagent.agent.tools.RepeatedToolCallGuard;
+import com.youtubeagent.agent.tools.RepeatedToolCallGuard.TurnTracker;
 import com.youtubeagent.ai.core.LLMMessage;
 import com.youtubeagent.ai.core.LLMRequest;
 import com.youtubeagent.ai.core.LLMToolCall;
@@ -25,21 +27,26 @@ public class AgentService {
     private final ToolRegistry toolRegistry;
     private final DecisionModel decisionModel;
     private final ResponseModel responseModel;
+    private final RepeatedToolCallGuard repeatedToolCallGuard;
     private final ObjectMapper objectMapper;
 
     public AgentService(
             ToolRegistry toolRegistry,
             DecisionModel decisionModel,
             ResponseModel responseModel,
-            ObjectMapper objectMapper) {
+            RepeatedToolCallGuard repeatedToolCallGuard,
+                    ObjectMapper objectMapper) {
 
         this.toolRegistry = toolRegistry;
         this.decisionModel = decisionModel;
         this.responseModel = responseModel;
+        this.repeatedToolCallGuard = repeatedToolCallGuard;
         this.objectMapper = objectMapper;
     }
 
     public AgentTurnResult runTurn(String userId, String userMessage, List<LLMMessage> history) {
+
+        TurnTracker toolCallTracker = repeatedToolCallGuard.newTurnTracker();
 
         ToolExecutionContext executionContext = new ToolExecutionContext(userId);
         int initialMessageCount = history.size();
@@ -70,9 +77,26 @@ public class AgentService {
                 context = context.addMessage(buildAssistantToolCallMessage(decision));
 
                 for (ToolCall toolCall : decision.toolCalls()) {
-                    log.info("Model called the tool: {}{}", toolCall.tool(), toolCall.arguments());
-                    ToolExecutionResult toolResult = executeTool(executionContext, toolCall);
-                    context = context.addMessage(LLMMessage.toolResult(toolCall.id(), buildToolResultMessage(toolResult)));
+                    ToolExecutionResult toolResult;
+                    if (toolCallTracker.isRepeated(toolCall)) {
+                        log.warn(
+                                "Repeated tool call detected: tool={}, arguments={}",
+                                toolCall.tool(),
+                                toolCall.arguments());
+
+                        toolResult = ToolExecutionResult.failure(
+                                toolCall.id(),
+                                toolCall.tool(),
+                                "Repeated tool call detected. This tool was already "
+                                        + "requested with the same arguments during this turn. "
+                                        + "Use the previous result, try different arguments "
+                                        + "if appropriate, or provide a final answer.");
+                    } else {
+                        log.info("Model called the tool: {}{}", toolCall.tool(), toolCall.arguments());
+                        toolResult = executeTool(executionContext, toolCall);
+                        context = context
+                                .addMessage(LLMMessage.toolResult(toolCall.id(), buildToolResultMessage(toolResult)));
+                    }
                 }
 
                 continue;
