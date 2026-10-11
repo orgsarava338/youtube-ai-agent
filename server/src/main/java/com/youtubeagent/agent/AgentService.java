@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 @Slf4j
@@ -46,7 +47,9 @@ public class AgentService {
 
     public AgentTurnResult runTurn(String userId, String userMessage, List<LLMMessage> history) {
 
-        TurnTracker toolCallTracker = repeatedToolCallGuard.newTurnTracker();
+        TurnTracker toolCallTracker = Objects.requireNonNull(
+                repeatedToolCallGuard.newTurnTracker(),
+                "RepeatedToolCallGuard must create a turn tracker");
 
         ToolExecutionContext executionContext = new ToolExecutionContext(userId);
         int initialMessageCount = history.size();
@@ -94,9 +97,10 @@ public class AgentService {
                     } else {
                         log.info("Model called the tool: {}{}", toolCall.tool(), toolCall.arguments());
                         toolResult = executeTool(executionContext, toolCall);
-                        context = context
-                                .addMessage(LLMMessage.toolResult(toolCall.id(), buildToolResultMessage(toolResult)));
                     }
+
+                    context = context
+                            .addMessage(LLMMessage.toolResult(toolCall.id(), buildToolResultMessage(toolResult)));
                 }
 
                 continue;
