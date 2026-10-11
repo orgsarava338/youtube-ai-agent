@@ -1,16 +1,20 @@
 
 package com.youtubeagent.config;
 
+import com.youtubeagent.api.RequestLoggingFilter;
 import java.util.List;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizationRequestResolver;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -21,10 +25,12 @@ import jakarta.servlet.http.HttpServletResponse;
 
 @Configuration
 public class SecurityConfig {
+    private final RequestLoggingFilter requestLoggingFilter;
     private final AppProperties appProperties;
 
-    SecurityConfig(AppProperties appProperties) {
+    SecurityConfig(AppProperties appProperties, RequestLoggingFilter requestLoggingFilter) {
         this.appProperties = appProperties;
+        this.requestLoggingFilter = requestLoggingFilter;
     }
 
     @Bean
@@ -59,7 +65,12 @@ public class SecurityConfig {
                                 .setStatus(HttpServletResponse.SC_NO_CONTENT))
                         .invalidateHttpSession(true)
                         .clearAuthentication(true)
-                        .deleteCookies("JSESSIONID"));
+                        .deleteCookies("JSESSIONID"))
+
+                .exceptionHandling(exceptions -> exceptions
+                        .defaultAuthenticationEntryPointFor(
+                                new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED),
+                                (RequestMatcher) request -> request.getRequestURI().startsWith("/api")));
 
         // Keep Spring Security's CSRF protection enabled.
         return http.build();
