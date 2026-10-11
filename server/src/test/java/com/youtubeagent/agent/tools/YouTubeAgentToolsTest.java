@@ -13,7 +13,6 @@ import com.youtubeagent.youtube.video.YouTubeVideoSummary;
 import org.junit.jupiter.api.Test;
 import tools.jackson.databind.ObjectMapper;
 
-import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -40,8 +39,8 @@ class YouTubeAgentToolsTest {
     void getMyVideosUsesDefaultAndExplicitLimits() {
         YouTubeVideoService service = mock(YouTubeVideoService.class);
         when(service.getMyVideos("user-1", 10)).thenReturn(List.of());
-        when(service.getMyVideos("user-1", 3)).thenReturn(List.of(new YouTubeVideoSummary("v1", "Latest", "",
-                Instant.parse("2024-01-01T00:00:00Z"), null, "c1", "Channel")));
+        when(service.getMyVideos("user-1", 3)).thenReturn(List.of(
+                new YouTubeVideoSummary("v1", "Latest", "", null, null, "c1", "Channel")));
         var tool = new GetMyVideosTool(service, mapper);
         var context = new ToolExecutionContext("user-1");
         assertEquals("[]", tool.execute(context, null));
@@ -53,8 +52,8 @@ class YouTubeAgentToolsTest {
     @Test
     void getMyPlaylistsUsesDefaultLimitAndSerializesPlaylists() {
         YouTubePlaylistService service = mock(YouTubePlaylistService.class);
-        when(service.getMyPlaylists("user-1", 10)).thenReturn(List.of(new YouTubePlaylist("pl1", "Favorites", "",
-                null, "c1", "Channel", Instant.parse("2024-01-01T00:00:00Z"), 2)));
+        when(service.getMyPlaylists("user-1", 10)).thenReturn(List.of(
+                new YouTubePlaylist("pl1", "Favorites", "", null, "c1", "Channel", null, 2)));
         var tool = new GetMyPlaylistsTool(service, mapper);
         assertTrue(((String) tool.execute(new ToolExecutionContext("user-1"), null)).contains("Favorites"));
         verify(service).getMyPlaylists("user-1", 10);
@@ -75,10 +74,12 @@ class YouTubeAgentToolsTest {
     @Test
     void channelAnalyticsValidatesDatesAndPassesExactRange() {
         YouTubeAnalyticsService service = mock(YouTubeAnalyticsService.class);
+        ObjectMapper analyticsMapper = mock(ObjectMapper.class);
         var analytics = new YouTubeAnalytics(LocalDate.parse("2025-01-01"), LocalDate.parse("2025-01-31"),
                 10, 20, 30, 4, 5, 6, 7);
         when(service.getMyChannelAnalytics("user-1", analytics.startDate(), analytics.endDate())).thenReturn(analytics);
-        var tool = new GetMyChannelAnalyticsTool(service, mapper);
+        when(analyticsMapper.writeValueAsString(analytics)).thenReturn("{\"views\":10}");
+        var tool = new GetMyChannelAnalyticsTool(service, analyticsMapper);
         assertThrows(IllegalArgumentException.class, () -> tool.execute(new ToolExecutionContext("user-1"),
                 Map.of("startDate", "bad-date", "endDate", "2025-01-31")));
         String result = (String) tool.execute(new ToolExecutionContext("user-1"),
@@ -90,10 +91,12 @@ class YouTubeAgentToolsTest {
     @Test
     void videoAnalyticsRequiresVideoIdAndUsesActualId() {
         YouTubeAnalyticsService service = mock(YouTubeAnalyticsService.class);
+        ObjectMapper analyticsMapper = mock(ObjectMapper.class);
         var analytics = new YouTubeAnalytics(LocalDate.parse("2025-01-01"), LocalDate.parse("2025-01-31"));
         when(service.getMyVideoAnalytics("user-1", "v1", analytics.startDate(), analytics.endDate()))
                 .thenReturn(analytics);
-        var tool = new GetMyVideoAnalyticsTool(service, mapper);
+        when(analyticsMapper.writeValueAsString(analytics)).thenReturn("{\"views\":0}");
+        var tool = new GetMyVideoAnalyticsTool(service, analyticsMapper);
         assertThrows(IllegalArgumentException.class, () -> tool.execute(new ToolExecutionContext("user-1"),
                 Map.of("startDate", "2025-01-01", "endDate", "2025-01-31")));
         String result = (String) tool.execute(new ToolExecutionContext("user-1"),
