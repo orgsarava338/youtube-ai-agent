@@ -5,9 +5,9 @@ import ChatLayout from "@/layouts/ChatLayout";
 import { useYouTubeChannels } from "@/features/youtubeChannel/hooks/useYouTubeChannels";
 import { useChat } from "@/features/chat/hooks/useChat";
 import SmartResponse from "@/features/chat/components/SmartResponse";
+import ChatSidebar from "@/features/chat/components/ChatSidebar";
 
 import "./ChatPage.css";
-import ChatSidebar from "@/features/chat/components/ChatSidebar";
 
 export default function ChatPage() {
     const { customUrl, conversationId: routeConversationId } = useParams<{
@@ -114,7 +114,7 @@ export default function ChatPage() {
         const newConversationId = await sendMessage(message);
 
         if (!routeConversationId && newConversationId) {
-            navigate(`/chat/${customUrl}/chat/${newConversationId}`, {
+            navigate(`/workspace/${customUrl}/chat/${newConversationId}`, {
                 replace: true,
             });
         }
@@ -141,7 +141,7 @@ export default function ChatPage() {
         }
 
         setInput("");
-        navigate(`/chat/${customUrl}/chat/${id}`);
+        navigate(`/workspace/${customUrl}/chat/${id}`);
     }
 
     function handleNewChat() {
@@ -150,7 +150,7 @@ export default function ChatPage() {
         }
 
         setInput("");
-        navigate(`/chat/${customUrl}/chat`);
+        navigate(`/workspace/${customUrl}/chat`);
         textareaRef.current?.focus();
     }
 

@@ -12,7 +12,7 @@ interface SmartResponseProps {
 type ResponseFormat = "json" | "html" | "markdown" | "text";
 
 function detectFormat(content: string): ResponseFormat {
-    const value = content.trim();
+    const value = (content ?? "").trim();
 
     if (!value) return "text";
 
