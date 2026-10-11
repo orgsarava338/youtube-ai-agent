@@ -181,6 +181,23 @@ export function useChat() {
         setError(null);
     }, [sending, loadingConversation]);
 
+    const deleteConversation = useCallback(
+        async (id: string): Promise<void> => {
+            await chatApi.deleteConversation(id);
+
+            setConversations((current) =>
+                current.filter((item) => item.conversationId !== id),
+            );
+
+            if (conversationId === id) {
+                setConversationId(null);
+                setMessages([]);
+                setError(null);
+            }
+        },
+        [conversationId],
+    );
+
     return {
         messages,
         conversationId,
@@ -192,5 +209,6 @@ export function useChat() {
         loadConversations,
         loadConversation,
         clearMessages,
+        deleteConversation,
     };
 }

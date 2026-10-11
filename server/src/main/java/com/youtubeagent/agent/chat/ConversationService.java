@@ -60,6 +60,11 @@ public class ConversationService {
         return new ConversationHistory(conversation, messages);
     }
 
+    @Transactional
+    public void deleteConversation(UUID conversationId, String userId) {
+        conversationStore.deleteConversation(conversationId, userId);
+    }
+
     public record ConversationHistory(
             Conversation conversation,
             List<LLMMessage> messages) {

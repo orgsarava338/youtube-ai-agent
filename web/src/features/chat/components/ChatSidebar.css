@@ -319,6 +319,51 @@
     white-space: nowrap;
 }
 
+.chat-sidebar__history-row {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    min-width: 0;
+}
+
+.chat-sidebar__history-row .chat-sidebar__history-item {
+    flex: 1;
+    width: auto;
+    min-width: 0;
+}
+
+.chat-sidebar__delete-button {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border: 0;
+    border-radius: 7px;
+    background: transparent;
+    color: #9ca3af;
+    font-size: 20px;
+    cursor: pointer;
+    opacity: 0;
+}
+
+.chat-sidebar__history-row:hover .chat-sidebar__delete-button,
+.chat-sidebar__delete-button:focus-visible {
+    opacity: 1;
+}
+
+.chat-sidebar__delete-button:hover {
+    background: #7f1d1d;
+    color: #ffffff;
+}
+
+@media (hover: none) {
+    .chat-sidebar__delete-button {
+        opacity: 1;
+    }
+}
+
 @media (max-width: 768px) {
     .chat-sidebar {
         padding: 16px;

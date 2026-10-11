@@ -123,4 +123,15 @@ public class ConversationStore {
     public List<Conversation> getConversations(String userId) {
         return conversationRepository.findByUserIdOrderByUpdatedAtDesc(userId);
     }
+
+    @Transactional
+    public void deleteConversation(UUID conversationId, String userId) {
+        // Verify the conversation belongs to this user.
+        Conversation conversation = getOwnedConversation(conversationId, userId);
+
+        // Delete child records before deleting the parent.
+        messageRepository.deleteByConversation_Id(conversationId);
+
+        conversationRepository.delete(conversation);
+    }
 }

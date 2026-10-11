@@ -3,7 +3,6 @@ import { api } from "@/lib/api";
 class ChatApi {
     async createConversation(request: ChatRequest): Promise<ChatResponse> {
         const response = await api.post<ChatResponse>("/api/v1/chat", request);
-
         return response.data;
     }
 
@@ -28,6 +27,10 @@ class ChatApi {
             `/api/v1/chat/${conversationId}`,
         );
         return response.data;
+    }
+
+    async deleteConversation(conversationId: string): Promise<void> {
+        await api.delete(`/api/v1/chat/${conversationId}`);
     }
 }
 

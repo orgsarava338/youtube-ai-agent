@@ -11,10 +11,13 @@ public interface ConversationMessageRepository extends JpaRepository<Conversatio
 
     List<ConversationMessage> findByConversation_IdOrderBySequenceNoAsc(UUID conversationId);
 
+    void deleteByConversation_Id(UUID conversationId);
+
     @Query("""
             select coalesce(max(m.sequenceNo), 0)
             from ConversationMessage m
             where m.conversation.id = :conversationId
             """)
     long findLastSequence(@Param("conversationId") UUID conversationId);
+
 }

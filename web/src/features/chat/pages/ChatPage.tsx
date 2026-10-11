@@ -29,6 +29,7 @@ export default function ChatPage() {
         loadConversations,
         loadConversation,
         clearMessages,
+        deleteConversation,
     } = useChat();
 
     const [input, setInput] = useState("");
@@ -154,6 +155,36 @@ export default function ChatPage() {
         textareaRef.current?.focus();
     }
 
+    async function handleDeleteConversation(id: string) {
+        const conversation = conversations.find(
+            (item) => item.conversationId === id,
+        );
+
+        const confirmed = window.confirm(
+            `Delete "${conversation?.title || "New conversation"}"? This action cannot be undone.`,
+        );
+
+        if (!confirmed) {
+            return;
+        }
+
+        try {
+            const isActive = id === routeConversationId;
+
+            await deleteConversation(id);
+
+            if (isActive && customUrl) {
+                navigate(`/workspace/${customUrl}/chat`, {
+                    replace: true,
+                });
+            }
+        } catch {
+            window.alert(
+                "Unable to delete this conversation. Please try again.",
+            );
+        }
+    }
+
     return (
         <ChatLayout
             sidebar={
@@ -167,6 +198,9 @@ export default function ChatPage() {
                     onSelectConversation={(id) => {
                         void handleSelectConversation(id);
                     }}
+                    onDeleteConversation={(id) =>
+                        void handleDeleteConversation(id)
+                    }
                 />
             }
         >
