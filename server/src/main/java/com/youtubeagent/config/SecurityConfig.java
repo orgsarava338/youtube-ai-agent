@@ -42,7 +42,8 @@ public class SecurityConfig {
                                 "/error",
                                 "/actuator/health",
                                 "/oauth2/**",
-                                "/login/**")
+                                "/login/**",
+                                "/api/v1/auth/login")
                         .permitAll()
                         .anyRequest().authenticated())
 
@@ -53,9 +54,9 @@ public class SecurityConfig {
                 )
 
                 .logout(logout -> logout
-                        .logoutSuccessHandler(
-                                (request, response, authentication) -> response
-                                        .setStatus(HttpServletResponse.SC_NO_CONTENT))
+                        .logoutUrl("/api/v1/auth/logout")
+                        .logoutSuccessHandler((request, response, authentication) -> response
+                                .setStatus(HttpServletResponse.SC_NO_CONTENT))
                         .invalidateHttpSession(true)
                         .clearAuthentication(true)
                         .deleteCookies("JSESSIONID"));

@@ -25,8 +25,8 @@ public class ToolRegistry {
         this.tools.addAll(authenticatedTools);
         this.objectMapper = objectMapper;
 
-        log.info("Public tools: {}", publicTools.stream().map(tool -> tool.getName()));
-        log.info("Authenticated Tools: {}", authenticatedTools.stream().map(tool -> tool.getName()));
+        log.info("Public tools: {}", publicTools.stream().map(tool -> tool.getName()).toList());
+        log.info("Authenticated Tools: {}", authenticatedTools.stream().map(tool -> tool.getName()).toList());
     }
 
     public List<Object> getTools() {

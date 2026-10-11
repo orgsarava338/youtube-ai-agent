@@ -1,23 +1,26 @@
 import config from "@/config";
 import { api } from "@/lib/api";
 
-export async function getCurrentUser(): Promise<CurrentUser> {
-  const response = await api.get<CurrentUser>("/api/v1/auth/me");
-  return response.data;
-}
+class AuthApi {
+    async getCurrentUser(): Promise<CurrentUser> {
+        const response = await api.get<CurrentUser>("/api/v1/auth/me");
 
-export async function logoutRequest(): Promise<void> {
-    const csrfResponse = await api.get<CsrfResponse>("/api/v1/auth/csrf");
-    const { token, headerName } = csrfResponse.data;
-  await api.post("/logout", {}, {
-    headers: { [headerName]: token }
-  });
-}
-
-export function startGoogleLogin(): void {
-    if (!config?.api?.url) {
-        throw new Error("API base URL is not configured");
+        return response.data;
     }
 
-  window.location.assign(`${config.api.url}/oauth2/authorization/google`);
+    async logoutRequest(): Promise<void> {
+        await api.post("/api/v1/auth/logout");
+    }
+
+    startGoogleLogin(): void {
+        if (!config?.api?.url) {
+            throw new Error("API base URL is not configured");
+        }
+
+        window.location.assign(`${config.api.url}/api/v1/auth/login`);
+    }
 }
+
+const authApi = new AuthApi();
+
+export default authApi;

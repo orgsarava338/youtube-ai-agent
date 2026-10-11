@@ -1,5 +1,5 @@
 
-import { getCurrentUser, logoutRequest, startGoogleLogin } from "@/features/auth/api/authApi";
+import authApi from "@/features/auth/api/authApi";
 
 import {
   createContext,
@@ -25,7 +25,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const refreshUser = useCallback(async (): Promise<void> => {
     try {
-      const currentUser = await getCurrentUser();
+      const currentUser = await authApi.getCurrentUser();
       setUser(currentUser);
     } catch {
       setUser(null);
@@ -37,7 +37,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     async function initializeAuth() {
       try {
-        const currentUser = await getCurrentUser();
+        const currentUser = await authApi.getCurrentUser();
 
         if (active) {
           setUser(currentUser);
@@ -61,11 +61,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, []);
 
   const login = useCallback(() => {
-    startGoogleLogin();
+    authApi.startGoogleLogin();
   }, []);
 
   const logout = useCallback(async (): Promise<void> => {
-    await logoutRequest();
+    await authApi.logoutRequest();
     setUser(null);
   }, []);
 
