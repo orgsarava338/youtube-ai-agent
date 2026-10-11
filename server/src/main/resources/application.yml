@@ -34,7 +34,7 @@ spring:
         enabled: true
 
 server:
-    port: 8080
+  port: ${PORT:8080}
 
 app:
     frontend-url: ${APP_FRONTEND_URL}
