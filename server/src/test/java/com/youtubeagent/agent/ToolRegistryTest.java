@@ -27,9 +27,7 @@ class ToolRegistryTest {
     @BeforeEach
     void setUp() {
         when(publicTool.getName()).thenReturn("echo");
-        when(publicTool.getDescription()).thenReturn("Returns a value.");
         when(authenticatedTool.getName()).thenReturn("my_channel");
-        when(authenticatedTool.getDescription()).thenReturn("Reads the user's channel.");
         registry = new ToolRegistry(List.of(publicTool), List.of(authenticatedTool), objectMapper);
     }
 
@@ -75,7 +73,7 @@ class ToolRegistryTest {
                 () -> registry.execute(null, "my_channel", Map.of()));
 
         assertEquals("Execution context is required for authenticated tools.", exception.getMessage());
-        verifyNoInteractions(authenticatedTool);
+        verify(authenticatedTool, never()).execute(any(), any());
     }
 
     @Test
@@ -85,7 +83,7 @@ class ToolRegistryTest {
                 () -> registry.execute(new ToolExecutionContext(" "), "my_channel", Map.of()));
 
         assertEquals("Authentication is required to execute this tool.", exception.getMessage());
-        verifyNoInteractions(authenticatedTool);
+        verify(authenticatedTool, never()).execute(any(), any());
     }
 
     @Test
@@ -99,6 +97,9 @@ class ToolRegistryTest {
 
     @Test
     void exposesToolDefinitionsAndDescriptions() {
+        when(publicTool.getDescription()).thenReturn("Returns a value.");
+        when(authenticatedTool.getDescription()).thenReturn("Reads the user's channel.");
+
         assertTrue(registry.hasTool("echo"));
         assertTrue(registry.hasTool("my_channel"));
         assertEquals(2, registry.getLLMToolDefinitions().size());

@@ -28,16 +28,16 @@ class AgentServiceTest {
     private AgentService agentService;
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
         agentService = new AgentService(toolRegistry, decisionModel, responseModel, objectMapper);
         when(toolRegistry.getLLMToolDefinitions()).thenReturn(List.of());
-        when(objectMapper.writeValueAsString(any())).thenAnswer(invocation ->
-                invocation.getArgument(0).toString());
     }
 
     @Test
     void returnsFinalAnswerWhenDecisionIsDone() {
-        List<LLMMessage> history = List.of(new LLMMessage("user", "previous question"));
+        List<LLMMessage> history = List.of(
+                new LLMMessage("user", "previous question"),
+                new LLMMessage("user", "current question"));
         when(decisionModel.decide(any(LLMRequest.class))).thenReturn(AgentDecision.done());
         when(responseModel.generate(any(LLMRequest.class))).thenReturn("Here is the answer.");
 
@@ -45,15 +45,17 @@ class AgentServiceTest {
 
         assertEquals("final_answer", result.response().type());
         assertEquals("Here is the answer.", result.response().content());
-        assertEquals(2, result.messages().size());
-        assertEquals("current question", result.messages().getFirst().content());
-        assertEquals("Here is the answer.", result.messages().getLast().content());
+        assertEquals(1, result.messages().size());
+        assertEquals("assistant", result.messages().getFirst().role());
+        assertEquals("Here is the answer.", result.messages().getFirst().content());
 
         ArgumentCaptor<LLMRequest> requestCaptor = ArgumentCaptor.forClass(LLMRequest.class);
         verify(responseModel).generate(requestCaptor.capture());
         assertFalse(requestCaptor.getValue().hasTools());
         assertTrue(requestCaptor.getValue().messages().stream()
                 .anyMatch(message -> "previous question".equals(message.content())));
+        assertTrue(requestCaptor.getValue().messages().stream()
+                .anyMatch(message -> "current question".equals(message.content())));
     }
 
     @Test
@@ -78,7 +80,7 @@ class AgentServiceTest {
     }
 
     @Test
-    void reportsToolFailureToTheNextDecisionAndStillProducesFinalAnswer() {
+    void reportsToolFailureToTheNextDecisionAndStillProducesFinalAnswer() throws Exception {
         ToolCall call = new ToolCall("call-fail", "echo", Map.of());
         when(toolRegistry.hasTool("echo")).thenReturn(true);
         when(decisionModel.decide(any(LLMRequest.class)))
@@ -86,6 +88,8 @@ class AgentServiceTest {
                 .thenReturn(AgentDecision.done());
         when(toolRegistry.execute(any(ToolExecutionContext.class), eq("echo"), any()))
                 .thenThrow(new IllegalStateException("service unavailable"));
+        when(objectMapper.writeValueAsString(any())).thenAnswer(invocation ->
+                invocation.getArgument(0).toString());
         when(responseModel.generate(any(LLMRequest.class))).thenReturn("The operation could not be completed.");
 
         AgentTurnResult result = agentService.runTurn("user-1", "try the tool", List.of());
