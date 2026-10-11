@@ -63,6 +63,14 @@ public class ToolRegistry {
         return description.toString();
     }
 
+    public boolean hasTool(String toolName) {
+        if (toolName == null || toolName.isBlank()) {
+            return false;
+        }
+
+        return tools.stream().anyMatch(tool -> getName(tool).equals(toolName));
+    }
+
     public String execute(ToolExecutionContext executionContext, String toolName, Map<String, Object> arguments) {
 
         if (toolName == null || toolName.isBlank()) {

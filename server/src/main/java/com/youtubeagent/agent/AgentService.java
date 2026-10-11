@@ -10,8 +10,10 @@ import tools.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Slf4j
 @Service
@@ -64,8 +66,9 @@ public class AgentService {
             }
 
             if (decision.type() == AgentDecision.Type.TOOL_CALLS) {
+                validateToolCalls(decision.toolCalls());
                 context = context.addMessage(buildAssistantToolCallMessage(decision));
-                
+
                 for (ToolCall toolCall : decision.toolCalls()) {
                     log.info("Model called the tool: {}{}", toolCall.tool(), toolCall.arguments());
                     ToolExecutionResult toolResult = executeTool(executionContext, toolCall);
@@ -78,7 +81,21 @@ public class AgentService {
             throw new IllegalStateException("Unknown agent decision type: " + decision.type());
         }
 
-        throw new IllegalStateException("Agent exceeded maximum iterations");
+        log.warn("Agent reached maximum iterations: userId={}, iterations={}", userId, context.iteration());
+
+        String finalResponse = responseModel.generate(buildIterationLimitResponseRequest(context));
+
+        context = context.addMessage(new LLMMessage("assistant", finalResponse));
+
+        List<LLMMessage> generatedMessages = new ArrayList<>(
+                context.messages().subList(initialMessageCount, context.messages().size()));
+
+        AgentResponse response = new AgentResponse(
+                "final_answer",
+                List.of(),
+                finalResponse);
+
+        return new AgentTurnResult(response, generatedMessages);
     }
 
     private LLMMessage buildAssistantToolCallMessage(AgentDecision decision) {
@@ -117,6 +134,56 @@ public class AgentService {
                                     + "Do not invent or guess values."));
         } catch (Exception e) {
             throw new IllegalStateException("Failed to build tool result message", e);
+        }
+    }
+
+    private LLMRequest buildIterationLimitResponseRequest(AgentContext context) {
+        List<LLMMessage> messages = new ArrayList<>(context.messages());
+
+        messages.add(0, new LLMMessage(
+                "system",
+                """
+                        The agent reached its maximum tool-execution iterations before
+                        confirming that the user's request was fully completed.
+
+                        Generate the best answer possible using only the information
+                        already available in the conversation and tool results.
+
+                        Do not invent missing information or claim that unfinished
+                        operations succeeded. If the available results are incomplete,
+                        briefly explain the limitation to the user.
+                        """));
+
+        return new LLMRequest(null, List.copyOf(messages), List.of());
+    }
+
+    private void validateToolCalls(List<ToolCall> toolCalls) {
+        if (toolCalls == null || toolCalls.isEmpty()) {
+            throw new IllegalStateException("Decision Model returned TOOL_CALLS without any tool calls");
+        }
+
+        Set<String> callIds = new HashSet<>();
+
+        for (ToolCall toolCall : toolCalls) {
+            if (toolCall == null) {
+                throw new IllegalStateException("Decision Model returned a null tool call");
+            }
+
+            if (toolCall.id() == null || toolCall.id().isBlank()) {
+                throw new IllegalStateException("Tool call ID must not be blank");
+            }
+
+            if (!callIds.add(toolCall.id())) {
+                throw new IllegalStateException("Duplicate tool call ID: " + toolCall.id());
+            }
+
+            if (toolCall.tool() == null || toolCall.tool().isBlank()) {
+                throw new IllegalStateException("Tool name must not be blank");
+            }
+
+            if (!toolRegistry.hasTool(toolCall.tool())) {
+                throw new IllegalStateException("Decision Model requested an unknown tool: " + toolCall.tool());
+            }
         }
     }
 
