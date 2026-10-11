@@ -55,7 +55,7 @@ public class ConversationService {
     @Transactional(readOnly = true)
     public ConversationHistory getConversation(UUID conversationId, String userId) {
         Conversation conversation = conversationStore.getOwnedConversation(conversationId, userId);
-        List<LLMMessage> messages = conversationStore.getMessages(conversationId, userId);
+        List<LLMMessage> messages = conversationStore.getVisibleMessages(conversationId, userId);
 
         return new ConversationHistory(conversation, messages);
     }

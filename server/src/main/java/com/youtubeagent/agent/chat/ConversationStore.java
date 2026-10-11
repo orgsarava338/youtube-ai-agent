@@ -65,6 +65,22 @@ public class ConversationStore {
         return List.copyOf(messages);
     }
 
+    @Transactional(readOnly = true)
+    public List<LLMMessage> getVisibleMessages(UUID conversationId, String userId) {
+
+        getOwnedConversation(conversationId, userId);
+
+        return messageRepository
+                .findVisibleMessages(conversationId)
+                .stream()
+                .map(stored -> new LLMMessage(
+                        stored.getRole(),
+                        stored.getContent(),
+                        List.of(),
+                        null))
+                .toList();
+    }
+
     @Transactional
     public void append(UUID conversationId, String userId, List<LLMMessage> messages) {
 

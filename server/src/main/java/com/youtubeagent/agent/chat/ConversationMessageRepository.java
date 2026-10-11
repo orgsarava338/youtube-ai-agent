@@ -20,4 +20,15 @@ public interface ConversationMessageRepository extends JpaRepository<Conversatio
             """)
     long findLastSequence(@Param("conversationId") UUID conversationId);
 
+    @Query("""
+            select m
+            from ConversationMessage m
+            where m.conversation.id = :conversationId
+              and m.role <> 'tool'
+              and m.toolCallsJson is null
+            order by m.sequenceNo asc
+            """)
+
+    List<ConversationMessage> findVisibleMessages(@Param("conversationId") UUID conversationId);
+
 }
