@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { useNavigate } from "react-router";
 
 import ChannelCard from "@/features/youtubeChannel/components/ChannelCard";
@@ -10,38 +9,27 @@ export default function ChannelSelectionPage() {
     const { channels, loading, error, refetch } = useYouTubeChannels();
     const navigate = useNavigate();
 
-    useEffect(() => {
-        if (loading || error || channels.length !== 1) {
-            return;
-        }
-
-        const channel = channels[0];
-        const channelIdentifier = channel.customUrl || channel.id;
-
-        if (!channelIdentifier) {
-            return;
-        }
-
-        navigate(`/workspace/${channelIdentifier}`, { replace: true });
-    }, [channels, loading, error, navigate]);
-
     function handleSelectChannel(channel: YouTubeChannel) {
-        const channelIdentifier = channel.customUrl || channel.id;
+        const identifier = channel.customUrl || channel.id;
 
-        if (!channelIdentifier) {
-            console.error(
-                "Cannot open workspace: channel identifier is missing.",
-            );
+        if (!identifier) {
             return;
         }
 
-        navigate(`/workspace/${channelIdentifier}`);
+        navigate(`/workspace/${identifier}`);
     }
 
     if (loading) {
         return (
-            <main className="channel-selection">
-                <p role="status">Loading your YouTube channels...</p>
+            <main className="channel-selection channel-selection--center">
+                <div
+                    className="channel-selection__loading-icon"
+                    aria-hidden="true"
+                >
+                    <span />
+                </div>
+                <h1>Finding your channels</h1>
+                <p role="status">Loading your connected YouTube channels...</p>
             </main>
         );
     }
@@ -49,19 +37,72 @@ export default function ChannelSelectionPage() {
     if (error) {
         return (
             <main className="channel-selection">
-                <h1>Unable to load your channels</h1>
-                <p role="alert">{error}</p>
-                <button type="button" onClick={() => void refetch()}>
-                    Try again
-                </button>
+                <section className="channel-selection__empty">
+                    <div
+                        className="channel-selection__empty-icon"
+                        aria-hidden="true"
+                    >
+                        !
+                    </div>
+                    <h1>We couldn't load your channels</h1>
+                    <p role="alert">{error}</p>
+                    <button
+                        type="button"
+                        className="channel-selection__primary-button"
+                        onClick={() => void refetch()}
+                    >
+                        Try again
+                    </button>
+                </section>
             </main>
         );
     }
 
-    if (channels.length === 1) {
+    if (channels.length === 0) {
         return (
             <main className="channel-selection">
-                <p role="status">Opening your YouTube workspace...</p>
+                <header className="channel-selection__header">
+                    <p className="channel-selection__eyebrow">
+                        YOUR CREATOR WORKSPACE
+                    </p>
+                    <h1>Let's get your channel ready.</h1>
+                    <p>
+                        You’re signed in! Create a YouTube channel to start
+                        exploring your content with AssisTube.
+                    </p>
+                </header>
+
+                <section className="channel-selection__empty">
+                    <div
+                        className="channel-selection__empty-icon"
+                        aria-hidden="true"
+                    >
+                        ▶
+                    </div>
+                    <h2>No YouTube channels yet</h2>
+                    <p>
+                        Create a channel using your Google account. Once it's
+                        ready, come back here and refresh to get started.
+                    </p>
+
+                    <a
+                        className="channel-selection__primary-button"
+                        href="https://www.youtube.com/create_channel"
+                        target="_blank"
+                        rel="noreferrer"
+                    >
+                        Create a YouTube channel
+                        <span aria-hidden="true"> ↗</span>
+                    </a>
+
+                    <button
+                        type="button"
+                        className="channel-selection__secondary-button"
+                        onClick={() => void refetch()}
+                    >
+                        I've created my channel · Refresh
+                    </button>
+                </section>
             </main>
         );
     }
@@ -70,47 +111,38 @@ export default function ChannelSelectionPage() {
         <main className="channel-selection">
             <header className="channel-selection__header">
                 <p className="channel-selection__eyebrow">
-                    ASSISTUBE WORKSPACE
+                    YOUR CREATOR WORKSPACE
                 </p>
-
-                <h1>Select your YouTube channel</h1>
-
+                <h1>Which channel are we working on?</h1>
                 <p>
-                    Choose a connected channel to continue to your personalized
-                    YouTube workspace.
+                    Choose a channel to open its dedicated AssisTube workspace.
+                    Your conversations stay organized by channel.
                 </p>
 
-                <p className="channel-selection__count">
+                <div className="channel-selection__meta">
+                    <span className="channel-selection__status-dot" />
                     {channels.length}{" "}
-                    {channels.length === 1 ? "channel" : "channels"} connected
-                </p>
+                    {channels.length === 1 ? "channel" : "channels"} available
+                </div>
             </header>
 
-            {channels.length === 0 ? (
-                <section className="channel-selection__empty">
-                    <h2>No YouTube channels found</h2>
-                    <p>
-                        Connect a YouTube account with a channel to get started.
-                    </p>
+            <section
+                className="channel-selection__grid"
+                aria-label="Choose a YouTube channel"
+            >
+                {channels.map((channel) => (
+                    <ChannelCard
+                        key={channel.id}
+                        channel={channel}
+                        onSelect={handleSelectChannel}
+                    />
+                ))}
+            </section>
 
-                    <button type="button" onClick={() => void refetch()}>
-                        Refresh channels
-                    </button>
-                </section>
-            ) : (
-                <section
-                    className="channel-selection__grid"
-                    aria-label="Your YouTube channels"
-                >
-                    {channels.map((channel) => (
-                        <ChannelCard
-                            key={channel.id}
-                            channel={channel}
-                            onSelect={handleSelectChannel}
-                        />
-                    ))}
-                </section>
-            )}
+            <p className="channel-selection__footer-note">
+                <span aria-hidden="true">🔒</span> Your channels are private to
+                your connected account.
+            </p>
         </main>
     );
 }

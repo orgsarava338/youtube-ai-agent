@@ -22,7 +22,7 @@ public class AuthController {
 
     @GetMapping("/me")
     public UserResponse me(@AuthenticationPrincipal OidcUser user) {
-        return new UserResponse(user.getSubject(), user.getName(), user.getEmail(), user.getPicture());
+        return new UserResponse(user.getSubject(), user.getFullName(), user.getEmail(), user.getPicture());
     }
 
     @GetMapping("/csrf")

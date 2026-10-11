@@ -1,7 +1,7 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router";
-import HomePage from "@features/auth/pages/HomePage";
 import WorkspacePage from "@/features/workspace/pages/WorkspacePage";
 import ChatPage from "@/features/chat/pages/ChatPage";
+import HomePage from "@/features/auth/pages/HomePage";
 
 export default function App() {
     return (
