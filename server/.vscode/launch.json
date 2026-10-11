@@ -8,7 +8,7 @@
             "mainClass": "com.youtubeagent.YoutubeAgentApplication",
             "projectName": "youtube-agent",
             "args": "",
-            "envFile": "${workspaceFolder}/.env"
+            "envFile": "${workspaceFolder}/.env/.env.local"
         }
     ]
 }
