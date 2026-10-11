@@ -15,11 +15,13 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.stereotype.Component;
 
 import com.youtubeagent.config.AppProperties;
+import com.youtubeagent.config.OriginOAuthAuthorizationRequestResolver;
 import com.youtubeagent.youtube.oauth.YouTubeOAuthService;
 import com.youtubeagent.youtube.oauth.YouTubeToken;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -49,6 +51,19 @@ public class YouTubeOAuthSuccessHandler
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
             Authentication authentication) throws IOException {
+
+        HttpSession session = request.getSession(false);
+
+        String redirectOrigin = session == null
+                ? null
+                : (String) session.getAttribute(OriginOAuthAuthorizationRequestResolver.SESSION_ATTRIBUTE);
+
+        if (redirectOrigin == null || !appProperties.allowedOrigins().contains(redirectOrigin)) {
+            log.error("redirect Origin: {} is not one of the allowed origin: {}", redirectOrigin,
+                    appProperties.allowedOrigins());
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing or invalid frontend origin");
+            return;
+        }
 
         try {
             if (!(authentication.getPrincipal() instanceof OidcUser user)) {
@@ -111,6 +126,6 @@ public class YouTubeOAuthSuccessHandler
             return;
         }
 
-        response.sendRedirect(appProperties.frontendUrl());
+        response.sendRedirect(redirectOrigin);
     }
 }

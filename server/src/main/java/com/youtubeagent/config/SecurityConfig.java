@@ -1,7 +1,6 @@
 
 package com.youtubeagent.config;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.context.annotation.Bean;
@@ -10,7 +9,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
-import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizationRequestResolver;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
@@ -78,7 +76,7 @@ public class SecurityConfig {
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
 
-        config.setAllowedOrigins(appProperties.allowedOrigins());
+        config.setAllowedOrigins(appProperties.allowedOriginList());
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("Content-Type", "X-CSRF-TOKEN", "X-XSRF-TOKEN"));
         config.setAllowCredentials(true);
@@ -93,15 +91,8 @@ public class SecurityConfig {
     OAuth2AuthorizationRequestResolver authorizationRequestResolver(
             ClientRegistrationRepository clientRegistrationRepository) {
 
-        var resolver = new DefaultOAuth2AuthorizationRequestResolver(
-                clientRegistrationRepository,
-                "/oauth2/authorization");
-
-        resolver.setAuthorizationRequestCustomizer(
-                builder -> builder.additionalParameters(parameters -> {
-                    parameters.put("access_type", "offline");
-                    parameters.put("prompt", "consent select_account");
-                }));
+        var resolver = new OriginOAuthAuthorizationRequestResolver(
+                clientRegistrationRepository, appProperties);
 
         return resolver;
     }

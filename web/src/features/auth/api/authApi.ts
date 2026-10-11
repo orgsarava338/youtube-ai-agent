@@ -17,7 +17,12 @@ class AuthApi {
             throw new Error("API base URL is not configured");
         }
 
-        window.location.assign(`${config.api.url}/api/v1/auth/login`);
+        const redirectUrl = window.location.origin;
+
+        const loginUrl = new URL("/api/v1/auth/login", config.api.url);
+        loginUrl.searchParams.set("redirectUrl", redirectUrl);
+
+        window.location.assign(loginUrl.toString());
     }
 }
 
