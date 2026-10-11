@@ -25,13 +25,13 @@ class AgentServiceTest {
     @Mock private ToolRegistry toolRegistry;
     @Mock private DecisionModel decisionModel;
     @Mock private ResponseModel responseModel;
-    @Mock private RepeatedToolCallGuard repeatedToolCallGuard;
     @Mock private ObjectMapper objectMapper;
 
     private AgentService agentService;
 
     @BeforeEach
     void setUp() {
+        RepeatedToolCallGuard repeatedToolCallGuard = new RepeatedToolCallGuard(new ObjectMapper());
         agentService = new AgentService(toolRegistry, decisionModel, responseModel, repeatedToolCallGuard,
                 objectMapper);
         when(toolRegistry.getLLMToolDefinitions()).thenReturn(List.of());
