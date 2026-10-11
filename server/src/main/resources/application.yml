@@ -45,7 +45,7 @@ server:
             timeout: 7d
 
 app:
-    frontend-url: ${APP_FRONTEND_URL}
+    allowed-origins: ${ALLOWED_ORIGINS}
 
 logging:
     pattern:
