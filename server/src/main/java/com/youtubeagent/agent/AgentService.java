@@ -52,9 +52,10 @@ public class AgentService {
             LLMRequest request = buildRequest(context);
             AgentDecision decision = decisionModel.decide(request);
 
-            if (decision.type() == AgentDecision.Type.FINAL_RESPONSE) {
+            if (decision.type() == AgentDecision.Type.DONE) {
                 String finalResponse = responseModel.generate(buildResponseRequest(context));
                 context = context.addMessage(new LLMMessage("assistant", finalResponse));
+
                 List<LLMMessage> generatedMessages = new ArrayList<>(
                         context.messages().subList(initialMessageCount, context.messages().size()));
 

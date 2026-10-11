@@ -6,6 +6,7 @@ import com.youtubeagent.agent.chat.ConversationService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -16,6 +17,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/chat")
 public class ChatController {
@@ -98,6 +100,8 @@ public class ChatController {
     private ChatResponse sendMessageInternal(UUID conversationId, ChatRequest request, OidcUser user) {
 
         String userId = requireUserId(user);
+
+        log.info("user: {}, Conversation Id: {}, request: {}", userId, conversationId, request.message());
 
         ConversationService.ChatResult result = conversationService.chat(
                 userId,

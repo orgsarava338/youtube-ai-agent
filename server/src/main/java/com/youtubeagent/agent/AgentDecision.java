@@ -4,25 +4,22 @@ import java.util.List;
 
 public record AgentDecision(
         Type type,
-        String content,
         List<ToolCall> toolCalls) {
 
     public enum Type {
         TOOL_CALLS,
-        FINAL_RESPONSE
+        DONE
     }
 
     public static AgentDecision toolCalls(List<ToolCall> toolCalls) {
         return new AgentDecision(
                 Type.TOOL_CALLS,
-                null,
                 toolCalls);
     }
 
-    public static AgentDecision finalResponse(String content) {
+    public static AgentDecision done() {
         return new AgentDecision(
-                Type.FINAL_RESPONSE,
-                content,
+                Type.DONE,
                 List.of());
     }
 }
