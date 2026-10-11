@@ -76,37 +76,10 @@ youtube:
 
 ai:
     providers:
-        ollama:
-            base-url: http://localhost:11434
-            model: qwen3:4b
-
-        groq:
-            api-key: ${AI_GROQ_API_KEY}
-            base-url: https://api.groq.com/openai/v1
-
-        gemini:
-            api-key: ${AI_GEMINI_API_KEY}
-            base-url: https://generativelanguage.googleapis.com
-
-        huggingface:
-            api-key: ${AI_HUGGINGFACE_API_KEY}
-            base-url: https://router.huggingface.co
-
-        openai:
-            api-key: ${AI_OPENAI_API_KEY}
-            base-url: https://api.openai.com
-
+        
         openrouter:
             api-key: ${AI_OPENROUTER_API_KEY}
             base-url: https://openrouter.ai/api
-        
-        bytez:
-            api-key: ${AI_BYTEZ_API_KEY}
-            base-url: https://api.bytez.com
-        
-        nvidia:
-            api-key: ${AI_NVIDIA_API_KEY}
-            base-url: https://integrate.api.nvidia.com
 
     models:
 
