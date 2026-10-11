@@ -1,7 +1,6 @@
 
 package com.youtubeagent.config;
 
-import com.youtubeagent.api.RequestLoggingFilter;
 import java.util.List;
 
 import org.springframework.context.annotation.Bean;
@@ -25,12 +24,10 @@ import jakarta.servlet.http.HttpServletResponse;
 
 @Configuration
 public class SecurityConfig {
-    private final RequestLoggingFilter requestLoggingFilter;
     private final AppProperties appProperties;
 
-    SecurityConfig(AppProperties appProperties, RequestLoggingFilter requestLoggingFilter) {
+    SecurityConfig(AppProperties appProperties) {
         this.appProperties = appProperties;
-        this.requestLoggingFilter = requestLoggingFilter;
     }
 
     @Bean
