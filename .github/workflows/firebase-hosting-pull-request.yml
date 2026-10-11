@@ -2,6 +2,7 @@
 
 name: Deploy to Firebase Hosting on PR
 
+
 on:
   pull_request:
     paths:
@@ -17,6 +18,7 @@ jobs:
   build_and_preview:
     if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
     runs-on: ubuntu-latest
+    environment: Production
 
     steps:
       - uses: actions/checkout@v4
@@ -28,6 +30,11 @@ jobs:
         env:
           VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL }}
         run: |
+          if [ -z "$VITE_API_BASE_URL" ]; then
+            echo "ERROR: VITE_API_BASE_URL is missing"
+            exit 1
+          fi
+          echo "API base URL is configured"
           bun install
           bun run build
 
