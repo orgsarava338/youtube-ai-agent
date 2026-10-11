@@ -76,7 +76,7 @@ class AgentServiceTest {
         AgentTurnResult result = agentService.runTurn("user-1", "say hello", List.of());
 
         assertEquals("The tool returned hello.", result.response().content());
-        assertTrue(result.messages().stream().anyMatch(LLMMessage::hasToolCalls));
+        assertTrue(result.messages().stream().anyMatch(message -> message.hasToolCalls()));
         assertTrue(result.messages().stream().anyMatch(message ->
                 "tool".equals(message.role()) && "call-1".equals(message.toolCallId())));
         verify(toolRegistry).execute(any(ToolExecutionContext.class), eq("echo"), eq(call.arguments()));
