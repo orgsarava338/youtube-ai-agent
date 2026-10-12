@@ -44,6 +44,16 @@ public class DefaultDecisionModel implements DecisionModel {
                             toolCall.arguments()))
                     .toList();
 
+            String content = response.content();
+            if (content != null
+                    && content.contains("<tool_call>")) {
+                throw new IllegalStateException(
+                        "Decision model returned tool-call markup as text " +
+                                "instead of structured tool calls. Provider="
+                                + response.provider()
+                                + ", model=" + response.model());
+            }
+
             return AgentDecision.toolCalls(toolCalls);
         }
 

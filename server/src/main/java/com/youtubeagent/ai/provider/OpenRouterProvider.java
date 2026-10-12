@@ -49,6 +49,7 @@ public class OpenRouterProvider implements LLMProvider {
                 request.model(),
                 convertMessages(request.messages()),
                 convertTools(request.tools()),
+                request.hasTools() ? "auto" : null,
                 false);
 
         logMessageContext(request.messages());
@@ -79,10 +80,19 @@ public class OpenRouterProvider implements LLMProvider {
             throw new IllegalStateException("OpenRouter returned an empty response.");
         }
 
-        OpenRouterMessage message = response.choices().getFirst().message();
-        String content = message.content();
+        Choice choice = response.choices().getFirst();
+        OpenRouterMessage message = choice.message();
 
+        String content = message.content();
         List<LLMToolCall> toolCalls = parseToolCalls(message.toolCalls());
+
+        log.info(
+                "OpenRouter response received model={} finishReason={} " +
+                        "structuredToolCalls={} hasContent={}",
+                request.model(),
+                choice.finishReason(),
+                toolCalls.size(),
+                content != null && !content.isBlank());
 
         if ((content == null || content.isBlank()) && toolCalls.isEmpty()) {
             throw new IllegalStateException("OpenRouter returned an empty response");
@@ -192,7 +202,8 @@ public class OpenRouterProvider implements LLMProvider {
     private record OpenRouterRequest(
             String model,
             List<OpenRouterMessage> messages,
-                    List<OpenRouterTool> tools,
+            List<OpenRouterTool> tools,
+            @JsonProperty("tool_choice") String toolChoice,
             boolean stream) {
     }
 
@@ -203,6 +214,7 @@ public class OpenRouterProvider implements LLMProvider {
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     private record Choice(
+            @JsonProperty("finish_reason") String finishReason,
             OpenRouterMessage message) {
     }
 
