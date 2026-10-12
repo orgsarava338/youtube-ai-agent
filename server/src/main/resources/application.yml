@@ -23,7 +23,7 @@ spring:
         store-type: jdbc
         jdbc:
             initialize-schema: never
-    
+
     datasource:
         url: ${DB_URL}
         username: ${DB_USERNAME}
@@ -43,6 +43,9 @@ server:
     servlet:
         session:
             timeout: 7d
+        cookie:
+            same-site: none
+            secure: true
 
 app:
     allowed-origins: ${ALLOWED_ORIGINS}
