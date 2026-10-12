@@ -72,10 +72,7 @@ public class ChatController {
                 conversation.getCreatedAt(),
                 conversation.getUpdatedAt(),
                 history.messages().stream()
-                        .map(m -> new MessageResponse(
-                                m.role(),
-                                m.content(),
-                                m.toolCallId()))
+                        .map(m -> new MessageResponse(m.role(), m.content()))
                         .toList());
     }
 
@@ -128,7 +125,6 @@ public class ChatController {
 
     public record MessageResponse(
             String role,
-            String content,
-            String toolCallId) {
+            String content) {
     }
 }
