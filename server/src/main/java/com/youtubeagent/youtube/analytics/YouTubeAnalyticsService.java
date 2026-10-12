@@ -12,8 +12,6 @@ import org.springframework.web.client.RestClient;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 public class YouTubeAnalyticsService {
@@ -147,63 +145,6 @@ public class YouTubeAnalyticsService {
         }
     }
 
-
-    /**
-     * Returns a ranked, multi-video analytics report in one API request.
-     */
-    public List<YouTubeVideoAnalytics> getMyTopVideoAnalytics(
-            String userId, LocalDate startDate, LocalDate endDate, int maxResults) {
-        validateDateRange(startDate, endDate);
-        if (maxResults < 1 || maxResults > 50) {
-            throw new IllegalArgumentException("maxResults must be between 1 and 50");
-        }
-
-        var token = oauthService.getValidAnalyticsToken(userId);
-        String response = restClient.get()
-                .uri(uriBuilder -> uriBuilder
-                        .path("/v2/reports")
-                        .queryParam("ids", "channel==MINE")
-                        .queryParam("startDate", startDate)
-                        .queryParam("endDate", endDate)
-                        .queryParam("metrics", ANALYTICS_METRICS)
-                        .queryParam("dimensions", "video")
-                        .queryParam("sort", "-views")
-                        .queryParam("maxResults", maxResults)
-                        .build())
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token.accessToken())
-                .retrieve()
-                .body(String.class);
-
-        try {
-            JsonNode root = objectMapper.readTree(response);
-            JsonNode rows = root.get("rows");
-            List<YouTubeVideoAnalytics> results = new ArrayList<>();
-            if (rows == null || !rows.isArray() || rows.isEmpty()) {
-                return results;
-            }
-            for (JsonNode row : rows) {
-                if (row == null || !row.isArray() || row.size() < 8) {
-                    continue;
-                }
-                String videoId = row.get(0).asString();
-                if (videoId == null || videoId.isBlank()) {
-                    continue;
-                }
-                results.add(new YouTubeVideoAnalytics(
-                        videoId, startDate, endDate,
-                        YouTubeJsonUtils.longValue(row, 1),
-                        YouTubeJsonUtils.longValue(row, 2),
-                        YouTubeJsonUtils.longValue(row, 3),
-                        YouTubeJsonUtils.longValue(row, 4),
-                        YouTubeJsonUtils.longValue(row, 5),
-                        YouTubeJsonUtils.longValue(row, 6),
-                        YouTubeJsonUtils.longValue(row, 7)));
-            }
-            return results;
-        } catch (Exception e) {
-            throw new IllegalStateException("Failed to parse YouTube video analytics response", e);
-        }
-    }
 
     private void validateDateRange(LocalDate startDate, LocalDate endDate) {
 
