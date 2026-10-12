@@ -1,90 +1,109 @@
-import axios, { AxiosError } from "axios";
-import type { InternalAxiosRequestConfig } from "axios";
+import axios, { type InternalAxiosRequestConfig } from "axios";
 
 import config from "@/config";
+import tokenStore from "@/features/auth/store/tokenStore";
 
-interface CsrfResponse {
-    token: string;
-    headerName: string;
+interface TokenResponse {
+    accessToken: string;
+    tokenType: "Bearer";
+    expiresIn: number;
+    refreshToken?: string;
 }
+
+type RetryConfig = InternalAxiosRequestConfig & {
+    _retry?: boolean;
+};
 
 export const api = axios.create({
     baseURL: config.api.url,
-    withCredentials: true,
+    withCredentials: false,
     headers: {
         "Content-Type": "application/json",
     },
 });
 
-const csrfApi = axios.create({
-    baseURL: config.api.url,
-    withCredentials: true,
-});
+api.interceptors.request.use((request) => {
+    const token = tokenStore.getAccessToken();
 
-let csrfToken: CsrfResponse | null = null;
-let csrfRequest: Promise<CsrfResponse> | null = null;
-
-export async function refreshCsrfToken(): Promise<CsrfResponse> {
-    csrfToken = null;
-    csrfRequest = null;
-    return getCsrfToken();
-}
-
-async function getCsrfToken(): Promise<CsrfResponse> {
-    if (csrfToken) {
-        return csrfToken;
+    if (token) {
+        request.headers.set("Authorization", `Bearer ${token}`);
     }
 
-    if (!csrfRequest) {
-        csrfRequest = csrfApi
-            .get<CsrfResponse>("/api/v1/auth/csrf")
-            .then((response) => {
-                csrfToken = response.data;
-                return response.data;
+    return request;
+});
+
+let refreshPromise: Promise<string> | null = null;
+
+async function refreshAccessToken(): Promise<string> {
+    const refreshToken = tokenStore.getRefreshToken();
+
+    if (!refreshToken) {
+        throw new Error("No refresh token available");
+    }
+
+    if (!refreshPromise) {
+        refreshPromise = axios
+            .post<TokenResponse>(
+                `${config.api.url}/api/v1/auth/token/refresh`,
+                { refreshToken },
+                {
+                    withCredentials: false,
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                },
+            )
+            .then(({ data }) => {
+                if (data.tokenType !== "Bearer" || !data.accessToken) {
+                    throw new Error("Invalid refresh response");
+                }
+
+                tokenStore.setAccessToken(data.accessToken);
+
+                // The backend should rotate refresh tokens.
+                if (data.refreshToken) {
+                    tokenStore.setRefreshToken(data.refreshToken);
+                }
+
+                return data.accessToken;
+            })
+            .catch((error: unknown) => {
+                tokenStore.clearTokens();
+                throw error;
             })
             .finally(() => {
-                csrfRequest = null;
+                refreshPromise = null;
             });
     }
 
-    return csrfRequest;
+    return refreshPromise;
 }
-
-api.interceptors.request.use(
-    async (request: InternalAxiosRequestConfig) => {
-        const method = request.method?.toLowerCase();
-
-        if (["post", "put", "patch", "delete"].includes(method ?? "")) {
-            const csrf = await getCsrfToken();
-            request.headers.set(csrf.headerName, csrf.token);
-        }
-
-        return request;
-    },
-    (error: AxiosError) => Promise.reject(error),
-);
 
 api.interceptors.response.use(
     (response) => response,
-    async (error: AxiosError) => {
-        if (error.response?.status === 403) {
-            const request = error.config as
-                | (InternalAxiosRequestConfig & { _csrfRetried?: boolean })
-                | undefined;
-
-            if (
-                request &&
-                !request._csrfRetried &&
-                ["post", "put", "patch", "delete"].includes(
-                    request.method?.toLowerCase() ?? "",
-                )
-            ) {
-                request._csrfRetried = true;
-                await refreshCsrfToken();
-                return api.request(request);
-            }
+    async (error: unknown) => {
+        if (!axios.isAxiosError(error) || !error.config) {
+            return Promise.reject(error);
         }
 
-        return Promise.reject(error);
+        const request = error.config as RetryConfig;
+
+        if (
+            error.response?.status !== 401 ||
+            request._retry ||
+            request.url?.includes("/api/v1/auth/token/")
+        ) {
+            return Promise.reject(error);
+        }
+
+        request._retry = true;
+
+        try {
+            const token = await refreshAccessToken();
+            request.headers.set("Authorization", `Bearer ${token}`);
+            return api(request);
+        } catch (refreshError) {
+            return Promise.reject(refreshError);
+        }
     },
 );

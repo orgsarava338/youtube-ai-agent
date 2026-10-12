@@ -18,3 +18,10 @@ interface CsrfResponse {
     token: string;
     headerName: string;
 }
+
+interface TokenExchangeResponse {
+    accessToken: string;
+    refreshToken: string;
+    tokenType: "Bearer";
+    expiresIn: number;
+}

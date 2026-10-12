@@ -13,7 +13,9 @@ import org.springframework.security.oauth2.core.OAuth2RefreshToken;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
+import org.springframework.web.util.UriComponentsBuilder;
 
+import com.youtubeagent.auth.AuthTokenService;
 import com.youtubeagent.config.AppProperties;
 import com.youtubeagent.config.OriginOAuthAuthorizationRequestResolver;
 import com.youtubeagent.youtube.oauth.YouTubeOAuthService;
@@ -37,14 +39,17 @@ public class YouTubeOAuthSuccessHandler
 
     private final OAuth2AuthorizedClientService authorizedClientService;
     private final YouTubeOAuthService oAuthService;
+    private final AuthTokenService authTokenService;
     private final AppProperties appProperties;
 
     public YouTubeOAuthSuccessHandler(
             OAuth2AuthorizedClientService authorizedClientService,
             YouTubeOAuthService oAuthService,
-            AppProperties appProperties) {
+            AuthTokenService authTokenService,
+                    AppProperties appProperties) {
         this.authorizedClientService = authorizedClientService;
         this.oAuthService = oAuthService;
+        this.authTokenService = authTokenService;
         this.appProperties = appProperties;
     }
 
@@ -84,8 +89,7 @@ public class YouTubeOAuthSuccessHandler
             Set<String> scopes = accessToken.getScopes();
 
             if (scopes == null || !scopes.containsAll(REQUIRED_SCOPES)) {
-                log.error("Required YouTube scopes missing for user {}. " + "Granted scopes: {}", userId, scopes);
-
+                log.error("Required YouTube scopes missing for user {}. Granted scopes: {}", userId, scopes);
                 throw new IllegalStateException("Required YouTube permissions were not granted");
             }
 
@@ -96,11 +100,7 @@ public class YouTubeOAuthSuccessHandler
             OAuth2RefreshToken refreshToken = client.getRefreshToken();
 
             if (refreshToken == null) {
-                log.error(
-                        "Google did not provide a refresh token for user {}. "
-                                + "The YouTube account must be reconnected.",
-                        userId);
-
+                log.error("Google did not provide a refresh token for user {}", userId);
                 throw new IllegalStateException(
                         "Google did not provide a refresh token. "
                                 + "Please reconnect the YouTube account.");
@@ -113,19 +113,32 @@ public class YouTubeOAuthSuccessHandler
                     scopes.stream().sorted().collect(Collectors.joining(" ")),
                     accessToken.getTokenType() == null ? "Bearer" : accessToken.getTokenType().getValue());
 
-            // Persist using the Google OIDC subject as the user ID.
+            // Persist the YouTube credentials independently of AssisTube auth.
             oAuthService.saveToken(userId, token);
+
+            // Issue a short-lived, single-use code for frontend token exchange.
+            String loginCode = authTokenService.createLoginCode(userId);
+
+            String frontendUrl = UriComponentsBuilder
+                    .fromUriString(redirectOrigin)
+                    .path("/")
+                    .queryParam("code", loginCode)
+                    .build()
+                    .encode()
+                    .toUriString();
 
             log.info("YouTube token saved successfully for user: {}, scopes: {}", userId, scopes);
 
+            // This must be the only redirect in the success handler.
+            response.sendRedirect(frontendUrl);
+
         } catch (RuntimeException exception) {
-            log.error("Failed to persist YouTube OAuth tokens after login", exception);
+            log.error("Failed to complete YouTube OAuth login", exception);
 
-            // Do not expose exception details or tokens to the browser.
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Unable to connect the YouTube account");
-            return;
+            if (!response.isCommitted()) {
+                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+                        "Unable to connect the YouTube account");
+            }
         }
-
-        response.sendRedirect(redirectOrigin);
     }
 }

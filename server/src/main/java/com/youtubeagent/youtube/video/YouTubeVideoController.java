@@ -1,11 +1,11 @@
 package com.youtubeagent.youtube.video;
 
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.youtubeagent.auth.CurrentUserId;
 
 import java.util.List;
 
@@ -20,9 +20,10 @@ public class YouTubeVideoController {
     }
 
     @GetMapping("/videos")
-    public List<YouTubeVideoSummary> getVideos(@RequestParam(defaultValue = "10") int maxResults,
-            @AuthenticationPrincipal OidcUser user) {
-        return videoService.getMyVideos(user.getSubject(), maxResults);
+    public List<YouTubeVideoSummary> getVideos(
+            @RequestParam(defaultValue = "10") int maxResults,
+            @CurrentUserId String userId) {
+        return videoService.getMyVideos(userId, maxResults);
     }
 
     @GetMapping("/search")

@@ -2,6 +2,7 @@ package com.youtubeagent.api;
 
 import com.youtubeagent.agent.chat.Conversation;
 import com.youtubeagent.agent.chat.ConversationService;
+import com.youtubeagent.auth.CurrentUserId;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -9,8 +10,6 @@ import jakarta.validation.constraints.Size;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
@@ -31,25 +30,22 @@ public class ChatController {
     @PostMapping
     public ChatResponse createConversation(
             @Valid @RequestBody ChatRequest request,
-            @AuthenticationPrincipal OidcUser user) {
+            @CurrentUserId String userId) {
 
-        return sendMessage(null, request, user);
+        return sendMessage(null, request, userId);
     }
 
     @PostMapping("/{conversationId}")
     public ChatResponse sendMessage(
             @PathVariable UUID conversationId,
             @Valid @RequestBody ChatRequest request,
-            @AuthenticationPrincipal OidcUser user) {
+            @CurrentUserId String userId) {
 
-        return sendMessageInternal(conversationId, request, user);
+        return sendMessageInternal(conversationId, request, userId);
     }
 
     @GetMapping
-    public List<ConversationSummary> getConversations(
-            @AuthenticationPrincipal OidcUser user) {
-
-        String userId = requireUserId(user);
+    public List<ConversationSummary> getConversations(@CurrentUserId String userId) {
 
         return conversationService.getConversations(userId)
                 .stream()
@@ -64,9 +60,7 @@ public class ChatController {
     @GetMapping("/{conversationId}")
     public ConversationDetail getConversation(
             @PathVariable UUID conversationId,
-            @AuthenticationPrincipal OidcUser user) {
-
-        String userId = requireUserId(user);
+            @CurrentUserId String userId) {
 
         ConversationService.ConversationHistory history = conversationService.getConversation(conversationId, userId);
 
@@ -86,20 +80,13 @@ public class ChatController {
     }
 
     @DeleteMapping("/{conversationId}")
-    public ResponseEntity<Void> deleteConversation(
-            @PathVariable UUID conversationId,
-            @AuthenticationPrincipal OidcUser user) {
-
-        String userId = requireUserId(user);
+    public ResponseEntity<Void> deleteConversation(@PathVariable UUID conversationId, @CurrentUserId String userId) {
 
         conversationService.deleteConversation(conversationId, userId);
-
         return ResponseEntity.noContent().build();
     }
 
-    private ChatResponse sendMessageInternal(UUID conversationId, ChatRequest request, OidcUser user) {
-
-        String userId = requireUserId(user);
+    private ChatResponse sendMessageInternal(UUID conversationId, ChatRequest request, String userId) {
 
         log.info("user: {}, Conversation Id: {}, request: {}", userId, conversationId, request.message());
 
@@ -112,14 +99,6 @@ public class ChatController {
                 result.conversationId(),
                 result.response().type(),
                 result.response().content());
-    }
-
-    private String requireUserId(OidcUser user) {
-        if (user == null || user.getSubject() == null || user.getSubject().isBlank()) {
-            throw new IllegalStateException("Authenticated Google user not found");
-        }
-
-        return user.getSubject();
     }
 
     public record ChatRequest(

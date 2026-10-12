@@ -32,40 +32,52 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }, []);
 
-  useEffect(() => {
+
+useEffect(() => {
     let active = true;
 
     async function initializeAuth() {
-      try {
-        const currentUser = await authApi.getCurrentUser();
+        try {
+            const authenticated = await authApi.initializeAuth();
 
-        if (active) {
-          setUser(currentUser);
+            if (!active) {
+                return;
+            }
+
+            if (!authenticated) {
+                setUser(null);
+                return;
+            }
+
+            const currentUser = await authApi.getCurrentUser();
+
+            if (active) {
+                setUser(currentUser);
+            }
+        } catch (error) {
+            if (active) {
+                setUser(null);
+            }
+        } finally {
+            if (active) {
+                setLoading(false);
+            }
         }
-      } catch {
-        if (active) {
-          setUser(null);
-        }
-      } finally {
-        if (active) {
-          setLoading(false);
-        }
-      }
     }
 
     void initializeAuth();
 
     return () => {
-      active = false;
+        active = false;
     };
-  }, []);
+}, []);
 
   const login = useCallback(() => {
     authApi.startGoogleLogin();
   }, []);
 
   const logout = useCallback(async (): Promise<void> => {
-    await authApi.logoutRequest();
+    await authApi.logout();
     setUser(null);
   }, []);
 

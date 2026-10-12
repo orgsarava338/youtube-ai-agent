@@ -2,12 +2,11 @@ package com.youtubeagent.youtube.channel;
 
 import java.util.List;
 
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.youtubeagent.auth.CurrentUserId;
 
 @RestController
 @RequestMapping("/api/v1/youtube")
@@ -20,13 +19,13 @@ public class YouTubeChannelController {
     }
 
     @GetMapping("/channel")
-    public YouTubeChannel getMyChannel(@AuthenticationPrincipal OidcUser user) {
-        return channelService.getMyChannel(user.getSubject());
+    public YouTubeChannel getMyChannel(@CurrentUserId String userId) {
+        return channelService.getMyChannel(userId);
     }
 
     @GetMapping("/channels")
-    public List<YouTubeChannel> getAllMyChannels(@AuthenticationPrincipal OidcUser user) {
-        return channelService.getAllMyChannels(user.getSubject());
+    public List<YouTubeChannel> getAllMyChannels(@CurrentUserId String userId) {
+        return channelService.getAllMyChannels(userId);
     }
     
 }
