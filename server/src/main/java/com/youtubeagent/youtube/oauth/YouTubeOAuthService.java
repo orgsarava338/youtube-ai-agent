@@ -9,6 +9,8 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 @Service
@@ -38,16 +40,19 @@ public class YouTubeOAuthService {
     public String buildAuthorizationUrl(String state) {
         return UriComponentsBuilder
                 .fromUriString(GOOGLE_AUTH_URL)
-                .queryParam("client_id", properties.googleOAuth().clientId())
-                .queryParam("redirect_uri", properties.googleOAuth().redirectUri())
-                .queryParam("response_type", "code")
-                .queryParam("scope", YOUTUBE_SCOPES)
-                .queryParam("access_type", "offline")
-                .queryParam("prompt", "consent")
-                .queryParam("state", state)
-                .build()
-                .encode()
+                .queryParam("client_id", encodeQueryParam(properties.googleOAuth().clientId()))
+                .queryParam("redirect_uri", encodeQueryParam(properties.googleOAuth().redirectUri()))
+                .queryParam("response_type", encodeQueryParam("code"))
+                .queryParam("scope", encodeQueryParam(YOUTUBE_SCOPES))
+                .queryParam("access_type", encodeQueryParam("offline"))
+                .queryParam("prompt", encodeQueryParam("consent"))
+                .queryParam("state", encodeQueryParam(state))
+                .build(true)
                 .toUriString();
+    }
+
+    private String encodeQueryParam(String value) {
+        return URLEncoder.encode(value, StandardCharsets.UTF_8).replace("+", "%20");
     }
 
     public GoogleTokenResponse exchangeCode(String code) {
