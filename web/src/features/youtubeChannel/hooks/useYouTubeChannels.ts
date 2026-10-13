@@ -1,44 +1,24 @@
-import { useCallback, useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import youtubeChannelsApi from "@/features/youtubeChannel/api/youtubeApi";
 
-interface UseYouTubeChannelsResult {
-    channels: YouTubeChannel[];
-    loading: boolean;
-    error: string | null;
-    refetch: () => Promise<void>;
-}
+const YOUTUBE_CHANNELS_QUERY_KEY = ["youtube", "channels"] as const;
 
-export function useYouTubeChannels(): UseYouTubeChannelsResult {
-    const [channels, setChannels] = useState<YouTubeChannel[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-
-    const fetchChannels = useCallback(async () => {
-        setLoading(true);
-        setError(null);
-
-        try {
-            const result = await youtubeChannelsApi.getMyChannels();
-            setChannels(result);
-        } catch (err: unknown) {
-            setError(
-                err instanceof Error
-                    ? err.message
-                    : "Unable to load your YouTube channels.",
-            );
-        } finally {
-            setLoading(false);
-        }
-    }, []);
-
-    useEffect(() => {
-        void fetchChannels();
-    }, [fetchChannels]);
+export function useYouTubeChannels() {
+    const query = useQuery({
+        queryKey: YOUTUBE_CHANNELS_QUERY_KEY,
+        queryFn: () => youtubeChannelsApi.getMyChannels(),
+    });
 
     return {
-        channels,
-        loading,
-        error,
-        refetch: fetchChannels,
+        channels: query.data ?? [],
+        loading: query.isPending,
+        error: query.error
+            ? query.error instanceof Error
+                ? query.error.message
+                : "Unable to load your YouTube channels."
+            : null,
+        refetch: async () => {
+            await query.refetch();
+        },
     };
 }

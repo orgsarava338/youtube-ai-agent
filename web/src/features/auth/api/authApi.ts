@@ -79,10 +79,7 @@ class AuthApi {
 
             return true;
         } catch (error) {
-            console.error(
-                "[authApi] Authentication initialization failed:",
-                error,
-            );
+            console.error(error);
 
             // Don't clear tokens for every transient network/server error.
             // A temporary failure should not destroy a potentially valid session.

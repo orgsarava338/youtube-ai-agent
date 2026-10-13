@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router";
+import { useQueryClient } from "@tanstack/react-query";
 
 import ChatLayout from "@/layouts/ChatLayout";
 import { useYouTubeChannels } from "@/features/youtubeChannel/hooks/useYouTubeChannels";
 import { useChat } from "@/features/chat/hooks/useChat";
 import SmartResponse from "@/features/chat/components/SmartResponse";
 import ChatSidebar from "@/features/chat/components/ChatSidebar";
+import { chatQueryKeys } from "@/features/chat/queries/chatQueryKeys";
 
 import "./ChatPage.css";
 
@@ -15,6 +17,7 @@ export default function ChatPage() {
         conversationId?: string;
     }>();
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
 
     const { channels, loading, error, refetch } = useYouTubeChannels();
 
@@ -24,42 +27,40 @@ export default function ChatPage() {
         conversations,
         sending,
         loadingConversation,
+        loadingConversations,
         error: chatError,
         sendMessage,
-        loadConversations,
-        loadConversation,
-        clearMessages,
+        // clearMessages,
         deleteConversation,
-    } = useChat();
+    } = useChat(routeConversationId);
 
     const [input, setInput] = useState("");
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
-    const processedRouteRef = useRef<string | null>(null);
+    const previousRouteIdRef = useRef(routeConversationId);
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages, sending]);
 
     useEffect(() => {
-        void loadConversations();
-    }, [loadConversations]);
+        const previousId = previousRouteIdRef.current;
+        previousRouteIdRef.current = routeConversationId;
 
-    useEffect(() => {
-        const routeKey = routeConversationId ?? "new-chat";
-
-        if (processedRouteRef.current === routeKey) {
-            return;
+        if (previousId && previousId !== routeConversationId) {
+            void queryClient
+                .cancelQueries({
+                    queryKey: chatQueryKeys.detail(previousId),
+                    exact: true,
+                })
+                .then(() => {
+                    queryClient.removeQueries({
+                        queryKey: chatQueryKeys.detail(previousId),
+                        exact: true,
+                    });
+                });
         }
-
-        processedRouteRef.current = routeKey;
-
-        if (routeConversationId) {
-            void loadConversation(routeConversationId);
-        } else {
-            clearMessages();
-        }
-    }, [routeConversationId, loadConversation, clearMessages]);
+    }, [routeConversationId, queryClient]);
 
     if (loading) {
         return (
@@ -164,21 +165,35 @@ export default function ChatPage() {
             `Delete "${conversation?.title || "New conversation"}"? This action cannot be undone.`,
         );
 
-        if (!confirmed) {
-            return;
-        }
+        if (!confirmed) return;
+
+        const isActive = id === routeConversationId;
 
         try {
-            const isActive = id === routeConversationId;
+            const queryKey = chatQueryKeys.detail(id);
+
+            // Cancel an existing detail request before deleting.
+            await queryClient.cancelQueries({
+                queryKey,
+                exact: true,
+            });
 
             await deleteConversation(id);
 
             if (isActive && customUrl) {
+                // Navigate away; don't remove the query in this handler.
                 navigate(`/workspace/${customUrl}/chat`, {
                     replace: true,
                 });
+            } else {
+                // The deleted conversation isn't currently displayed.
+                queryClient.removeQueries({
+                    queryKey,
+                    exact: true,
+                });
             }
-        } catch {
+        } catch (error) {
+            console.error(error);
             window.alert(
                 "Unable to delete this conversation. Please try again.",
             );
@@ -193,7 +208,7 @@ export default function ChatPage() {
                     onSignOut={() => navigate("/", { replace: true })}
                     conversations={conversations}
                     activeConversationId={conversationId}
-                    loadingConversations={loadingConversation} // indicates that a conversation is being opened, not that the conversation list is loading.
+                    loadingConversations={loadingConversations}
                     onNewChat={handleNewChat}
                     onSelectConversation={(id) => {
                         void handleSelectConversation(id);

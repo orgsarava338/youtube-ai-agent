@@ -22,10 +22,15 @@ class ChatApi {
         return response.data;
     }
 
-    async getConversation(conversationId: string): Promise<ConversationDetail> {
+    async getConversation(
+        conversationId: string,
+        signal?: AbortSignal,
+    ): Promise<ConversationDetail> {
         const response = await api.get<ConversationDetail>(
             `/api/v1/chat/${conversationId}`,
+            { signal },
         );
+
         return response.data;
     }
 

@@ -21,8 +21,8 @@ function detectFormat(content: string): ResponseFormat {
         try {
             JSON.parse(value);
             return "json";
-        } catch {
-            // It may be ordinary text or another format.
+        } catch (error) {
+            console.error(error);
         }
     }
 
