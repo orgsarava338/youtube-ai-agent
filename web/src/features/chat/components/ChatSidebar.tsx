@@ -1,4 +1,4 @@
-import "./ChatSidebar.css";
+import "./ChatSidebar.scss";
 
 interface ChatSidebarProps {
     channel: WorkspaceChannel;

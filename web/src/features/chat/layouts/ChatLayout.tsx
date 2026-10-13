@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import "./ChatLayout.css";
+import "./ChatLayout.scss";
 
 interface ChatLayoutProps {
     sidebar: ReactNode;

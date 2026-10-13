@@ -2,14 +2,14 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { useQueryClient } from "@tanstack/react-query";
 
-import ChatLayout from "@/layouts/ChatLayout";
+import ChatLayout from "@/features/chat/layouts/ChatLayout";
 import { useYouTubeChannels } from "@/features/youtubeChannel/hooks/useYouTubeChannels";
 import { useChat } from "@/features/chat/hooks/useChat";
 import SmartResponse from "@/features/chat/components/SmartResponse";
 import ChatSidebar from "@/features/chat/components/ChatSidebar";
 import { chatQueryKeys } from "@/features/chat/queries/chatQueryKeys";
 
-import "./ChatPage.css";
+import "./ChatPage.scss";
 
 export default function ChatPage() {
     const [sidebarOpen, setSidebarOpen] = useState(false);

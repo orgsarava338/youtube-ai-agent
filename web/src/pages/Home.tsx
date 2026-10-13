@@ -1,6 +1,6 @@
 
 import { useState, type FormEvent } from "react";
-import "./Home.css";
+import "./Home.scss";
 
 const features = [
   {

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router";
 import ChannelCard from "@/features/youtubeChannel/components/ChannelCard";
 import { useYouTubeChannels } from "@/features/youtubeChannel/hooks/useYouTubeChannels";
 
-import "./ChannelSelectionPage.css";
+import "./ChannelSelectionPage.scss";
 
 export default function ChannelSelectionPage() {
     const { channels, loading, error, refetch } = useYouTubeChannels();

@@ -1,6 +1,6 @@
 import { useNavigate, useParams } from "react-router";
 import { useYouTubeChannels } from "@/features/youtubeChannel/hooks/useYouTubeChannels";
-import "./WorkspacePage.css";
+import "./WorkspacePage.scss";
 
 export default function WorkspacePage() {
     const { customUrl } = useParams<{ customUrl: string }>();

@@ -1,7 +1,7 @@
 import { useAuth } from "@/features/auth/hook/useAuth";
 import ChannelSelectionPage from "@/features/youtubeChannel/pages/ChannelSelectionPage";
 
-import "./HomePage.css";
+import "./HomePage.scss";
 
 export default function HomePage() {
     const { user, loading, login, logout } = useAuth();

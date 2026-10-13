@@ -1,4 +1,4 @@
-import "./WorkspaceHeader.css";
+import "./WorkspaceHeader.scss";
 
 interface WorkspaceHeaderProps {
     channel: WorkspaceChannel;

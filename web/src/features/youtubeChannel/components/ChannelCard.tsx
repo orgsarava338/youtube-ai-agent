@@ -1,4 +1,4 @@
-import "./ChannelCard.css";
+import "./ChannelCard.scss";
 
 interface ChannelCardProps {
     channel: YouTubeChannel;
