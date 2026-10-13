@@ -51,6 +51,30 @@
     background: rgb(255 255 255 / 80%);
 }
 
+.chat-page__header-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.chat-page__sidebar-toggle {
+    display: none;
+    align-items: center;
+    justify-content: center;
+
+    width: 40px;
+    height: 40px;
+
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+
+    background: #fff;
+    color: #334155;
+
+    font-size: 20px;
+    cursor: pointer;
+}
+
 .chat-page__eyebrow {
     display: block;
     margin: 0 0 8px;
@@ -550,6 +574,64 @@
     }
 }
 
+/* Tablet */
+@media (max-width: 768px) {
+    .chat-page__header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .chat-page__sidebar-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .chat-page__channel-button {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .chat-page__content {
+        padding: 24px 16px 20px;
+    }
+
+    .chat-page__conversation {
+        gap: 16px;
+    }
+
+    .chat-page__message {
+        max-width: 100%;
+    }
+
+    .chat-page__message-bubble {
+        max-width: 100%;
+        font-size: 14px;
+        line-height: 1.7;
+    }
+
+    .chat-page__composer {
+        padding: 14px;
+        border-radius: 12px;
+    }
+
+    .chat-page__composer-footer {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .chat-page__composer-footer > span {
+        width: 100%;
+        order: 2;
+    }
+
+    .chat-page__composer-footer button {
+        order: 1;
+        margin-left: auto;
+    }
+}
+
 @media (max-width: 600px) {
     .chat-page__header {
         align-items: flex-start;
@@ -611,6 +693,58 @@
 
     .chat-page__message-bubble {
         padding: 10px 13px;
+    }
+}
+
+@media (max-width: 480px) {
+    .chat-page__header {
+        padding: 16px;
+    }
+
+    .chat-page__header h1 {
+        font-size: 18px;
+    }
+
+    .chat-page__content {
+        padding: 16px 12px;
+    }
+
+    .chat-page__welcome h2 {
+        font-size: 28px;
+        line-height: 1.2;
+    }
+
+    .chat-page__description {
+        font-size: 12px;
+        line-height: 1.7;
+    }
+
+    .chat-page__message {
+        max-width: 100%;
+    }
+
+    .chat-page__message-bubble {
+        padding: 10px 12px;
+        font-size: 13px;
+        border-radius: 12px;
+    }
+
+    .chat-page__composer {
+        margin-top: 16px;
+        padding: 12px;
+    }
+
+    .chat-page__composer textarea {
+        min-height: 44px;
+        font-size: 16px; /* Prevent iOS zoom */
+    }
+
+    .chat-page__new-chat {
+        width: 100%;
+    }
+
+    .chat-page__typing {
+        max-width: 100%;
     }
 }
 

@@ -15,6 +15,33 @@
     height: 100%;
     min-height: 0;
     overflow: hidden;
+    color: #1e293b;
+}
+
+/* Conversation history text */
+.chat-layout__sidebar button,
+.chat-layout__sidebar a {
+    color: #334155;
+}
+
+/* Headings and labels */
+.chat-layout__sidebar h1,
+.chat-layout__sidebar h2,
+.chat-layout__sidebar h3,
+.chat-layout__sidebar p,
+.chat-layout__sidebar span {
+    color: inherit;
+}
+
+/* Make secondary text readable */
+.chat-layout__sidebar small {
+    color: #64748b;
+}
+
+/* Preserve visible text when hovering */
+.chat-layout__sidebar button:hover,
+.chat-layout__sidebar a:hover {
+    color: #0f172a;
 }
 
 .chat-layout__main {
@@ -47,33 +74,42 @@
     flex-shrink: 0;
 }
 
-/* Sidebar base text */
-.chat-layout__sidebar {
-    color: #1e293b;
+.chat-layout__overlay {
+    display: none;
 }
 
-/* Conversation history text */
-.chat-layout__sidebar button,
-.chat-layout__sidebar a {
-    color: #334155;
-}
+@media (max-width: 768px) {
+    .chat-layout__sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
 
-/* Headings and labels */
-.chat-layout__sidebar h1,
-.chat-layout__sidebar h2,
-.chat-layout__sidebar h3,
-.chat-layout__sidebar p,
-.chat-layout__sidebar span {
-    color: inherit;
-}
+        width: 280px;
+        min-width: 280px;
+        height: 100dvh;
 
-/* Make secondary text readable */
-.chat-layout__sidebar small {
-    color: #64748b;
-}
+        z-index: 1000;
 
-/* Preserve visible text when hovering */
-.chat-layout__sidebar button:hover,
-.chat-layout__sidebar a:hover {
-    color: #0f172a;
+        transform: translateX(-100%);
+        transition: transform 250ms ease;
+
+        background: #111827;
+        box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .chat-layout__sidebar--open {
+        transform: translateX(0);
+    }
+
+    .chat-layout__overlay {
+        display: block;
+
+        position: fixed;
+        inset: 0;
+
+        z-index: 999;
+
+        background: rgba(15, 23, 42, 0.45);
+        backdrop-filter: blur(2px);
+    }
 }

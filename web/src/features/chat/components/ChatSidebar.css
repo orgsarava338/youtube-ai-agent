@@ -371,13 +371,170 @@
 
     .chat-sidebar__brand {
         margin-bottom: 20px;
+        font-size: 18px;
+    }
+
+    .chat-sidebar__brand-icon {
+        width: 30px;
+        height: 30px;
+        font-size: 16px;
+    }
+
+    .chat-sidebar__new-chat {
+        min-height: 42px;
+        font-size: 13px;
     }
 
     .chat-sidebar__navigation {
-        margin-top: 22px;
+        margin-top: 20px;
+    }
+
+    .chat-sidebar__history {
+        margin-top: 20px;
+    }
+
+    .chat-sidebar__history-list {
+        max-height: 240px;
+    }
+
+    .chat-sidebar__channel {
+        padding: 12px 8px;
+    }
+
+    .chat-sidebar__footer {
+        padding: 12px 6px 0;
     }
 
     .chat-sidebar__bottom {
+        gap: 14px;
         padding-top: 20px;
     }
+}
+
+@media (max-width: 600px) {
+    .chat-sidebar {
+        padding: 14px;
+    }
+
+    .chat-sidebar__brand {
+        margin-bottom: 16px;
+        padding: 0;
+        font-size: 17px;
+    }
+
+    .chat-sidebar__new-chat {
+        width: 100%;
+        min-height: 40px;
+        padding: 10px;
+        font-size: 13px;
+    }
+
+    .chat-sidebar__section-label {
+        font-size: 9px;
+    }
+
+    .chat-sidebar__nav-item {
+        min-height: 40px;
+        padding: 10px;
+        font-size: 12px;
+    }
+
+    .chat-sidebar__history-item {
+        padding: 8px;
+        font-size: 11px;
+    }
+
+    .chat-sidebar__channel-name {
+        font-size: 11px;
+    }
+
+    .chat-sidebar__channel-details > span {
+        font-size: 10px;
+    }
+
+    .chat-sidebar__account-details p {
+        font-size: 11px;
+    }
+
+    .chat-sidebar__account-details span {
+        font-size: 9px;
+    }
+
+    .chat-sidebar__sign-out {
+        width: 28px;
+        height: 28px;
+    }
+}
+
+@media (max-width: 480px) {
+    .chat-sidebar {
+        padding: 12px;
+    }
+
+    .chat-sidebar__brand {
+        font-size: 16px;
+        gap: 8px;
+    }
+
+    .chat-sidebar__brand-icon {
+        width: 28px;
+        height: 28px;
+        border-radius: 8px;
+        font-size: 14px;
+    }
+
+    .chat-sidebar__new-chat {
+        min-height: 38px;
+        font-size: 12px;
+    }
+
+    .chat-sidebar__nav-item {
+        gap: 8px;
+        padding: 8px 10px;
+    }
+
+    .chat-sidebar__history-list {
+        max-height: 180px;
+    }
+
+    .chat-sidebar__channel-avatar {
+        width: 32px;
+        height: 32px;
+    }
+
+    .chat-sidebar__account-icon {
+        width: 30px;
+        height: 30px;
+        font-size: 12px;
+    }
+
+    .chat-sidebar__coming-soon {
+        display: none;
+    }
+}
+
+.chat-sidebar__nav-item,
+.chat-sidebar__history-item,
+.chat-sidebar__channel-name {
+    min-width: 0;
+}
+
+.chat-sidebar__history-title,
+.chat-sidebar__channel-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.chat-sidebar__history-list {
+    scrollbar-width: thin;
+}
+
+.chat-sidebar__history-list::-webkit-scrollbar {
+    width: 4px;
+}
+
+.chat-sidebar__history-list::-webkit-scrollbar-thumb {
+    background: #4b5563;
+    border-radius: 10px;
 }

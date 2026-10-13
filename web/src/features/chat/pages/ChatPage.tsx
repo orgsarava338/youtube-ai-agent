@@ -12,13 +12,14 @@ import { chatQueryKeys } from "@/features/chat/queries/chatQueryKeys";
 import "./ChatPage.css";
 
 export default function ChatPage() {
+    const [sidebarOpen, setSidebarOpen] = useState(false);
+
     const { customUrl, conversationId: routeConversationId } = useParams<{
         customUrl: string;
         conversationId?: string;
     }>();
     const navigate = useNavigate();
     const queryClient = useQueryClient();
-
     const { channels, loading, error, refetch } = useYouTubeChannels();
 
     const {
@@ -142,6 +143,7 @@ export default function ChatPage() {
             return;
         }
 
+        setSidebarOpen(false);
         setInput("");
         navigate(`/workspace/${customUrl}/chat/${id}`);
     }
@@ -151,6 +153,7 @@ export default function ChatPage() {
             return;
         }
 
+        setSidebarOpen(true);
         setInput("");
         navigate(`/workspace/${customUrl}/chat`);
         textareaRef.current?.focus();
@@ -202,6 +205,10 @@ export default function ChatPage() {
 
     return (
         <ChatLayout
+            sidebarOpen={sidebarOpen}
+            onToggleSidebar={() => {
+                setSidebarOpen((prev) => !prev);
+            }}
             sidebar={
                 <ChatSidebar
                     channel={channel}
@@ -211,6 +218,7 @@ export default function ChatPage() {
                     loadingConversations={loadingConversations}
                     onNewChat={handleNewChat}
                     onSelectConversation={(id) => {
+                        setSidebarOpen(false);
                         void handleSelectConversation(id);
                     }}
                     onDeleteConversation={(id) =>
@@ -221,22 +229,24 @@ export default function ChatPage() {
         >
             <div className="chat-page">
                 <header className="chat-page__header">
-                    <div>
-                        <span className="chat-page__eyebrow">
-                            YOUR YOUTUBE COPILOT
-                        </span>
-                        <h1>Chat</h1>
-                    </div>
+                    <div className="chat-page__header-left">
+                        <button
+                            type="button"
+                            className="chat-page__sidebar-toggle"
+                            onClick={() => setSidebarOpen((prev) => !prev)}
+                            aria-label="Toggle sidebar"
+                        >
+                            ☰
+                        </button>
 
-                    <button
-                        type="button"
-                        className="chat-page__channel-button"
-                        onClick={() => navigate("/")}
-                    >
-                        <span className="chat-page__status-dot" />
-                        {channel.title}
-                        <span aria-hidden="true">⌄</span>
-                    </button>
+                        <div>
+                            <span className="chat-page__eyebrow">
+                                YOUR YOUTUBE COPILOT
+                            </span>
+                            <h1>Chat</h1>
+                        </div>
+                    </div>
+                    ...
                 </header>
 
                 <section
