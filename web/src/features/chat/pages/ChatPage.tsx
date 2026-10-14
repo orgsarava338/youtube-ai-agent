@@ -44,6 +44,15 @@ export default function ChatPage() {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages, sending]);
 
+    // Auto-grow the composer: start at one line, expand with content
+    // up to the CSS max-height, then scroll.
+    useEffect(() => {
+        const el = textareaRef.current;
+        if (!el) return;
+        el.style.height = "auto";
+        el.style.height = `${el.scrollHeight}px`;
+    }, [input]);
+
     useEffect(() => {
         const previousId = previousRouteIdRef.current;
         previousRouteIdRef.current = routeConversationId;
@@ -153,7 +162,7 @@ export default function ChatPage() {
             return;
         }
 
-        setSidebarOpen(true);
+        setSidebarOpen(false);
         setInput("");
         navigate(`/workspace/${customUrl}/chat`);
         textareaRef.current?.focus();
@@ -246,7 +255,7 @@ export default function ChatPage() {
                             <h1>Chat</h1>
                         </div>
                     </div>
-                    ...
+                    <div className="chat-page__header-right">...</div>
                 </header>
 
                 <section
@@ -414,7 +423,7 @@ export default function ChatPage() {
                             ref={textareaRef}
                             aria-label="Ask about your YouTube channel"
                             placeholder="Ask anything about your YouTube channel..."
-                            rows={2}
+                            rows={1}
                             value={input}
                             maxLength={20000}
                             disabled={sending}
@@ -423,10 +432,6 @@ export default function ChatPage() {
                         />
 
                         <div className="chat-page__composer-footer">
-                            <span>
-                                Enter to send · Shift + Enter for a new line
-                            </span>
-
                             <button
                                 type="button"
                                 disabled={!input.trim() || sending}

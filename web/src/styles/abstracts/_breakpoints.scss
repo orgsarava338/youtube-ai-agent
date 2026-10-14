@@ -1,0 +1,14 @@
+// ============================================================
+// Responsive breakpoints (max-width, mobile-first overrides)
+// Values mirror those used across the feature stylesheets.
+// ============================================================
+
+$breakpoints: (
+  xs: 480px,
+  sm: 600px,
+  smd: 640px,
+  md: 720px,
+  lg: 768px,
+  xl: 1000px,
+);
+

@@ -1,0 +1,10 @@
+// ============================================================
+// Global stylesheet entry point
+// Aggregates base styles; design tokens live in ./abstracts and
+// are consumed by feature stylesheets via `@use "@styles/..."`.
+// ============================================================
+
+@use "base/typography";
+@use "base/reset";
+@use "base/global";
+

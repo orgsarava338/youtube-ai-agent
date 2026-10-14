@@ -91,39 +91,35 @@ export default function ChatSidebar({
                 ) : (
                     <div className="chat-sidebar__history-list">
                         {conversations.map((conversation) => (
-                            <>
-                                <button
-                                    key={conversation.conversationId}
-                                    type="button"
-                                    className={[
-                                        "chat-sidebar__history-item",
-                                        activeConversationId ===
-                                        conversation.conversationId
-                                            ? "chat-sidebar__history-item--active"
-                                            : "",
-                                    ]
-                                        .filter(Boolean)
-                                        .join(" ")}
-                                    onClick={() =>
-                                        onSelectConversation(
-                                            conversation.conversationId,
-                                        )
-                                    }
-                                    title={conversation.title}
-                                    aria-current={
-                                        activeConversationId ===
-                                        conversation.conversationId
-                                            ? "page"
-                                            : undefined
-                                    }
-                                >
-                                    <span aria-hidden="true">◷</span>
-                                    <span className="chat-sidebar__history-title">
-                                        {conversation.title ||
-                                            "New conversation"}
-                                    </span>
-                                </button>
-
+                            <button
+                                key={conversation.conversationId}
+                                className={[
+                                    "chat-sidebar__history-item",
+                                    activeConversationId ===
+                                    conversation.conversationId
+                                        ? "chat-sidebar__history-item--active"
+                                        : "",
+                                ]
+                                    .filter(Boolean)
+                                    .join(" ")}
+                                type="button"
+                                onClick={() =>
+                                    onSelectConversation(
+                                        conversation.conversationId,
+                                    )
+                                }
+                                title={conversation.title}
+                                aria-current={
+                                    activeConversationId ===
+                                    conversation.conversationId
+                                        ? "page"
+                                        : undefined
+                                }
+                            >
+                                <span aria-hidden="true">◷</span>
+                                <span className="chat-sidebar__history-title">
+                                    {conversation.title || "New conversation"}
+                                </span>
                                 <button
                                     type="button"
                                     className="chat-sidebar__delete-button"
@@ -137,7 +133,7 @@ export default function ChatSidebar({
                                 >
                                     ×
                                 </button>
-                            </>
+                            </button>
                         ))}
                     </div>
                 )}

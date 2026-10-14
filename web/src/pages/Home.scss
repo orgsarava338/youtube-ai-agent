@@ -1,16 +1,20 @@
+@use "@styles/abstracts/variables" as *;
+@use "@styles/abstracts/mixins" as *;
+
+
 
 .home-page {
-  --home-ink: #25243a;
-  --home-muted: #74758c;
-  --home-purple: #7160df;
-  --home-purple-dark: #5e4bc9;
-  --home-border: #e8e7f0;
-  --home-bg: #ffffff;
+  --home-ink: #18181b;
+  --home-muted: #71717a;
+  --home-purple: #dc2626;
+  --home-purple-dark: #b91c1c;
+  --home-border: #e4e4e7;
+  --home-bg: $white;
 
   overflow: hidden;
   background: var(--home-bg);
   color: var(--home-ink);
-  font-family: "DM Sans", sans-serif;
+  font-family: $font-sans;
 }
 
 .home-page * {
@@ -140,9 +144,9 @@
 
 .eyebrow {
   padding: 9px 12px;
-  border: 1px solid #e8e3ff;
+  border: 1px solid $primary-border;
   border-radius: 999px;
-  background: #f7f5ff;
+  background: $primary-soft;
 }
 
 .eyebrow-sparkle {
@@ -154,11 +158,11 @@
 .questions-copy h2,
 .waitlist-content h2 {
   margin: 23px 0 0;
-  font-family: "Space Grotesk", "DM Sans", sans-serif;
+  font-family: $font-display;
   font-size: clamp(42px, 5vw, 64px);
-  font-weight: 700;
-  letter-spacing: -3.1px;
-  line-height: 1.07;
+  font-weight: 800;
+  letter-spacing: -2.8px;
+  line-height: 1.05;
 }
 
 .hero-copy h1 span,
@@ -199,19 +203,19 @@
 
 .button-primary {
   background: var(--home-purple);
-  color: #fff !important;
-  box-shadow: 0 5px 13px #7160df25;
+  color: $white !important;
+  box-shadow: $shadow-primary;
 }
 
 .button-secondary {
   border-color: #dedce9;
-  background: #fff;
+  background: $white;
   color: var(--home-ink);
-}
 
-.button-secondary:hover {
-  border-color: #c5bdf8;
-  background: #f9f8ff;
+  &:hover {
+    border-color: #c5bdf8;
+    background: #f9f8ff;
+  }
 }
 
 .hero-note {
@@ -247,8 +251,8 @@
   border-radius: 50%;
   background: radial-gradient(
     circle,
-    #e9e3ff 0,
-    #f5f2ff 46%,
+    #fee2e2 0,
+    #fef2f2 46%,
     #ffffff00 73%
   );
   content: "";
@@ -286,7 +290,7 @@
   overflow: hidden;
   border: 1px solid #e6e3f1;
   border-radius: 19px;
-  background: #fff;
+  background: $white;
   box-shadow: 0 25px 65px #44318c16, 0 3px 12px #44318c08;
 }
 
@@ -313,14 +317,14 @@
   height: 27px;
   place-items: center;
   border-radius: 8px;
-  background: #7664e6;
+  background: $primary;
   color: white;
   font-size: 10px;
 }
 
 .preview-brand small {
   margin-left: 3px;
-  color: #7968de;
+  color: $primary;
   font-size: 9px;
 }
 
@@ -356,7 +360,7 @@
   flex-shrink: 0;
   place-items: center;
   border-radius: 10px;
-  background: #f0edff;
+  background: $primary-soft;
   color: var(--home-purple);
   font-size: 17px;
 }
@@ -512,7 +516,7 @@
   flex: 1;
   min-width: 0;
   border-radius: 4px 4px 0 0;
-  background: linear-gradient(180deg, #a99bf9, #7461e2);
+  background: linear-gradient(180deg, #fca5a5, #dc2626);
 }
 
 .chart-labels {
@@ -558,7 +562,7 @@
   gap: 11px;
   border: 1px solid #eeebf8;
   border-radius: 13px;
-  background: #fff;
+  background: $white;
   box-shadow: 0 9px 28px #45358c14;
 }
 
@@ -568,8 +572,8 @@
   height: 34px;
   place-items: center;
   border-radius: 10px;
-  background: #f0edff;
-  color: #7864e6;
+  background: $primary-soft;
+  color: $primary;
   font-size: 18px;
 }
 
@@ -669,12 +673,12 @@
   background: white;
   transition: transform 180ms ease, box-shadow 180ms ease,
     border-color 180ms ease;
-}
 
-.feature-card:hover {
-  transform: translateY(-4px);
-  border-color: #d5cff8;
-  box-shadow: 0 12px 28px #4a3a9410;
+  &:hover {
+    transform: translateY(-4px);
+    border-color: #d5cff8;
+    box-shadow: 0 12px 28px #4a3a9410;
+  }
 }
 
 .feature-icon {
@@ -688,8 +692,8 @@
 }
 
 .feature-icon.purple {
-  background: #f0edff;
-  color: #7863e0;
+  background: $primary-soft;
+  color: $primary;
 }
 
 .feature-icon.coral {
@@ -754,7 +758,7 @@
   padding: 23px 21px;
   border: 1px solid #e9e6f7;
   border-radius: 15px;
-  background: #fff;
+  background: $white;
 }
 
 .step-number {
@@ -1021,7 +1025,7 @@
   border: 0;
 }
 
-@media (max-width: 1000px) {
+@include respond-to(xl) {
   .home-hero {
     grid-template-columns: 1fr 1fr;
     gap: 30px;
@@ -1044,7 +1048,7 @@
   }
 }
 
-@media (max-width: 720px) {
+@include respond-to(md) {
   .home-header {
     width: calc(100% - 36px);
     min-height: 70px;
@@ -1205,7 +1209,7 @@
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
+@include reduced-motion {
   .home-page *,
   .home-page *::before,
   .home-page *::after {

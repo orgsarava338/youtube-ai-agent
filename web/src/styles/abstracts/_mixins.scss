@@ -1,0 +1,211 @@
+@use "sass:map";
+@use "variables";
+@use "breakpoints";
+
+// ---- Responsive ----------------------------------------------
+// Emits `@media (max-width: <value>)` for a named breakpoint.
+// Usage: @include respond-to(lg) { ... }
+@mixin respond-to($name) {
+  @media (max-width: map.get(breakpoints.$breakpoints, $name)) {
+    @content;
+  }
+}
+
+// ---- Reduced motion ------------------------------------------
+// Wraps declarations in a prefers-reduced-motion guard.
+@mixin reduced-motion {
+  @media (prefers-reduced-motion: reduce) {
+    @content;
+  }
+}
+
+// ---- Touch-only devices --------------------------------------
+@mixin touch-only {
+  @media (hover: none) {
+    @content;
+  }
+}
+
+// ---- Layout helpers ------------------------------------------
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+@mixin grid-center {
+  display: grid;
+  place-items: center;
+}
+
+// ---- Focus ring ----------------------------------------------
+// Consistent accessible focus outline.
+@mixin focus-ring($color: variables.$focus-ring-color) {
+  outline: variables.$focus-ring-width solid $color;
+  outline-offset: variables.$focus-ring-offset;
+}
+
+// ============================================================
+// Component mixins — shared building blocks
+// ============================================================
+
+// ---- Surface card --------------------------------------------
+// Punchy white card with border + elevation.
+@mixin card($radius: variables.$radius-lg, $shadow: variables.$shadow-md) {
+  background: variables.$surface;
+  border: 1px solid variables.$border;
+  border-radius: $radius;
+  box-shadow: $shadow;
+}
+
+// ---- Interactive card hover ----------------------------------
+// Lift + stronger shadow + red border accent.
+@mixin card-hover {
+  transition:
+    transform variables.$transition-base,
+    box-shadow variables.$transition-base,
+    border-color variables.$transition-base;
+
+  &:hover {
+    transform: translateY(-3px);
+    border-color: variables.$primary-border;
+    box-shadow: variables.$shadow-lg;
+  }
+}
+
+// ---- Button base ---------------------------------------------
+@mixin button-base {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: variables.$space-2;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  border-radius: variables.$radius-md;
+  transition:
+    background variables.$transition-fast,
+    border-color variables.$transition-fast,
+    color variables.$transition-fast,
+    transform variables.$transition-fast,
+    box-shadow variables.$transition-fast;
+
+  &:focus-visible {
+    @include focus-ring;
+  }
+}
+
+// ---- Primary (red) button ------------------------------------
+@mixin button-primary {
+  @include button-base;
+  background: variables.$primary;
+  color: variables.$white;
+  box-shadow: variables.$shadow-primary;
+
+  &:hover:not(:disabled) {
+    background: variables.$primary-hover;
+    transform: translateY(-1px);
+  }
+
+  &:active:not(:disabled) {
+    background: variables.$primary-active;
+    transform: translateY(0);
+  }
+
+  &:disabled {
+    background: variables.$primary-border;
+    color: variables.$white;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+}
+
+// ---- Secondary (outline) button ------------------------------
+@mixin button-secondary {
+  @include button-base;
+  background: variables.$surface;
+  border-color: variables.$border-strong;
+  color: variables.$text;
+
+  &:hover:not(:disabled) {
+    background: variables.$surface-sunken;
+    border-color: variables.$primary-border;
+    color: variables.$primary-hover;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+// ---- Ghost button --------------------------------------------
+@mixin button-ghost {
+  @include button-base;
+  background: transparent;
+  color: variables.$muted;
+
+  &:hover:not(:disabled) {
+    background: variables.$surface-sunken;
+    color: variables.$ink;
+  }
+}
+
+// ---- Badge / pill --------------------------------------------
+@mixin badge($bg: variables.$primary-soft, $color: variables.$primary-hover) {
+  display: inline-flex;
+  align-items: center;
+  gap: variables.$space-2;
+  padding: 5px 11px;
+  border-radius: variables.$radius-pill;
+  background: $bg;
+  color: $color;
+  font-size: variables.$text-xs;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+// ---- Icon tile -----------------------------------------------
+// Rounded square container for an icon/glyph.
+@mixin icon-tile($size: 42px, $radius: variables.$radius-md) {
+  @include grid-center;
+  width: $size;
+  height: $size;
+  flex-shrink: 0;
+  border-radius: $radius;
+}
+
+// ---- Text truncation -----------------------------------------
+@mixin truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// ---- Clamp text to N lines -----------------------------------
+@mixin line-clamp($lines: 2) {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: $lines;
+}
+
+// ---- Elevate on hover (generic) ------------------------------
+@mixin elevate($shadow: variables.$shadow-lg) {
+  transition:
+    transform variables.$transition-base,
+    box-shadow variables.$transition-base;
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: $shadow;
+  }
+}
+

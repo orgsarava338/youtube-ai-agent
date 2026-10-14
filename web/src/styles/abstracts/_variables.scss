@@ -1,0 +1,120 @@
+// ============================================================
+// Design System — tokens
+// Bold & energetic: YouTube-red primary, near-black ink,
+// crisp white surfaces, punchy elevated cards.
+// Single source of truth consumed across all screens.
+// ============================================================
+
+// ---- Brand · Red (primary accent) ----------------------------
+$red-50: #fef2f2;
+$red-100: #fee2e2;
+$red-200: #fecaca;
+$red-300: #fca5a5;
+$red-400: #f87171;
+$red-500: #ef4444;
+$red-600: #dc2626; // primary
+$red-700: #b91c1c; // hover
+$red-800: #991b1b;
+$red-900: #7f1d1d;
+
+// ---- Neutral · Zinc (text & surfaces) ------------------------
+$zinc-50: #fafafa;
+$zinc-100: #f4f4f5;
+$zinc-200: #e4e4e7;
+$zinc-300: #d4d4d8;
+$zinc-400: #a1a1aa;
+$zinc-500: #71717a;
+$zinc-600: #52525b;
+$zinc-700: #3f3f46;
+$zinc-800: #27272a;
+$zinc-900: #18181b;
+$zinc-950: #0f0f11;
+
+// ---- Semantic · Brand ----------------------------------------
+$primary: $red-600;
+$primary-hover: $red-700;
+$primary-active: $red-800;
+$primary-soft: $red-50;
+$primary-border: $red-200;
+$primary-focus: $red-300;
+
+// ---- Semantic · Ink & text -----------------------------------
+$ink: $zinc-950; // headings
+$text: $zinc-700; // body
+$muted: $zinc-500; // secondary
+$subtle: $zinc-400; // tertiary / placeholders
+$white: #ffffff;
+
+// ---- Semantic · Surfaces -------------------------------------
+$surface: $white; // cards
+$surface-sunken: $zinc-50; // page background
+$surface-raised: $white;
+
+// ---- Semantic · Borders --------------------------------------
+$border: $zinc-200;
+$border-strong: $zinc-300;
+
+// ---- Success / status ----------------------------------------
+$success: #16a34a;
+$success-soft: #dcfce7;
+$success-text: #15803d;
+
+// ---- Radius --------------------------------------------------
+$radius-sm: 8px;
+$radius-md: 10px;
+$radius-lg: 14px;
+$radius-xl: 18px;
+$radius-2xl: 24px;
+$radius-pill: 999px;
+$radius-circle: 50%;
+
+// ---- Spacing scale -------------------------------------------
+$space-1: 4px;
+$space-2: 8px;
+$space-3: 12px;
+$space-4: 16px;
+$space-5: 20px;
+$space-6: 24px;
+$space-7: 32px;
+$space-8: 40px;
+$space-9: 48px;
+$space-10: 64px;
+
+// ---- Type scale ----------------------------------------------
+$text-xs: 11px;
+$text-sm: 12px;
+$text-base: 13px;
+$text-md: 14px;
+$text-lg: 16px;
+$text-xl: 18px;
+$text-2xl: 21px;
+$text-3xl: 24px;
+$text-4xl: 30px;
+$text-5xl: 38px;
+$text-6xl: 46px;
+
+// ---- Elevation (shadows) -------------------------------------
+// Crisp, energetic shadows with a subtle warm tint.
+$shadow-xs: 0 1px 2px rgb(9 9 11 / 6%);
+$shadow-sm: 0 1px 3px rgb(9 9 11 / 8%), 0 1px 2px rgb(9 9 11 / 4%);
+$shadow-md: 0 4px 12px rgb(9 9 11 / 8%), 0 2px 4px rgb(9 9 11 / 4%);
+$shadow-lg: 0 12px 28px rgb(9 9 11 / 10%), 0 4px 8px rgb(9 9 11 / 5%);
+$shadow-xl: 0 20px 44px rgb(9 9 11 / 14%), 0 8px 16px rgb(9 9 11 / 6%);
+$shadow-primary: 0 8px 20px rgb(220 38 38 / 24%); // red glow for CTAs
+
+// ---- Transitions ---------------------------------------------
+$transition-fast: 140ms cubic-bezier(0.4, 0, 0.2, 1);
+$transition-base: 180ms cubic-bezier(0.4, 0, 0.2, 1);
+$transition-slow: 240ms cubic-bezier(0.4, 0, 0.2, 1);
+
+// ---- Focus ring ----------------------------------------------
+$focus-ring-width: 3px;
+$focus-ring-offset: 2px;
+$focus-ring-color: $primary-focus;
+
+// ---- Fonts ---------------------------------------------------
+$font-sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+$font-display: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+$font-mono: "SFMono-Regular", "Consolas", monospace;
+
+

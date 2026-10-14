@@ -1,50 +1,52 @@
-.chat-layout {
-    display: flex;
-    flex-direction: row;
-    width: 100%;
-    height: 100dvh;
-    min-height: 0;
-    overflow: hidden;
-}
+@use "@styles/abstracts/variables" as *;
+@use "@styles/abstracts/mixins" as *;
 
-.chat-layout__sidebar {
+.chat-layout {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
+
+  &__sidebar {
     display: block;
-    flex: 0 0 280px;
-    width: 280px;
-    min-width: 280px;
+    flex: 0 0 288px;
+    width: 288px;
+    min-width: 288px;
     height: 100%;
     min-height: 0;
     overflow: hidden;
-    color: #1e293b;
-}
+    color: $zinc-100;
 
-/* Conversation history text */
-.chat-layout__sidebar button,
-.chat-layout__sidebar a {
-    color: #334155;
-}
+    /* Conversation history text */
+    button,
+    a {
+      color: $zinc-300;
+    }
 
-/* Headings and labels */
-.chat-layout__sidebar h1,
-.chat-layout__sidebar h2,
-.chat-layout__sidebar h3,
-.chat-layout__sidebar p,
-.chat-layout__sidebar span {
-    color: inherit;
-}
+    /* Headings and labels */
+    h1,
+    h2,
+    h3,
+    p,
+    span {
+      color: inherit;
+    }
 
-/* Make secondary text readable */
-.chat-layout__sidebar small {
-    color: #64748b;
-}
+    /* Make secondary text readable */
+    small {
+      color: $zinc-400;
+    }
 
-/* Preserve visible text when hovering */
-.chat-layout__sidebar button:hover,
-.chat-layout__sidebar a:hover {
-    color: #0f172a;
-}
+    /* Preserve visible text when hovering */
+    button:hover,
+    a:hover {
+      color: $white;
+    }
+  }
 
-.chat-layout__main {
+  &__main {
     flex: 1 1 0;
     min-width: 0;
     min-height: 0;
@@ -52,64 +54,65 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
+  }
+
+  &__overlay {
+    display: none;
+  }
 }
 
 .chat-page {
-    flex: 1;
-    min-width: 0;
-    min-height: 0;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-}
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 
-.chat-page__conversation {
+  &__conversation {
     flex: 1 1 0;
     min-height: 0;
     overflow-y: auto;
     overflow-x: hidden;
-}
+  }
 
-.chat-page__composer {
+  &__composer {
     flex-shrink: 0;
+  }
 }
 
-.chat-layout__overlay {
-    display: none;
-}
+@include respond-to(lg) {
+  .chat-layout__sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
 
-@media (max-width: 768px) {
-    .chat-layout__sidebar {
-        position: fixed;
-        top: 0;
-        left: 0;
+    width: 288px;
+    min-width: 288px;
+    height: 100dvh;
 
-        width: 280px;
-        min-width: 280px;
-        height: 100dvh;
+    z-index: 1000;
 
-        z-index: 1000;
+    transform: translateX(-100%);
+    transition: transform $transition-base;
 
-        transform: translateX(-100%);
-        transition: transform 250ms ease;
+    background: $zinc-900;
+    box-shadow: $shadow-xl;
 
-        background: #111827;
-        box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
+    &--open {
+      transform: translateX(0);
     }
+  }
 
-    .chat-layout__sidebar--open {
-        transform: translateX(0);
-    }
+  .chat-layout__overlay {
+    display: block;
 
-    .chat-layout__overlay {
-        display: block;
+    position: fixed;
+    inset: 0;
 
-        position: fixed;
-        inset: 0;
+    z-index: 999;
 
-        z-index: 999;
-
-        background: rgba(15, 23, 42, 0.45);
-        backdrop-filter: blur(2px);
-    }
+    background: rgb(9 9 11 / 55%);
+    backdrop-filter: blur(2px);
+  }
 }

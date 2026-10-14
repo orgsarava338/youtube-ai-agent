@@ -1,91 +1,75 @@
+@use "@styles/abstracts/variables" as *;
+@use "@styles/abstracts/mixins" as *;
 
 .workspace-header {
   display: flex;
   align-items: center;
-  gap: 24px;
-  padding: 18px 28px;
-  border-bottom: 1px solid #e5e7eb;
-  background: #ffffff;
+  gap: $space-6;
+  padding: $space-4 $space-7;
+  border-bottom: 1px solid $border;
+  background: $surface;
+
+  &__back {
+    @include button-secondary;
+    flex-shrink: 0;
+    padding: $space-2 $space-3;
+    font-size: $text-base;
+  }
+
+  &__channel {
+    display: flex;
+    align-items: center;
+    gap: $space-4;
+    min-width: 0;
+  }
+
+  &__thumbnail,
+  &__placeholder {
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+    border-radius: $radius-circle;
+  }
+
+  &__thumbnail {
+    object-fit: cover;
+  }
+
+  &__placeholder {
+    @include flex-center;
+    background: $primary-soft;
+    color: $primary-hover;
+    font-size: $text-xl;
+    font-weight: 700;
+  }
+
+  &__details {
+    min-width: 0;
+
+    h1 {
+      overflow: hidden;
+      margin: 2px 0 0;
+      color: $ink;
+      font-size: $text-xl;
+      font-weight: 800;
+      letter-spacing: -0.3px;
+      @include truncate;
+    }
+  }
+
+  &__eyebrow {
+    color: $primary;
+    font-size: $text-xs;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+  }
 }
 
-.workspace-header__back {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  flex-shrink: 0;
-  padding: 10px 12px;
-  border: 1px solid #e5e7eb;
-  border-radius: 9px;
-  background: #ffffff;
-  color: #374151;
-  cursor: pointer;
-  font: inherit;
-  font-weight: 600;
-}
-
-.workspace-header__back:hover {
-  background: #f9fafb;
-}
-
-.workspace-header__back:focus-visible {
-  outline: 3px solid #fca5a5;
-  outline-offset: 3px;
-}
-
-.workspace-header__channel {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  min-width: 0;
-}
-
-.workspace-header__thumbnail,
-.workspace-header__placeholder {
-  width: 48px;
-  height: 48px;
-  flex-shrink: 0;
-  border-radius: 50%;
-}
-
-.workspace-header__thumbnail {
-  object-fit: cover;
-}
-
-.workspace-header__placeholder {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #fee2e2;
-  color: #b91c1c;
-  font-size: 1.25rem;
-  font-weight: 700;
-}
-
-.workspace-header__details {
-  min-width: 0;
-}
-
-.workspace-header__eyebrow {
-  color: #6b7280;
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-}
-
-.workspace-header__details h1 {
-  overflow: hidden;
-  margin: 4px 0 0;
-  color: #111827;
-  font-size: 1.15rem;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-@media (max-width: 600px) {
+@include respond-to(sm) {
   .workspace-header {
     align-items: flex-start;
     flex-direction: column;
-    gap: 16px;
-    padding: 16px;
+    gap: $space-4;
+    padding: $space-4;
   }
 }
