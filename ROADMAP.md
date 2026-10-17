@@ -42,7 +42,8 @@ Verify existing code
 - Run backend tests and build the React frontend.
 - Start the app and test authentication, chat, conversation history, and existing tools.
 - Record failures before making changes.
-  Deliverable: a reliable baseline and a list of known issues.
+  
+> Deliverable: a reliable baseline and a list of known issues.
 
 
 ### Milestone 1 — Connect and identify the YouTube channel
@@ -51,7 +52,8 @@ Existing foundation; verify
 - Confirm that the connected channel ID and channel name are correct.
 - Verify token encryption, refresh, expiry handling, and disconnect behavior.
 - Request only the OAuth scopes needed for the features we implement.
-  Deliverable: the app can securely identify and access the user's channel.
+
+> Deliverable: the app can securely identify and access the user's channel.
 
 
 ### Milestone 2 — Build the 30-day analytics service
@@ -61,7 +63,8 @@ Build and verify
 - Retrieve top-performing videos, available engagement metrics, and relevant audience information.
 - Handle missing data, zero views, pagination, API quota, and authorization failures.
 - Display the report in a structured format the AI can reliably interpret.
-  Deliverable: accurate, date-bounded analytics with source metrics—not invented statistics.
+  
+> Deliverable: accurate, date-bounded analytics with source metrics—not invented statistics.
 
 
 ### Milestone 3 — Implement the recommendation engine
@@ -71,7 +74,8 @@ Build
 - Generate five distinct video ideas.
 - Score each idea using relevance, historical performance, audience fit, and feasibility.
 - Explain the reasoning and distinguish observed data from predictions.
-  Deliverable: five ranked ideas with evidence and reasons.
+  
+> Deliverable: five ranked ideas with evidence and reasons.
 
 
 ### Milestone 4 — Generate a complete video draft
@@ -81,7 +85,8 @@ Build
 - Create a thumbnail brief and shot-by-shot plan.
 - Save the draft in PostgreSQL.
 - Let you edit the draft and regenerate individual sections.
-  Deliverable: an editable, persisted video draft ready for review.
+  
+> Deliverable: an editable, persisted video draft ready for review.
 
 
 
@@ -92,7 +97,8 @@ Build
 - Persist the approval, including exactly which version was approved.
 - Require reapproval if material content or publication details change.
 - Prevent the AI from bypassing approval by directly invoking a publishing tool.
-  Deliverable: a reliable approval gate before any publishing action.
+  
+> Deliverable: a reliable approval gate before any publishing action.
 
 
 ### Milestone 6 — Upload and schedule
@@ -102,7 +108,8 @@ Build
 - Set the appropriate privacy status and scheduled publication time.
 - Handle resumable uploads and network failures.
 - Store the returned YouTube video ID and scheduling status.
-  Deliverable: an approved video appears in YouTube Studio as scheduled.
+
+> Deliverable: an approved video appears in YouTube Studio as scheduled.
 
 
 ### Milestone 7 — Persistent background task runner
@@ -112,7 +119,8 @@ Build
 - Retry recoverable failures and prevent duplicate uploads.
 - Resume unfinished work after a restart.
 - Track scheduled tasks, execution history, and errors.
-  Deliverable: long-running tasks no longer depend on an open chat request.
+  
+> Deliverable: long-running tasks no longer depend on an open chat request.
 
 
 ### Milestone 8 — Complete the dashboard
@@ -121,7 +129,8 @@ Build and integrate
 - Add draft editing and approval controls.
 - Show upload progress, scheduled time, and task status.
 - Provide clear error messages and retry actions.
-  Deliverable: a usable end-to-end workflow through the React application.
+
+> Deliverable: a usable end-to-end workflow through the React application.
 
 
 ### Milestone 9 — Integration testing and deployment
@@ -131,7 +140,8 @@ Build and verify
 - Deploy backend, database, and frontend.
 - Configure secrets, HTTPS, OAuth redirects, logs, and health monitoring.
 - Verify the application and task runner remain available under the selected hosting tier.
-  Deliverable: a deployed workflow with documented limitations and recovery behavior.
+  
+> Deliverable: a deployed workflow with documented limitations and recovery behavior.
 
 
 
